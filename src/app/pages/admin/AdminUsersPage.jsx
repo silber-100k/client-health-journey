@@ -14,7 +14,6 @@ import {
   Trash2,
   AlertCircle,
   RefreshCw,
-  ShieldCheck,
 } from "lucide-react";
 import {
   Table,
@@ -24,17 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../../components/ui/dialog";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { AddAdminUserDialog } from "../../components/admin/AddAdminUserDialog";
 import { EditAdminUserDialog } from "../../components/admin/EditAdminUserDialog";
+import ConfirmationDialog from "../../components/admin/ConfirmationDialog";
 import { Badge } from "../../components/ui/badge";
 
 const AdminUsersPage = () => {
@@ -44,38 +36,53 @@ const AdminUsersPage = () => {
   const [isPromoteDialogOpen, setIsPromoteDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(undefined);
   const user = {
-    id: "asdf",
+    _id: "",
     name: "okay",
     email: "steven@gmail.com",
     role: "admin",
     phone: "123-123-123",
   };
   const isSuperAdmin = user?.role === "super_admin";
-  const isError = false;
-  const isLoading = false;
-  const isFetching = false;
-  const adminUsers = [
-    {
-      id: "1",
-      full_name: "aimn se",
-      email: "ste@gmail.com",
-      role: "admin",
-      is_active: true,
-    },
-    {
-      id: "2",
-      full_name: "aimn sde",
-      email: "se@gmail.com",
-      role: "admin",
-      is_active: true,
-    },
-  ];
+  const [isError, setIsError] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [adminUsers, setAdminUsers] = useState([]);
+
   const handleAdd = () => {
     setIsAddDialogOpen(true);
   };
-  const handleEdit = () => {
+  const handleEdit = (user) => {
+    setSelectedUserId(user._id);
     setIsEditDialogOpen(true);
   };
+
+  const handleDelete = (user) => {
+    setSelectedUserId(user._id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const fetchAdminUsers = async () => {
+    setIsFetching(true);
+    try {
+      const response = await fetch("/api/admin");
+      const data = await response.json();
+      if (data.status) {
+        setAdminUsers(data.users);
+        setIsError(false);
+      } else {
+        setIsError(true);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsError(true);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminUsers();
+  }, []);
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -87,6 +94,7 @@ const AdminUsersPage = () => {
             disabled={isFetching}
             className="flex items-center justify-center"
             title="Refresh list"
+            onClick={fetchAdminUsers}
           >
             <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
           </Button>
@@ -134,7 +142,7 @@ const AdminUsersPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading || isFetching ? (
+              {isFetching ? (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -154,28 +162,28 @@ const AdminUsersPage = () => {
                 </TableRow>
               ) : (
                 adminUsers?.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.full_name}</TableCell>
+                  <TableRow key={user._id}>
+                    <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          user.role === "super_admin" ? "default" : "outline"
+                          user.role === "admin" ? "default" : "outline"
                         }
                       >
-                        {user.role === "super_admin" ? "Super Admin" : "Admin"}
+                        {user.role === "admin" ? "Admin" : "Clinic Admin"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={user.is_active ? "success" : "destructive"}
+                        variant={user.isActive ? "success" : "destructive"}
                       >
-                        {user.is_active ? "Active" : "Inactive"}
+                        {user.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        {isSuperAdmin && user.role !== "super_admin" && (
+                        {/* {isSuperAdmin && user.role !== "super_admin" && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -184,11 +192,11 @@ const AdminUsersPage = () => {
                             <ShieldCheck size={14} className="mr-1" /> Make
                             Super
                           </Button>
-                        )}
+                        )} */}
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={handleEdit}
+                          onClick={() => handleEdit(user)}
                         >
                           <Pencil size={14} className="mr-1" /> Edit
                         </Button>
@@ -196,6 +204,7 @@ const AdminUsersPage = () => {
                           size="sm"
                           variant="outline"
                           className="text-destructive"
+                          onClick={() => handleDelete(user)}
                         >
                           <Trash2 size={14} className="mr-1" /> Delete
                         </Button>
@@ -209,11 +218,28 @@ const AdminUsersPage = () => {
         </CardContent>
       </Card>
 
-      <AddAdminUserDialog open={isAddDialogOpen} isSuperAdmin={isSuperAdmin} />
+      <AddAdminUserDialog
+        open={isAddDialogOpen}
+        setOpen={setIsAddDialogOpen}
+        isSuperAdmin={isSuperAdmin}
+        onAdd={fetchAdminUsers}
+      />
 
       <EditAdminUserDialog
         open={isEditDialogOpen}
+        setOpen={setIsEditDialogOpen}
         isSuperAdmin={isSuperAdmin}
+        onEdit={fetchAdminUsers}
+        userId={selectedUserId}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        setOpen={setIsDeleteDialogOpen}
+        title="Delete Admin User"
+        description="Are you sure you want to delete this admin user?"
+        onDelete={fetchAdminUsers}
+        userId={selectedUserId}
       />
     </div>
   );

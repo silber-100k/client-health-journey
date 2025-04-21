@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "../components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Weight,
   Pill,
@@ -33,9 +33,9 @@ const LandingPage = () => {
                 health goals.
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-3">
-                <Button className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white">
+                <Link className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white" href="/login">
                   Sign In
-                </Button>
+                </Link>
                 <Button
                   asChild
                   variant="secondary"

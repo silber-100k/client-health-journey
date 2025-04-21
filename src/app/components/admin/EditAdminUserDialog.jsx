@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   full_name: z
@@ -37,7 +40,11 @@ const formSchema = z.object({
   role: z.string(),
   is_active: z.boolean(),
 });
-export function EditAdminUserDialog({ open, isSuperAdmin = false }) {
+
+export function EditAdminUserDialog({ open, setOpen, isSuperAdmin = false, onEdit, userId }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,10 +54,62 @@ export function EditAdminUserDialog({ open, isSuperAdmin = false }) {
     },
   });
 
-  const onSubmit = async (data) => {};
-  const isLoading = false;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (open && userId) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/admin/${userId}`);
+          const data = await response.json();
+          if (data.status) {
+            form.reset({
+              full_name: data.user.name,
+              role: data.user.role,
+              is_active: data.user.isActive,
+            });
+            setErrorMessage(null);
+          } else {
+            setErrorMessage(data.message || "Failed to load user data");
+          }
+        } catch (error) {
+          setErrorMessage("Failed to load user data");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [open, userId, form]);
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/admin/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (result.status) {
+        setErrorMessage(null);
+        setOpen(false);
+        await onEdit();
+        toast.success("User updated successfully");
+      } else {
+        setErrorMessage(result.message || "Failed to update user");
+      }
+    } catch (error) {
+      setErrorMessage("Failed to update user");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Admin User</DialogTitle>
@@ -58,6 +117,14 @@ export function EditAdminUserDialog({ open, isSuperAdmin = false }) {
             Update the details for this admin user.
           </DialogDescription>
         </DialogHeader>
+
+        {errorMessage && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
+
         {isLoading ? (
           <div className="py-6 text-center">Loading user information...</div>
         ) : (
@@ -129,11 +196,13 @@ export function EditAdminUserDialog({ open, isSuperAdmin = false }) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => onOpenChange(false)}
+                  onClick={() => setOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Save Changes"}
+                </Button>
               </DialogFooter>
             </form>
           </Form>

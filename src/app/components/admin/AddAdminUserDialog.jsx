@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { toast } from "sonner"
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 
@@ -44,8 +45,9 @@ const formSchema = z.object({
   clinicId: z.string().optional(),
 });
 
-export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
+export function AddAdminUserDialog({ open, setOpen, isSuperAdmin = false, onAdd }) {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,7 +58,31 @@ export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
       clinicId: undefined,
     },
   });
-  const onSubmit = () => {};
+  const onSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/admin", {
+        method: "POST",
+        body: JSON.stringify(form.getValues()),
+      });
+      const data = await response.json();
+      if (data.status) {
+        setErrorMessage(null);
+        form.reset();
+        setOpen(false);
+        await onAdd();
+        toast.success("User added successfully");
+      } else {
+        setErrorMessage(data.message);
+        // toast.error(data.message);
+      }
+    } catch (error) {
+      setErrorMessage("Unable to add user");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clinics = [
     {
       id: "1",
@@ -86,6 +112,7 @@ export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
       status: "inactive",
     },
   ];
+
   return (
     <Dialog
       open={open}
@@ -94,7 +121,7 @@ export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
           form.reset();
           setErrorMessage(null);
         }
-        onOpenChange(isOpen);
+        setOpen(isOpen);
       }}
     >
       <DialogContent className="sm:max-w-[500px]">
@@ -174,7 +201,7 @@ export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="clinic_admin">Clinic Admin</SelectItem>
+                      {/* <SelectItem value="clinic_admin">Clinic Admin</SelectItem> */}
                       {/* Only show Super Admin option if current user is a Super Admin */}
                       {isSuperAdmin && (
                         <SelectItem value="super_admin">Super Admin</SelectItem>
@@ -230,18 +257,18 @@ export function AddAdminUserDialog({ open, isSuperAdmin = false }) {
               />
             )} */}
 
-            {/* <DialogFooter>
+            <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createAdminUser.isPending}>
-                {createAdminUser.isPending ? "Creating..." : "Create User"}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Create User"}
               </Button>
-            </DialogFooter> */}
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

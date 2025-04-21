@@ -1,3 +1,5 @@
+'use client'
+
 import DemoLoginButtons from "../auth/signup/DemoLoginButtons";
 import LoginFormFields from "../auth/signup/LoginFormFields";
 import LoginHeader from "../auth/signup/LoginHeader";
@@ -7,13 +9,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { useRouter } from "next/navigation";
+
 const LoginPage = () => {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full">
         <div className="bg-white p-8 rounded-lg shadow-md">
           <LoginHeader />
-          <Tabs defaultValue="Login" className="mt-6">
+          <Tabs defaultValue="login" className="mt-6" onValueChange={(value) => {
+            if (value === "signup") {
+              router.push("clinicRegister");
+            }
+          }}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Register Your Clinic</TabsTrigger>
