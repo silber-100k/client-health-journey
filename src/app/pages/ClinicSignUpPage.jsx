@@ -9,10 +9,7 @@ const ClinicSignUpPage = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <div className="flex items-center mb-6">
-          <Button
-            variant="ghost"
-            className="mr-2"
-          >
+          <Button variant="ghost" className="mr-2">
             <ArrowLeft size={16} className="mr-2" />
             Back to home
           </Button>
@@ -22,7 +19,7 @@ const ClinicSignUpPage = () => {
           <div className="px-6 pt-4">
             <SignupDemoNotice />
           </div>
-          <ClinicSignupForm/>
+          <ClinicSignupForm />
         </Card>
       </div>
     </div>

@@ -70,13 +70,8 @@ import {
       icon: Folders,
     },
     {
-      title: "Clinic Customization",
-      href: "/admin/clinic-customization",
-      icon: Palette,
-    },
-    {
       title: "Admin Users",
-      href: "/admin/admin-users",
+      href: "/admin/adminUsers",
       icon: UserCog,
     },
     {
