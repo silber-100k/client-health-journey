@@ -2,7 +2,7 @@
 import { Sidebar } from "../components/sidebar/Sidebar";
 import TopBar from "../components/sidebar/TopBar";
 import { Outlet } from "react-router-dom";
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from "./admin/AdminDashboard";
 import ClinicsPage from "./admin/ClinicsPage";
 import ProgramsPage from "./admin/ProgramsPage";
 import CheckInsPage from "./admin/CheckInsPage";
@@ -11,7 +11,7 @@ import AdminActivitiesPage from "./admin/ActivitiesPage";
 import ResourcesPage from "./admin/ResourcesPage";
 import AdminUsersPage from "./admin/AdminUsersPage";
 import SettingsPage from "./admin/SettingsPage";
-import CoachDashboard from "./CoachDashboard";
+import CoachDashboard from "./coach/CoachDashboard";
 import MealPlanGenerator from "./MealPlanGenerator";
 
 const Layout = () => {

@@ -1,8 +1,14 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Separator } from '../components/ui/separator';
-import { Skeleton } from '../components/ui/skeleton';
-import { UserPlus, Calendar, BookOpen, Flag } from 'lucide-react';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Separator } from "../../components/ui/separator";
+import { Skeleton } from "../../components/ui/skeleton";
+import { UserPlus, Calendar, BookOpen, Flag } from "lucide-react";
 
 const CoachDashboard = () => {
   const user = {
@@ -14,97 +20,115 @@ const CoachDashboard = () => {
   };
   const statsLoading = false;
   const activitiesLoading = false;
-  const stats = 
+  const stats = {
+    activeClients: 2,
+    pendingCheckIns: 3,
+    activePrograms: 3,
+    completedPrograms: 3,
+  };
+  const activities = [
     {
-      activeClients:2,
-      pendingCheckIns:3,
-      activePrograms:3,
-      completedPrograms:3,
-    };
-    const activities = [{
-      description:"headf",
-      timestamp:"2024-01-01T00:00:00.000Z",
+      description: "headf",
+      timestamp: "2024-01-01T00:00:00.000Z",
     },
     {
-      description:"dfheadf",
-      timestamp:"2024-01-01T00:00:00.000Z",
+      description: "dfheadf",
+      timestamp: "2024-01-01T00:00:00.000Z",
     },
     {
-      description:"hasdfeadf",
-      timestamp:"2024-01-01T00:00:00.000Z",
+      description: "hasdfeadf",
+      timestamp: "2024-01-01T00:00:00.000Z",
     },
-  ];  
+  ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Welcome, {user?.name || 'Coach'}</h2>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Welcome, {user?.name || "Coach"}
+        </h2>
         <p className="text-muted-foreground">
           Here's what's happening with your clients today.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card 
+        <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
           // onClick={() => handleCardClick('/coach/clients')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Clients
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.activeClients || 0}</div>
+              <div className="text-2xl font-bold">
+                {stats?.activeClients || 0}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
           // onClick={() => handleCardClick('/coach/check-ins')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Check-ins</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Check-ins
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.pendingCheckIns || 0}</div>
+              <div className="text-2xl font-bold">
+                {stats?.pendingCheckIns || 0}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
           // onClick={() => handleCardClick('/coach/reports')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Programs</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Programs
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.activePrograms || 0}</div>
+              <div className="text-2xl font-bold">
+                {stats?.activePrograms || 0}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
           // onClick={() => handleCardClick('/coach/reports')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Programs</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Completed Programs
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">{stats?.completedPrograms || 0}</div>
+              <div className="text-2xl font-bold">
+                {stats?.completedPrograms || 0}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -114,9 +138,7 @@ const CoachDashboard = () => {
         <Card className="col-span-1">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Your clients' recent actions
-            </CardDescription>
+            <CardDescription>Your clients' recent actions</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {activitiesLoading ? (
@@ -130,7 +152,9 @@ const CoachDashboard = () => {
                 <div key={i}>
                   <div className="flex items-center">
                     <div className="ml-4 space-y-1">
-                      <p className="text-sm font-medium leading-none">{activity.description}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {activity.description}
+                      </p>
                     </div>
                     <div className="ml-auto text-xs text-muted-foreground">
                       {new Date(activity.timestamp).toLocaleDateString()}
@@ -140,11 +164,13 @@ const CoachDashboard = () => {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No recent activities</p>
+              <p className="text-sm text-muted-foreground">
+                No recent activities
+              </p>
             )}
           </CardContent>
         </Card>
-        
+
         <Card className="col-span-1">
           <CardHeader>
             <CardTitle>Actions</CardTitle>

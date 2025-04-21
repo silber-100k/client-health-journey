@@ -207,11 +207,6 @@ export const clientNavItems = [
       icon: BookOpen,
     },
     {
-      title: "Meal Plan Generator",
-      href: "/coach/meal-plan-generator",
-      icon: Utensils,
-    },
-    {
       title: "Messages",
       href: "/coach/messages",
       icon: MessageCircle,
@@ -222,4 +217,5 @@ export const clientNavItems = [
       icon: Settings,
     },
   ];
+  
   

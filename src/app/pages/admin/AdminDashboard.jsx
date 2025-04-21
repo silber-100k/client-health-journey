@@ -1,8 +1,8 @@
-import { Button } from "../components/ui/button";
+import { Button } from "../../components/ui/button";
 import { RefreshCw } from "lucide-react";
-import DashboardStats from "../components/admin/dashboard/DashboardStats";
-import ClinicsTable from "../components/admin/dashboard/ClinicsTable";
-import ActivityList from "../components/admin/dashboard/ActivityList";
+import DashboardStats from "../../components/admin/dashboard/DashboardStats";
+import ClinicsTable from "../../components/admin/dashboard/ClinicsTable";
+import ActivityList from "../../components/admin/dashboard/ActivityList";
 
 const AdminDashboard = () => {
   //demo data////////////////////////////
