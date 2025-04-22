@@ -14,14 +14,7 @@ const ClinicSignUpPage = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <div className="flex items-center mb-6">
-<<<<<<< Updated upstream
-          <Button variant="ghost" className="mr-2" onClick={() => router.push("/")}>
-=======
-          <Button
-            variant="ghost"
-            className="mr-2"
-          >
->>>>>>> Stashed changes
+          <Button variant="ghost" className="mr-2">
             <ArrowLeft size={16} className="mr-2" />
             Back to home
           </Button>

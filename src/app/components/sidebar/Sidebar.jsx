@@ -21,7 +21,7 @@ export function Sidebar() {
     role: "admin",
     phone: "123-123-123",
   };
-  let navItems = clinicAdminNavItems; // Default fallback
+  let navItems = clientNavItems; // Default fallback
   let userRole = user.role;
   let displayRoleText = userRole;
   let roleIcon = User;
