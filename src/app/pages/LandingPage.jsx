@@ -33,9 +33,9 @@ const LandingPage = () => {
                 health goals.
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-3">
-                <Link className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white" href="/login">
-                  Sign In
-                </Link>
+                <Button className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white">
+                  <Link href="/login">Sign In</Link>
+                </Button>
                 <Button
                   asChild
                   variant="secondary"

@@ -13,6 +13,9 @@ import AdminUsersPage from "./admin/AdminUsersPage";
 import SettingsPage from "./admin/SettingsPage";
 import CoachDashboard from "./coach/CoachDashboard";
 import MealPlanGenerator from "./MealPlanGenerator";
+import CheckIn from "./client/CheckIn";
+import ClientProgress from "./client/ClientProgress";
+import ProgramDetailsContent from "./client/ProgramDetailsContent";
 
 const Layout = () => {
   return (
@@ -21,7 +24,7 @@ const Layout = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-          <MealPlanGenerator />
+          {Outlet}
         </main>
       </div>
     </div>

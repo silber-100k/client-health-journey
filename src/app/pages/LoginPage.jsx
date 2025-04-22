@@ -28,6 +28,7 @@ const LoginPage = () => {
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Register Your Clinic</TabsTrigger>
             </TabsList>
+
             <TabsContent value="login" className="mt-4">
               <LoginFormFields />
             </TabsContent>

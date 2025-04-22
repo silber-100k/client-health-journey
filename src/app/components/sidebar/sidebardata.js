@@ -140,7 +140,7 @@ import {
 export const clientNavItems = [
     {
       title: "Dashboard",
-      href: "/client",
+      href: "/client/dashboard",
       icon: Home,
     },
     {
@@ -155,7 +155,7 @@ export const clientNavItems = [
     },
     {
       title: "My Program",
-      href: "/client/my-program",
+      href: "/client/program",
       icon: Package,
     },
     {
@@ -168,11 +168,11 @@ export const clientNavItems = [
       href: "/client/resources",
       icon: BookOpen,
     },
-    {
-      title: "Meal Plan Generator",
-      href: "/client/meal-plan-generator",
-      icon: Utensils,
-    },
+    // {
+    //   title: "Meal Plan Generator",
+    //   href: "/client/meal-plan-generator",
+    //   icon: Utensils,
+    // },
     {
       title: "Profile",
       href: "/client/profile",
