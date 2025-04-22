@@ -82,16 +82,8 @@ const ReportsPage = () => {
     phone: "123-123-123",
   };
 
-  const isClinicAdmin = (role) => {
-    if (role == "admin") return true;
-    else return false;
-  };
-  const dashboardTitle = isClinicAdmin(user)
-    ? "Clinic Financial Reports"
-    : "System Financial Reports";
-  const dashboardDescription = isClinicAdmin(user)
-    ? "Overview of your clinic performance"
-    : "Overview of all clinics performance";
+  const dashboardTitle = "Clinic Financial Reports";
+  const dashboardDescription = "Overview of your clinic performance";
 
   return (
     <div>
@@ -118,40 +110,28 @@ const ReportsPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">
-              {isClinicAdmin(user)
-                ? "Your Subscription"
-                : "Active Subscriptions"}
+              Your Subscription
             </CardTitle>
             <Activity className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isClinicAdmin(user)
-                ? subscriptionData[0]?.plan || "Basic"
-                : subscriptionData.length}
+              {subscriptionData[0]?.plan || "Basic"}
             </div>
-            <p className="text-xs text-green-500">
-              {isClinicAdmin(user) ? "Active" : "+1 from last month"}
-            </p>
+            <p className="text-xs text-green-500">Active</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">
-              {isClinicAdmin(user)
-                ? "Monthly Revenue"
-                : "Avg. Revenue per Clinic"}
+              Monthly Revenue
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isClinicAdmin(user)
-                ? `$${Math.round(totalRevenue / 6).toLocaleString()}/mo`
-                : `$${Math.round(
-                    totalRevenue / (subscriptionData.length || 1)
-                  ).toLocaleString()}/mo`}
+              {`$${Math.round(totalRevenue / 6).toLocaleString()}/mo`}
             </div>
             <p className="text-xs text-green-500">+5% from last month</p>
           </CardContent>
@@ -164,11 +144,7 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalClients}</div>
-            <p className="text-xs text-green-500">
-              {isClinicAdmin(user)
-                ? "+1 from last month"
-                : "+5 from last month"}
-            </p>
+            <p className="text-xs text-green-500">+1 from last month</p>
           </CardContent>
         </Card>
       </div>
@@ -176,10 +152,8 @@ const ReportsPage = () => {
       {/* Revenue Chart */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>
-            {isClinicAdmin(user)
-              ? "Your Clinic Monthly Revenue"
-              : "System Monthly Revenue"}
+          <CardTitle className="text-[24px]">
+            Your Clinic Monthly Revenue
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -221,9 +195,7 @@ const ReportsPage = () => {
       {/* Subscriptions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            {isClinicAdmin(user) ? "Your Subscription" : "All Subscriptions"}
-          </CardTitle>
+          <CardTitle className="text-[24px]">Your Subscription</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

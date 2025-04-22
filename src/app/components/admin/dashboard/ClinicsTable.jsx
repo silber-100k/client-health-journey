@@ -13,7 +13,7 @@ const ClinicsTable = ({
   dashboardStats,
   isLoading,
   isError,
-  isClinicAdmin = false,
+  isClinicAdmin,
 }) => {
   const title = isClinicAdmin ? "Your Clinic" : "Active Clinics";
 

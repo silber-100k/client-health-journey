@@ -2,16 +2,7 @@ import React from "react";
 import { Building, Users, Activity } from "lucide-react";
 import StatsCard from "./StatsCard";
 
-const DashboardStats = ({ stats, isLoading }) => {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
-  const isClinicAdmin = user?.role === "clinic_admin";
-
+const DashboardStats = ({ stats, isLoading, isClinicAdmin }) => {
   // Create stats data with appropriate filtering for clinic admins
   const statsData = [
     // Only show Active Clinics card to system admins

@@ -86,42 +86,42 @@ import {
   export const clinicAdminNavItems= [
     {
       title: "Dashboard",
-      href: "/admin/dashboard",
+      href: "/clinic/dashboard",
       icon: BarChart3,
     },
     {
       title: "Coaches",
-      href: "/admin/coaches",
+      href: "/clinic/coaches",
       icon: Users,
     },
     {
       title: "Clients",
-      href: "/admin/clients",
+      href: "/clinic/clients",
       icon: Users,
     },
     {
       title: "Programs",
-      href: "/admin/programs",
+      href: "/clinic/programs",
       icon: ClipboardList,
     },
     {
       title: "Check-ins",
-      href: "/admin/check-ins",
+      href: "/clinic/check-ins",
       icon: Calendar,
     },
     {
       title: "Reports",
-      href: "/admin/reports",
+      href: "/clinic/reports",
       icon: FileText,
     },
     {
       title: "Activities",
-      href: "/admin/activities",
+      href: "/clinic/activities",
       icon: Activity,
     },
     {
       title: "Resources",
-      href: "/admin/resources",
+      href: "/clinic/resources",
       icon: Folders,
     },
     // {
@@ -131,7 +131,7 @@ import {
     // },
     {
       title: "Settings",
-      href: "/admin/settings",
+      href: "/clinic/settings",
       icon: Settings,
     },
   ];

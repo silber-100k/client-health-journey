@@ -10,7 +10,7 @@ const AdminDashboard = () => {
     id: "asdf",
     name: "okay",
     email: "steven@gmail.com",
-    role: "admin",
+    role: "clinic_admin",
     phone: "123-123-123",
   };
 
@@ -24,20 +24,6 @@ const AdminDashboard = () => {
         name: "alexsya",
         coaches: "clinic1",
         clients: "client1",
-        status: "active",
-      },
-      {
-        id: "23423we4",
-        name: "bbbbbb",
-        coaches: "clinic2",
-        clients: "client2",
-        status: "inactive",
-      },
-      {
-        id: "23423d3232324",
-        name: "cccccc",
-        coaches: "clinic3",
-        clients: "client3",
         status: "active",
       },
     ],
@@ -67,12 +53,16 @@ const AdminDashboard = () => {
   const isStatsError = false;
   const isLoadingActivities = false;
   const isActivitiesError = false;
-  const isClinicAdmin = false;
+
+  ///////////////////////////////////////////
+  const isClinicAdmin = true;
+  const dashboardTitle = "Clinic Dashboard";
+
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{dashboardTitle}</h1>
           <p className="text-gray-500">
             Welcome back, {user?.name || "Admin User"}!
           </p>

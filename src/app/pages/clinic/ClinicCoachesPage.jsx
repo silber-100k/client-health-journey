@@ -27,7 +27,7 @@ const CoachesPage = () => {
     id: "asdf",
     name: "okay",
     email: "steven@gmail.com",
-    role: "admin",
+    role: "clinic_admin",
     phone: "123-123-123",
   };
   const coaches = [
@@ -97,7 +97,7 @@ const CoachesPage = () => {
         </div>
       </div>
 
-      {isClinicAdmin && (
+      {
         <Alert className="bg-primary-50 border-primary-200">
           <AlertCircle className="h-4 w-4 text-primary" />
           <AlertTitle>Clinic Admin View</AlertTitle>
@@ -107,15 +107,13 @@ const CoachesPage = () => {
             your clinic.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       <Card>
         <CardHeader>
           <CardTitle>Manage Coaches</CardTitle>
           <CardDescription>
-            {isClinicAdmin
-              ? `Manage coaches for ${user?.name || "your clinic"}`
-              : "View and manage all coaches across clinics"}
+            {`Manage coaches for ${user?.name || "your clinic"}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
