@@ -17,15 +17,10 @@ import {
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import { signOut } from "next-auth/react"
+import { useAuth } from "@/app/context/AuthContext";
 
 const TopBar = () => {
-  const user = {
-    id: "asdf",
-    name: "okay man",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+  const { user } = useAuth();
 
   const theme = {
     primaryColor: null,
@@ -73,17 +68,17 @@ const TopBar = () => {
               >
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${firstName}`}
-                    alt={firstName || "User"}
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`}
+                    alt={user?.name || "User"}
                   />
                   <AvatarFallback>
-                    {firstName?.slice(0, 2).toUpperCase()}
+                    {user?.name?.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuLabel>Welcome, {firstName}</DropdownMenuLabel>
+              <DropdownMenuLabel>Welcome, {user?.name}</DropdownMenuLabel>
               <DropdownMenuItem className="flex items-center">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">

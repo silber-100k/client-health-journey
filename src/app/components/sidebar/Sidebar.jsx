@@ -12,33 +12,42 @@ import {
   coachNavItems,
   clientNavItems,
 } from "./sidebardata";
+import { useAuth } from "@/app/context/AuthContext";
+import { Loader2 } from "lucide-react";
 
 export function Sidebar() {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
-  let navItems = clientNavItems; // Default fallback
-  let userRole = user.role;
-  let displayRoleText = userRole;
-  let roleIcon = User;
+  const { user } = useAuth();
+
   return (
-    <div className={cn("flex flex-col h-screen border-r bg-background w-72")}>
-      <div className="flex items-center justify-between p-4 border-b">
-        <Link href="/" className="flex items-center gap-2">
-          <BookMarked className="h-6 w-6 text-primary" />
-          <span className="font-semibold">Client Health Tracker™</span>
-        </Link>
+    !user ? (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-6 w-6 animate-spin" />
       </div>
-      <SidebarNav items={navItems} />
-      <SidebarProfile
-        user={user}
-        userRole={displayRoleText}
-        roleIcon={roleIcon}
-      />
-    </div>
+    ) : (
+      <div className={cn("flex flex-col h-screen border-r bg-background w-72")}>
+        <div className="flex items-center justify-between p-4 border-b">
+          <Link href="/" className="flex items-center gap-2">
+            <BookMarked className="h-6 w-6 text-primary" />
+            <span className="font-semibold">Client Health Tracker™</span>
+          </Link>
+        </div>
+        <SidebarNav
+          items={
+            user.role === "admin" ?
+              adminNavItems :
+              user.role === "clinic_admin" ?
+                clinicAdminNavItems :
+                user.role === "coach" ?
+                  coachNavItems :
+                  clientNavItems
+          }
+        />
+        <SidebarProfile
+          user={user}
+          userRole={user.role}
+          roleIcon={User}
+        />
+      </div>
+    )
   );
 }

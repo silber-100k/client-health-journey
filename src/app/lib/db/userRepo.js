@@ -42,6 +42,11 @@ async function getUserById(id) {
     return user;
 }
 
+async function getUserByEmail(email) {
+    const user = await db.User.findOne({ email });
+    return user;
+}
+
 export const userRepo = {
     getAdminUsers,
     createAdminUser,
@@ -49,4 +54,5 @@ export const userRepo = {
     deleteAdminUser,
     authenticate,
     getUserById,
+    getUserByEmail,
 };
