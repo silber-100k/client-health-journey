@@ -1,34 +1,40 @@
 import db from "./index";
 
 async function getAdminUsers() {
-  const users = await db.User.find({ role: "admin" });
-  return users;
+    const users = await db.User.find({ role: "admin" });
+    return users;
 }
 
-async function createAdminUser(name, email, phone, role, password, clinic) {
-  const user = await db.User.create({ name, email, phone, role, password, clinic });
-  return user;
+async function createAdminUser(name, email, phone, role, password, clinic, options = {}) {
+    const user = await db.User.create([{ name, email, phone, role, password, clinic }], options);
+    return user[0];
 }
 
 async function updateAdminUser(id, name, email, phone, role, isActive) {
-  const user = await db.User.findByIdAndUpdate(id, { name, email, phone, role, isActive }, { new: true, upsert: true });
-  return user;
+    const user = await db.User.findByIdAndUpdate(id, { name, email, phone, role, isActive }, { new: true, upsert: true });
+    return user;
 }
 
 async function deleteAdminUser(id) {
-  const user = await db.User.findByIdAndDelete(id);
-  return user;
+    const user = await db.User.findByIdAndDelete(id);
+    return user;
 }
 
 async function authenticate(email, password) {
-  const user = await db.User.findOne({ email, password });
-  if (!user) {
-    throw new Error("Invalid email or password");
-  }
-  if (!user.isActive) {
-    throw new Error("User is not active");
-  }
-  return user;
+    const user = await db.User.findOne({ email });
+    if (!user) {
+        throw new Error("Invalid email");
+    }
+
+    const isAuthenticated = user.authenticate(password);
+    if (!isAuthenticated) {
+        return null;
+    }
+    
+    if (!user.isActive) {
+        throw new Error("User is not active");
+    }
+    return user;
 }
 
 async function getUserById(id) {
@@ -37,10 +43,10 @@ async function getUserById(id) {
 }
 
 export const userRepo = {
-  getAdminUsers,
-  createAdminUser,
-  updateAdminUser,
-  deleteAdminUser,
-  authenticate,
-  getUserById,
+    getAdminUsers,
+    createAdminUser,
+    updateAdminUser,
+    deleteAdminUser,
+    authenticate,
+    getUserById,
 };

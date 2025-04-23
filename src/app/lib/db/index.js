@@ -53,6 +53,9 @@ function userModel() {
             type: Date,
             default: Date.now,
         },
+        salt: {
+            type: String
+        }
     });
 
     // Define the hashPassword method
@@ -81,6 +84,7 @@ function clinicModel() {
         email: {
             type: String,
             required: true,
+            unique: true,
         },
         name: {
             type: String,
@@ -103,6 +107,18 @@ function clinicModel() {
         },
         zipCode: {
             type: String,
+        },
+        plan: {
+            type: String,
+        },
+        addOns: {
+            type: [String],
+        },
+        hipaaAcknowledgment: {
+            type: Boolean,
+        },
+        legalAcknowledgment: {
+            type: Boolean,
         },
         createdAt: {
             type: Date,

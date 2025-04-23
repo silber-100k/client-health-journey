@@ -96,8 +96,8 @@ export function EditAdminUserDialog({ open, setOpen, isSuperAdmin = false, onEdi
       if (result.status) {
         setErrorMessage(null);
         setOpen(false);
+        toast("User updated successfully");
         await onEdit();
-        toast.success("User updated successfully");
       } else {
         setErrorMessage(result.message || "Failed to update user");
       }

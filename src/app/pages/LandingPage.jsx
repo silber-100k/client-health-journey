@@ -15,56 +15,63 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-primary-50 to-secondary-50 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-primary-50 via-primary-100 to-secondary-50 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative z-10 py-8 sm:py-16 md:py-20 lg:py-28 lg:max-w-2xl lg:w-full">
-            <div className="text-center lg:text-left">
+          <div className="relative z-10 py-12 sm:py-20 md:py-24 lg:py-32 lg:max-w-2xl lg:w-full">
+            <div className="text-center lg:text-left space-y-6">
+              <div className="inline-block bg-primary-100/20 px-4 py-2 rounded-full text-primary-600 font-medium text-sm mb-4">
+                🚀 New Features Available
+              </div>
               <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                <span className="block whitespace-nowrap">
+                <span className="block sm:whitespace-nowrap animate-fade-in">
                   Wellness and Nutrition
                 </span>
-                <span className="block text-primary-500">
+                <span className="block text-primary-500 animate-fade-in-delayed">
                   Tracking Platform
                 </span>
               </h1>
-              <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto lg:mx-0">
+              <p className="mt-3 text-base text-gray-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto lg:mx-0 leading-relaxed">
                 A comprehensive platform for healthcare providers, coaches, and
                 clients to track progress, manage wellness programs, and achieve
                 health goals.
               </p>
-              <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-3">
-                <Button className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white">
+              <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-4 space-y-2">
+                <Button
+                  className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
                   <Link href="/login">Sign In</Link>
                 </Button>
                 <Button
                   asChild
                   variant="secondary"
-                  className="w-full sm:w-auto px-8 py-3 text-base font-medium text-gray-100 bg-gray-100 hover:bg-gray-200 border-gray-300 hover:text-gray-900"
+                  className="w-full sm:w-auto px-8 py-3 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <a href="#features">Learn More</a>
                 </Button>
-              </div>
-              <div className="mt-3">
                 <Button
                   asChild
-                  variant="link"
-                  className="text-primary font-medium flex items-center"
+                  variant="outline"
+                  className="w-full sm:w-auto px-8 py-3 text-base font-medium text-primary-600 bg-transparent hover:bg-primary-50 border border-primary-200 hover:border-primary-300 transform hover:scale-105 transition-all duration-200"
                 >
-                  <a href="">
-                    <Building size={16} className="mr-1" />
+                  <Link href="/clinicRegister" className="flex items-center">
+                    <Building size={16} className="mr-2" />
                     Register your clinic
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </div>
           </div>
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <img
-            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-            src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
-            alt="Health tracking"
-          />
+          <div className="relative h-full">
+            <div className="absolute inset-0 bg-gradient-to-l from-primary-50/50 to-transparent z-10"></div>
+            <img
+              className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full transform hover:scale-105 transition-transform duration-700"
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+              alt="Health tracking"
+            />
+          </div>
         </div>
       </div>
 

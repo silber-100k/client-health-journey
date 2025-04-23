@@ -10,10 +10,44 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   const router = useRouter();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const result = await signIn("credentials", { email: data.email, password: data.password, redirect: false });
+      if (result.error) {
+        toast.error("Invalid email or password");
+      } else {
+        // Get the user's role from the session
+        const response = await fetch('/api/auth/session');
+        const session = await response.json();
+        
+        // Redirect based on role
+        if (session?.user?.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (session?.user?.role === 'coach') {
+          router.push('/coach/dashboard');
+        } else if (session?.user?.role === "client") {
+          router.push('/client/dashboard');
+        } else if (session?.user?.role === "clinic_admin") {
+          router.push('/clinic/dashboard');
+        } else {
+          router.push("/")
+        }
+      }
+    } catch (error) {
+      toast.error("Invalid email or password");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full">
@@ -30,7 +64,7 @@ const LoginPage = () => {
             </TabsList>
 
             <TabsContent value="login" className="mt-4">
-              <LoginFormFields />
+              <LoginFormFields onSubmit={onSubmit} isSubmitting={isSubmitting} />
             </TabsContent>
             <DemoLoginButtons/>
           </Tabs>

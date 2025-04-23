@@ -6,12 +6,27 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "../../components/ui/form";
 import { Input } from "../../components/ui/input";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const ClinicInformationTab = ({ form, onNext }) => {
+  const formState = form.formState;
+  const hasErrors = Object.keys(formState.errors).length > 0;
+
   return (
     <div className="grid gap-4">
+      {hasErrors && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please fix the errors in the form before proceeding.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <FormField
         control={form.control}
         name="clinicName"
@@ -21,8 +36,15 @@ const ClinicInformationTab = ({ form, onNext }) => {
               Clinic Name <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input 
+                {...field} 
+                placeholder="Enter your clinic's full name"
+                className={formState.errors.clinicName ? "border-red-500" : ""}
+              />
             </FormControl>
+            <FormDescription>
+              This will be displayed to clients and coaches
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -38,8 +60,16 @@ const ClinicInformationTab = ({ form, onNext }) => {
                 Clinic Email <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input 
+                  {...field} 
+                  type="email" 
+                  placeholder="clinic@example.com"
+                  className={formState.errors.clinicEmail ? "border-red-500" : ""}
+                />
               </FormControl>
+              <FormDescription>
+                This will be used for clinic communications
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -54,8 +84,15 @@ const ClinicInformationTab = ({ form, onNext }) => {
                 Clinic Phone <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input 
+                  {...field} 
+                  placeholder="(123) 456-7890"
+                  className={formState.errors.clinicPhone ? "border-red-500" : ""}
+                />
               </FormControl>
+              <FormDescription>
+                Include area code
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -71,8 +108,15 @@ const ClinicInformationTab = ({ form, onNext }) => {
               Primary Contact Person <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input 
+                {...field} 
+                placeholder="Full name of the primary contact"
+                className={formState.errors.primaryContact ? "border-red-500" : ""}
+              />
             </FormControl>
+            <FormDescription>
+              This person will be set up as the first coach
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -87,7 +131,11 @@ const ClinicInformationTab = ({ form, onNext }) => {
               Street Address <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input 
+                {...field} 
+                placeholder="123 Main Street"
+                className={formState.errors.streetAddress ? "border-red-500" : ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -104,7 +152,11 @@ const ClinicInformationTab = ({ form, onNext }) => {
                 City <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input 
+                  {...field} 
+                  placeholder="City name"
+                  className={formState.errors.city ? "border-red-500" : ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,7 +172,11 @@ const ClinicInformationTab = ({ form, onNext }) => {
                 State <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input 
+                  {...field} 
+                  placeholder="State abbreviation"
+                  className={formState.errors.state ? "border-red-500" : ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -136,7 +192,11 @@ const ClinicInformationTab = ({ form, onNext }) => {
                 ZIP Code <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input 
+                  {...field} 
+                  placeholder="12345"
+                  className={formState.errors.zipCode ? "border-red-500" : ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -145,7 +205,11 @@ const ClinicInformationTab = ({ form, onNext }) => {
       </div>
 
       <div className="flex justify-end">
-        <Button type="button" onClick={onNext}>
+        <Button 
+          type="button" 
+          onClick={onNext}
+          disabled={hasErrors}
+        >
           Next: Coach Setup
         </Button>
       </div>

@@ -16,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { signOut } from "next-auth/react"
+
 const TopBar = () => {
   const user = {
     id: "asdf",
@@ -97,7 +99,7 @@ const TopBar = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center text-red-500 focus:text-red-500 cursor-pointer">
+              <DropdownMenuItem className="flex items-center text-red-500 focus:text-red-500 cursor-pointer" onClick={() => signOut()}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
