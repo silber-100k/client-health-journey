@@ -10,6 +10,8 @@ import {
 } from "../../components/ui/form";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { coachSignupSchema } from "../../auth/signup/types";
 
 export const CoachForm = ({
   onSubmit,
@@ -24,6 +26,7 @@ export const CoachForm = ({
 }) => {
   const form = useForm({
     defaultValues,
+    resolver: zodResolver(coachSignupSchema)
   });
 
   return (
@@ -93,7 +96,7 @@ export const CoachForm = ({
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Saving..." : submitButtonText}
           </Button>
         </div>

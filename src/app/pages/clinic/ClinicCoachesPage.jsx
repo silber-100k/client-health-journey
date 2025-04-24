@@ -15,53 +15,23 @@ import { EditCoachDialog } from "../../components/coaches/edit/EditCoachDialog";
 import { DeleteCoachDialog } from "../../components/coaches/delete/DeleteCoachDialog";
 import { ResetCoachPasswordDialog } from "../../components/coaches/reset-password/ResetCoachPasswordDialog";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CoachesFilter from "../../components/admin/coaches/CoachesFilter";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "sonner";
+
 const CoachesPage = () => {
+  const { user } = useAuth();
+  
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
+  const [coaches, setCoaches] = useState([]);
+  const [selectedCoach, setSelectedCoach] = useState(null);
+
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "clinic_admin",
-    phone: "123-123-123",
-  };
-  const coaches = [
-    {
-      id: "aaa",
-      name: "string",
-      email: "string",
-      phone: "13213123",
-      status: "active",
-      clinicId: "asdfasdf",
-      clinicName: "sdf",
-      clients: 2,
-    },
-    {
-      id: "aasdfa",
-      name: "stsdfring",
-      email: "strsdfweing",
-      phone: "1323242313123",
-      status: "active",
-      clinicId: "asdfasdsfdf",
-      clinicName: "sdf23",
-      clients: 22,
-    },
-    {
-      id: "aawerwerwea",
-      name: "strwerweing",
-      email: "strwering",
-      phone: "13213123233",
-      status: "active",
-      clinicId: "asdfsdfasdf",
-      clinicName: "sfffffdf",
-      clients: 2,
-    },
-  ];
+
   const filteredCoaches = coaches.filter((coach) => {
     const searchText = filterText.toLowerCase();
     return (
@@ -71,8 +41,33 @@ const CoachesPage = () => {
       (coach.clinicName && coach.clinicName.toLowerCase().includes(searchText))
     );
   });
-  const isClinicAdmin = true;
-  const selectedCoach = true;
+
+  const fetchCoaches = async () => {
+    try {
+      const response = await fetch("/api/clinic/coach");
+      const data = await response.json();
+      setCoaches(data.coaches);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch coaches");
+    }
+  };
+
+  const handleEditCoach = (coach) => {
+    setSelectedCoach(coach);
+  };
+
+  const handleDeleteCoach = (coach) => {
+    setSelectedCoach(coach);
+  };
+
+  const handleResetPassword = (coach) => {
+    setSelectedCoach(coach);
+  };
+
+  useEffect(() => {
+    fetchCoaches();
+  }, []);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -84,6 +79,7 @@ const CoachesPage = () => {
             size="icon"
             className="flex items-center justify-center"
             title="Refresh coaches"
+            onClick={fetchCoaches}
           >
             <RefreshCw size={16} />
           </Button>
@@ -123,13 +119,13 @@ const CoachesPage = () => {
             count={filteredCoaches.length}
           />
 
-          <CoachesTable coaches={filteredCoaches} />
+          <CoachesTable coaches={filteredCoaches} onEdit={handleEditCoach} onDelete={handleDeleteCoach} onResetPassword={handleResetPassword} />
         </CardContent>
       </Card>
 
-      <AddCoachDialog open={isAddCoachDialogOpen} />
+      <AddCoachDialog open={isAddCoachDialogOpen} setOpen={setIsAddCoachDialogOpen} fetchCoaches={fetchCoaches} />
 
-      {/* {selectedCoach && (
+      {selectedCoach && (
         <>
           <EditCoachDialog />
 
@@ -137,7 +133,7 @@ const CoachesPage = () => {
 
           <ResetCoachPasswordDialog />
         </>
-      )} */}
+      )}
     </div>
   );
 };

@@ -47,8 +47,8 @@ const CoachesTable = ({
         </TableHeader>
         <TableBody>
           {coaches.length > 0 ? (
-            coaches.map((coach) => (
-              <TableRow key={coach.id} className="hover:bg-gray-50">
+            coaches.map((coach, index) => (
+              <TableRow key={index} className="hover:bg-gray-50">
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-8 w-8 rounded-full flex items-center justify-center">
@@ -58,25 +58,25 @@ const CoachesTable = ({
                   </div>
                 </TableCell>
                 <TableCell>{coach.email}</TableCell>
-                <TableCell>{coach.phone || "-"}</TableCell>
+                <TableCell>{coach.phoneNumber || "-"}</TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-6 w-6 rounded-full flex items-center justify-center">
                       <Building className="h-3 w-3 text-primary-700" />
                     </div>
-                    <span>{coach.clinicName}</span>
+                    <span>{coach.clinic.name}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
                     className={
-                      coach.status === "active"
+                      coach.isActive
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }
                     variant="outline"
                   >
-                    {coach.status === "active" ? "Active" : "Inactive"}
+                    {coach.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
                 {hasActions && (

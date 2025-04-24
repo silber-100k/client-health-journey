@@ -43,8 +43,13 @@ async function getUserById(id) {
 }
 
 async function getUserByEmail(email) {
-    const user = await db.User.findOne({ email });
+    const user = await db.User.findOne({ email }).populate("clinic");
     return user;
+}
+
+async function getCoachesByClinicId(clinicId) {
+    const coaches = await db.User.find({ role: "coach", clinic: clinicId }).populate("clinic");
+    return coaches;
 }
 
 export const userRepo = {
@@ -55,4 +60,5 @@ export const userRepo = {
     authenticate,
     getUserById,
     getUserByEmail,
+    getCoachesByClinicId,
 };

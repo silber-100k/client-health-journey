@@ -25,20 +25,18 @@ import {
 import { useForm, FormProvider } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-export const AddCoachDialog = ({ open }) => {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+import { useAuth } from "../../../context/AuthContext";
+import { toast } from "sonner";
 
+export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
+  const { user } = useAuth();
   const clinics = [
     { id: "1", name: "aaa" },
     { id: "2", name: "bbb" },
   ];
+
   const [selectedClinicId, setSelectedClinicId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const clinicsLoading = false;
 
@@ -47,13 +45,39 @@ export const AddCoachDialog = ({ open }) => {
   const handleClinicChange = (clinicId) => {
     setSelectedClinicId(clinicId);
   };
+  const handleSubmit = async (data) => {
+    if (isSubmitting) {
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/clinic/coach", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+      if (responseData.status) {
+        await fetchCoaches();
+        setOpen(false);
+        toast.success("Coach added successfully");
+      } else {
+        throw new Error(responseData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add coach");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Coach</DialogTitle>
           <DialogDescription>
-            Add a new coach to ooo. They will receive an email invitation to set
+            Add a new coach to {user?.clinic?.name}. They will receive an email invitation to set
             up their account.
           </DialogDescription>
         </DialogHeader>
@@ -102,7 +126,7 @@ export const AddCoachDialog = ({ open }) => {
             )}
           </div>
         )}
-        <CoachForm />
+        <CoachForm onSubmit={handleSubmit} isSubmitting={isSubmitting} onCancel={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

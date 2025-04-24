@@ -58,3 +58,9 @@ export const clinicSignupSchema = z.object({
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
+
+export const coachSignupSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format").min(1, "Email is required")
+});
+
