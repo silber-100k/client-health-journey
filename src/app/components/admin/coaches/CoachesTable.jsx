@@ -31,7 +31,7 @@ const CoachesTable = ({
     ...coachWithClinic,
     clinic_id: coachWithClinic.clinicId, // Add missing clinic_id
   });
-
+  console.log(coaches);
   return (
     <div className="overflow-x-auto">
       <Table>

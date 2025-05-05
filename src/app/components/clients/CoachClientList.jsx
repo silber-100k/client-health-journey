@@ -1,6 +1,6 @@
 import ClientListItem from "./ClientListItem";
 
-const CoachClientList = () => {
+const CoachClientList = ({clients}) => {
   const coachClients = [
     {
       id: "aaa",
@@ -35,8 +35,8 @@ const CoachClientList = () => {
   ];
   return (
     <div className="space-y-4">
-      {coachClients.map((client) => (
-        <ClientListItem key={client.id} client={client} />
+      {clients?.map((client) => (
+        <ClientListItem key={client._id} client={client} />
       ))}
     </div>
   );

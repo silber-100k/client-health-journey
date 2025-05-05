@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Card,
@@ -7,10 +8,11 @@ import {
 } from "../../components/ui/card";
 import RecentCheckIns from "../../components/check-ins/RecentCheckIns";
 import CoachCheckIns from "../../components/check-ins/CoachCheckIns";
+import { useAuth } from "@/app/context/AuthContext";
 
 const CheckInsPage = () => {
-  const isCoach = false;
-
+  const { user } = useAuth();
+  const isCoach = user?.role === "coach";
   return (
     <div>
       <div className="mb-6">

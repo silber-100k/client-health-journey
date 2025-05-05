@@ -1,58 +1,124 @@
+"use client";
 import { Button } from "../../components/ui/button";
 import { RefreshCw } from "lucide-react";
 import DashboardStats from "../../components/admin/dashboard/DashboardStats";
 import ClinicsTable from "../../components/admin/dashboard/ClinicsTable";
 import ActivityList from "../../components/admin/dashboard/ActivityList";
-
+import { useAuth } from "@/app/context/AuthContext";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 const AdminDashboard = () => {
-  //demo data////////////////////////////
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "clinic_admin",
-    phone: "123-123-123",
+  const { user } = useAuth();
+  const [totalCoaches, setTotalCoaches] = useState(0);
+  const [weeklyActivitiesCount, setWeeklyActivitiesCount] = useState(0);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [clients, setClients] = useState(0);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [isStatsError, setIsStatsError] = useState(false);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [isActivitiesError, setIsActivitiesError] = useState(false);
+
+  const fetchTotalCoaches = async () => {
+    try {
+      setIsLoadingStats(true);
+      const response = await fetch("/api/clinic/dashboard/totalCoaches");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setTotalCoaches(data.coaches);
+      } else {
+        setIsStatsError(true);
+        toast.error(data.message);
+      }
+      setIsLoadingStats(false);
+    } catch (error) {
+      setIsStatsError(true);
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchweeklyActivitiesCount = async () => {
+    try {
+      setIsLoadingStats(true);
+      const response = await fetch("/api/clinic/dashboard/weeklyActivities");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setWeeklyActivitiesCount(data.numActivity);
+      } else {
+        setIsActivitiesError(true);
+        toast.error(data.message);
+      }
+      setIsLoadingStats(false);
+    } catch (error) {
+      setIsActivitiesError(true);
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchrecentActivities = async () => {
+    try {
+      setIsLoadingActivities(true);
+      const response = await fetch("/api/clinic/dashboard/recentActivities");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setRecentActivities(data.recentActivity);
+      } else {
+        setIsActivitiesError(true);
+        toast.error(data.message);
+      }
+      setIsLoadingActivities(false);
+    } catch (error) {
+      setIsActivitiesError(true);
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchClientsNum = async () => {
+    try {
+      setIsLoadingStats(true);
+      const response = await fetch("/api/clinic/clientNum");
+      const data = await response.json();
+      setClients(data.clients);
+    } catch (error) {
+      setIsStatsError(true);
+      toast.error("Failed to fetch clients");
+      console.log(error);
+    }
+    setIsLoadingStats(false);
+  };
+
+  useEffect(() => {
+    setIsLoadingStats(true);
+    fetchTotalCoaches();
+    fetchClientsNum();
+    setIsLoadingStats(false);
+    setIsLoadingActivities(true);
+    fetchweeklyActivitiesCount();
+    fetchrecentActivities();
+    setIsLoadingActivities(false);
+  }, []);
+
+  const handleRefresh = () => {
+    fetchClientsNum();
+    fetchTotalCoaches();
+    fetchweeklyActivitiesCount();
+    fetchrecentActivities();
   };
 
   const dashboardStats = {
-    activeClinicCount: 5,
-    totalCoachCount: 3,
-    weeklyActivitiesCount: 3,
+    totalCoachCount: totalCoaches,
+    weeklyActivitiesCount: weeklyActivitiesCount,
     clinicsSummary: [
       {
-        id: "234234",
-        name: "alexsya",
-        coaches: "clinic1",
-        clients: "client1",
+        name: user?.name,
+        coaches: totalCoaches,
+        clients: clients,
         status: "active",
       },
     ],
   };
-
-  const recentActivities = [
-    {
-      id: "1",
-      type: "check_in",
-      description: "client1 submitted a check-in",
-      timestamp: "2023-10-01T12:34:56Z",
-    },
-    {
-      id: "2",
-      type: "clinic_signup",
-      description: "client1 submitted a  added: 23 to qwe-in",
-      timestamp: "2023-2-01T12:34:56Z",
-    },
-    {
-      id: "3",
-      type: "coach_added",
-      description: "client1 submitted a  added: 23 to qwe added: 23 to qwe-in",
-      timestamp: "2023-10-01T12:34:33",
-    },
-  ];
-  const isLoadingStats = false;
-  const isStatsError = false;
-  const isLoadingActivities = false;
-  const isActivitiesError = false;
 
   ///////////////////////////////////////////
   const isClinicAdmin = true;
@@ -67,8 +133,16 @@ const AdminDashboard = () => {
             Welcome back, {user?.name || "Admin User"}!
           </p>
         </div>
-        <Button variant="outline" className="flex items-center gap-1">
-          <RefreshCw size={16} />
+        <Button
+          variant="outline"
+          className="flex items-center gap-1"
+          onClick={handleRefresh}
+          disabled={isLoadingStats}
+        >
+          <RefreshCw
+            size={16}
+            className={isLoadingStats ? "animate-spin" : ""}
+          />
           <span>Refresh</span>
         </Button>
       </div>

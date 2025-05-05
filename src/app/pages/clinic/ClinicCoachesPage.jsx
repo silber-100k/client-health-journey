@@ -22,12 +22,16 @@ import { toast } from "sonner";
 
 const CoachesPage = () => {
   const { user } = useAuth();
-  
+
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
+  const [isEditCoachDialogOpen, setIsEditCoachDialogOpen] = useState(false);
+  const [isResetPasswordCoachDialogOpen, setIsResetPasswordCoachDialogOpen] =
+    useState(false);
+  const [isDeleteCoachDialogOpen, setIsDeleteCoachDialogOpen] = useState(false);
   const [coaches, setCoaches] = useState([]);
   const [selectedCoach, setSelectedCoach] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
@@ -44,9 +48,11 @@ const CoachesPage = () => {
 
   const fetchCoaches = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/clinic/coach");
       const data = await response.json();
       setCoaches(data.coaches);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch coaches");
@@ -55,16 +61,18 @@ const CoachesPage = () => {
 
   const handleEditCoach = (coach) => {
     setSelectedCoach(coach);
+    setIsEditCoachDialogOpen(true);
   };
 
   const handleDeleteCoach = (coach) => {
     setSelectedCoach(coach);
+    setIsDeleteCoachDialogOpen(true);
   };
 
   const handleResetPassword = (coach) => {
     setSelectedCoach(coach);
+    setIsResetPasswordCoachDialogOpen(true);
   };
-
   useEffect(() => {
     fetchCoaches();
   }, []);
@@ -80,8 +88,9 @@ const CoachesPage = () => {
             className="flex items-center justify-center"
             title="Refresh coaches"
             onClick={fetchCoaches}
+            disabled={isLoading}
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </Button>
           <Button
             className="flex items-center gap-2"
@@ -119,19 +128,43 @@ const CoachesPage = () => {
             count={filteredCoaches.length}
           />
 
-          <CoachesTable coaches={filteredCoaches} onEdit={handleEditCoach} onDelete={handleDeleteCoach} onResetPassword={handleResetPassword} />
+          <CoachesTable
+            coaches={filteredCoaches}
+            onEdit={handleEditCoach}
+            onDelete={handleDeleteCoach}
+            onResetPassword={handleResetPassword}
+          />
         </CardContent>
       </Card>
 
-      <AddCoachDialog open={isAddCoachDialogOpen} setOpen={setIsAddCoachDialogOpen} fetchCoaches={fetchCoaches} />
+      <AddCoachDialog
+        open={isAddCoachDialogOpen}
+        setOpen={setIsAddCoachDialogOpen}
+        fetchCoaches={fetchCoaches}
+      />
 
       {selectedCoach && (
         <>
-          <EditCoachDialog />
+          <EditCoachDialog
+            selectedCoach={selectedCoach}
+            open={isEditCoachDialogOpen}
+            onchange={setIsEditCoachDialogOpen}
+            fetchCoaches={fetchCoaches}
+          />
 
-          <DeleteCoachDialog />
+          <DeleteCoachDialog
+            selectedCoach={selectedCoach}
+            open={isDeleteCoachDialogOpen}
+            setOpen={setIsDeleteCoachDialogOpen}
+            fetchCoaches={fetchCoaches}
+          />
 
-          <ResetCoachPasswordDialog />
+          <ResetCoachPasswordDialog
+            selectedCoach={selectedCoach}
+            open={isResetPasswordCoachDialogOpen}
+            onchange={setIsResetPasswordCoachDialogOpen}
+            fetchCoaches={fetchCoaches}
+          />
         </>
       )}
     </div>

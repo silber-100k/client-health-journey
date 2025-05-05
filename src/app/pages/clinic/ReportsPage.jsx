@@ -18,47 +18,70 @@ import {
 } from "recharts";
 import { Banknote, Activity, TrendingUp, Users } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
+import { useAuth } from "@/app/context/AuthContext";
 
 const ReportsPage = () => {
-  const [revenueData, setRevenueData] = useState([
-    {
-      month: 1,
-      revenue: 123,
-      clients: 3,
-    },
-    {
-      month: 2,
-      revenue: 13,
-      clients: 1,
-    },
-    {
-      month: 5,
-      revenue: 133,
-      clients: 31,
-    },
-  ]);
-  const [subscriptionData, setSubscriptionData] = useState([
-    {
-      id: "a",
-      name: "aa",
-      plan: "basic",
-      price: "$149/month",
-      startDate: "11/05/2023",
-      clients: 9,
-    },
-    {
-      id: "b",
-      name: "aba",
-      plan: "basic",
-      price: "$129/month",
-      startDate: "11/07/2021",
-      clients: 12,
-    },
-  ]);
-
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [revenueData, setRevenueData] = useState([]);
+  const [subscriptionData, setSubscriptionData] = useState([]);
+
+  // Calculate revenue (assuming $100 per check-in)
+  const fetchRevenueData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/report/revenue");
+      const data = await response.json();
+      setRevenueData(data.revenueData);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch revenueData");
+    }
+  };
+
+  const fetchsubscriptionData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/report/subscription");
+      const data = await response.json();
+      setSubscriptionData(data.subscriptionData);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch subscriptionData");
+    }
+  };
+  //totalcheckIn*100
+  const fetchTotalRevenue = async () => {
+    try {
+      const response = await fetch("/api/clinic/report/totalRevenue");
+      const data = await response.json();
+      setTotalRevenue(data.totalRevenue);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchTotalClients = async () => {
+    try {
+      const response = await fetch("/api/clinic/clientNum");
+      const data = await response.json();
+      setTotalClients(data.clients);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRevenueData();
+    fetchsubscriptionData();
+    fetchTotalRevenue();
+    fetchTotalClients();
+  }, []);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -74,13 +97,6 @@ const ReportsPage = () => {
       </div>
     );
   }
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
 
   const dashboardTitle = "Clinic Financial Reports";
   const dashboardDescription = "Overview of your clinic performance";

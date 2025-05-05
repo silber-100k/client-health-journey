@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Button } from "../../../components/ui/button";
 import {
@@ -14,7 +15,7 @@ import {
   Users,
   Activity,
 } from "lucide-react";
-
+import { useState } from "react";
 const ActivityList = ({ activities, isLoading, isError }) => {
   // Helper function to determine which icon to show
   const getActivityIcon = (type) => {
@@ -29,12 +30,17 @@ const ActivityList = ({ activities, isLoading, isError }) => {
         return <Activity size={16} className="text-gray-500 mt-1" />;
     }
   };
-
+  const [showAll, setShowAll] = useState(false);
+  console.log(showAll);
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">Recent Activities</CardTitle>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAll((e) => !e)}
+        >
           View All
         </Button>
       </CardHeader>
@@ -71,15 +77,33 @@ const ActivityList = ({ activities, isLoading, isError }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            {activities.slice(0, 3).map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
-                {getActivityIcon(activity.type)}
-                <div>
-                  <p className="text-sm font-medium">{activity.description}</p>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                </div>
-              </div>
-            ))}
+            {showAll
+              ? activities.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    {getActivityIcon(activity.type)}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {activity.timestamp}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              : activities.slice(0, 3).map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    {getActivityIcon(activity.type)}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {activity.timestamp}
+                      </p>
+                    </div>
+                  </div>
+                ))}
           </div>
         )}
       </CardContent>

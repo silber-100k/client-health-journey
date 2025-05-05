@@ -1,4 +1,8 @@
+"use client";
 import React from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useState, useEffect } from "react";
+
 import {
   Card,
   CardContent,
@@ -9,37 +13,106 @@ import {
 import { Separator } from "../../components/ui/separator";
 import { Skeleton } from "../../components/ui/skeleton";
 import { UserPlus, Calendar, BookOpen, Flag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const CoachDashboard = () => {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
+  const { user } = useAuth();
+  const router = useRouter();
+  const [activeClients, setActiveClients] = useState(0);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [pendingCheckIns, setPendingCheckIns] = useState(0);
+  const [activePrograms, setActivePrograms] = useState(0);
+  const [completedProgram, setCompletedProgram] = useState(0);
+  const [activities, setActivities] = useState([]);
+  const fetchActiveClients = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/activeClients");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setActiveClients(data.activeClients);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
   };
-  const statsLoading = false;
-  const activitiesLoading = false;
-  const stats = {
-    activeClients: 2,
-    pendingCheckIns: 3,
-    activePrograms: 3,
-    completedPrograms: 3,
+
+  // Find clients with no check-ins or last check-in older than 7 days
+  const fetchPendingCheckIn = async () => {
+    try {
+      const response = await fetch("/api/coach/dashboard/pendingcheckIn");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setPendingCheckIns(data.pendingCheckIns);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
   };
-  const activities = [
-    {
-      description: "headf",
-      timestamp: "2024-01-01T00:00:00.000Z",
-    },
-    {
-      description: "dfheadf",
-      timestamp: "2024-01-01T00:00:00.000Z",
-    },
-    {
-      description: "hasdfeadf",
-      timestamp: "2024-01-01T00:00:00.000Z",
-    },
-  ];
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/programs");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setActivePrograms(data.numprograms);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchCompletedProgram = async () => {
+    try {
+      const response = await fetch("/api/coach/dashboard/completedProgram");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setCompletedProgram(data.completedProgram);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchRecentActivity = async () => {
+    try {
+      const response = await fetch("/api/coach/dashboard/recentActivity");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setActivities(data.activities);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  useEffect(() => {
+    setStatsLoading(true);
+    fetchActiveClients();
+    fetchPendingCheckIn();
+    fetchPrograms();
+    fetchCompletedProgram();
+    setStatsLoading(false);
+    setActivitiesLoading(true);
+    fetchRecentActivity();
+    setActivitiesLoading(false);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -55,7 +128,7 @@ const CoachDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
-          // onClick={() => handleCardClick('/coach/clients')}
+          onClick={() => router.push("/coach/clients")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -66,16 +139,14 @@ const CoachDashboard = () => {
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">
-                {stats?.activeClients || 0}
-              </div>
+              <div className="text-2xl font-bold">{activeClients || 0}</div>
             )}
           </CardContent>
         </Card>
 
         <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
-          // onClick={() => handleCardClick('/coach/check-ins')}
+          onClick={() => router.push("/coach/check-ins")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -87,7 +158,7 @@ const CoachDashboard = () => {
               <Skeleton className="h-7 w-20" />
             ) : (
               <div className="text-2xl font-bold">
-                {stats?.pendingCheckIns || 0}
+                {pendingCheckIns.length || 0}
               </div>
             )}
           </CardContent>
@@ -95,7 +166,7 @@ const CoachDashboard = () => {
 
         <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
-          // onClick={() => handleCardClick('/coach/reports')}
+          onClick={() => router.push("/coach/reports")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -106,16 +177,14 @@ const CoachDashboard = () => {
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">
-                {stats?.activePrograms || 0}
-              </div>
+              <div className="text-2xl font-bold">{activePrograms || 0}</div>
             )}
           </CardContent>
         </Card>
 
         <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
-          // onClick={() => handleCardClick('/coach/reports')}
+          onClick={() => router.push("/coach/reports")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -126,9 +195,7 @@ const CoachDashboard = () => {
             {statsLoading ? (
               <Skeleton className="h-7 w-20" />
             ) : (
-              <div className="text-2xl font-bold">
-                {stats?.completedPrograms || 0}
-              </div>
+              <div className="text-2xl font-bold">{completedProgram || 0}</div>
             )}
           </CardContent>
         </Card>
@@ -181,7 +248,7 @@ const CoachDashboard = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               <button
-                // onClick={handleAddClientClick}
+                onClick={() => router.push("/coach/clients")}
                 // disabled={actionLoading}
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
               >
@@ -189,14 +256,14 @@ const CoachDashboard = () => {
                 Add Client
               </button>
               <button
-                // onClick={() => navigate('/coach/check-ins')}
+                onClick={() => router.push("/coach/check-ins")}
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground shadow hover:bg-secondary/90 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 View Check-ins
               </button>
               <button
-                // onClick={() => navigate('/coach/resources')}
+                onClick={() => router.push("/coach/resources")}
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground shadow hover:bg-secondary/90 disabled:pointer-events-none disabled:opacity-50"
               >
                 <BookOpen className="mr-2 h-4 w-4" />

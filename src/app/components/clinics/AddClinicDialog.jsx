@@ -51,26 +51,6 @@ const AddClinicDialog = ({ open }) => {
     },
   });
 
-  // const clinicData = {
-  //   name: values.clinicName,
-  //   email: values.clinicEmail || null,
-  //   phone: values.clinicPhone || null,
-  //   streetAddress: values.streetAddress || null,
-  //   city: values.city || null,
-  //   state: values.state || null,
-  //   zip: values.zipCode || null,
-  //   primaryContact: values.primaryContact || null,
-  //   billingContactName: values.billingContactName || null,
-  //   billingEmail: values.billingEmail || null,
-  //   billingPhone: values.billingPhone || null,
-  //   billingAddress: values.billingAddress || null,
-  //   billingCity: values.billingCity || null,
-  //   billingState: values.billingState || null,
-  //   billingZip: values.billingZip || null,
-  //   paymentMethod: values.paymentMethod || null,
-  //   subscriptionTier: values.subscriptionTier || null,
-  //   subscriptionStatus: "active",
-  // };
   const showSuccessDialog = false;
   const tempPassword = "12345678";
   const isSubmitting = false;

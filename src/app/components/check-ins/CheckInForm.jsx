@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import {
   PopoverTrigger,
 } from "../../components/ui/popover";
 import { CalendarIcon } from "lucide-react";
+import { toast } from "sonner";
 
 // Import refactored components
 import MeasurementsTab from "./form/MeasurementsTab";
@@ -26,10 +28,16 @@ import CheckInFormTabs from "./form/CheckInFormTabs";
 import CheckInNavigation from "./form/CheckInNavigation";
 
 const CheckInForm = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { user } = useAuth();
+  console.log("user", user);
   const [currentTab, setCurrentTab] = useState("measurements");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkInData, setCheckInData] = useState({
+    name: user.name,
+    email: user.email,
+    coachId: user.coachId,
+    clinic: user.clinic,
+    selectedDate: new Date(),
     weight: "",
     waterIntake: "",
     energyLevel: 5,
@@ -61,8 +69,50 @@ const CheckInForm = () => {
     supplements: "",
     notes: "",
   });
-  console.log(checkInData);
-  const handleSubmit = () => {};
+
+  const handlechange = (date) => {
+    setCheckInData((prev) => ({ ...prev, ["selectedDate"]: date }));
+  };
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/client/checkIn", {
+        method: "POST",
+        body: JSON.stringify(checkInData),
+      });
+
+      console.log("checkindata", checkInData);
+      const responseData = await response.json();
+      if (responseData.status) {
+        toast.success("clientCheckIndata added successfully");
+        setIsSubmitting(false);
+      } else {
+        throw new Error(responseData.message);
+        setIsSubmitting(false);
+      }
+
+      const resActivity = await fetch("/api/activity/checkIn", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "check_in",
+          description: `Client ${user.name} completed weekly check-in`,
+          clinicId: user.clinic,
+        }),
+      });
+      const respond = await resActivity.json();
+      if (respond.success) {
+        toast.success("weekly check-in activity added successfully");
+      } else {
+        throw new Error(respond.message);
+      }
+
+
+      
+    } catch (error) {
+      console.log("Failed to add checkin", error);
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -74,14 +124,14 @@ const CheckInForm = () => {
               <PopoverTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4" />
-                  {format(selectedDate, "MMMM d, yyyy")}
+                  {format(checkInData.selectedDate, "MMMM d, yyyy")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
+                  selected={checkInData.selectedDate}
+                  onSelect={(date) => date && handlechange(date)}
                   initialFocus
                   // Limit date selection to past 7 days and today
                   disabled={(date) => {

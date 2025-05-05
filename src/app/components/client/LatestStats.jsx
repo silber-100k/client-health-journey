@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -14,34 +16,26 @@ import {
   Moon,
 } from "lucide-react";
 import { Separator } from "../../components/ui/separator";
-
+import { useAuth } from "@/app/context/AuthContext";
+import { useState, useEffect } from "react";
 const LatestStats = () => {
-  const checkIns = [
-    {
-      weight: 3,
-      sleep_hours: 5,
-      waterIntake: 9,
-      date: "2024-07-01",
-    },
-    {
-      weight: 2,
-      sleep_hours: 2,
-      waterIntake: 5,
-      date: "2024-07-02",
-    },
-    {
-      weight: 1,
-      sleep_hours: 5,
-      waterIntake: 9,
-      date: "2024-07-03",
-    },
-    {
-      weight: 5,
-      sleep_hours: 6,
-      waterIntake: 2,
-      date: "2024-07-04",
-    },
-  ];
+  const [checkIns, setCheckIns] = useState([]);
+  const { user } = useAuth();
+  const fetchLatestStatus = async () => {
+    try {
+      const response = await fetch("/api/client/progress", {
+        method: "POST",
+        body: JSON.stringify({ email: user.email }),
+      });
+      const data = await response.json();
+      setCheckIns(data.progress);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchLatestStatus();
+  }, [user, checkIns]);
 
   const weightTrend = "down";
   const waterProgress = 12;
@@ -74,14 +68,14 @@ const LatestStats = () => {
               </div>
             )}
 
-            {checkIns[0].sleep_hours && (
+            {checkIns[0].sleepHours && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Moon className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">Sleep</span>
                 </div>
                 <span className="font-medium">
-                  {checkIns[0].sleep_hours} hrs
+                  {checkIns[0].sleepHours} hrs
                 </span>
               </div>
             )}
@@ -105,7 +99,8 @@ const LatestStats = () => {
 
             <div className="pt-2">
               <span className="text-xs text-gray-500">
-                Last updated: {new Date(checkIns[0].date).toLocaleDateString()}
+                Last updated:{" "}
+                {new Date(checkIns[0].selectedDate).toLocaleDateString()}
               </span>
             </div>
           </>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -19,37 +19,101 @@ import {
 } from "recharts";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
 const CoachReportsPage = () => {
-  const isLoading = false;
-  const stats = {
-    activeClients: 3,
-    activePrograms: 6,
-    pendingCheckIns: 3,
+  const { user } = useAuth();
+  const [activeClients, setActiveClients] = useState(0);
+  const [totalClients, setTotalClients] = useState(0);
+  const [programs, setPrograms] = useState(0);
+  const [checkIns, setCheckIns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [historicalData, sethistoricalData] = useState([]);
+  const fetchActiveClients = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/activeClients");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setActiveClients(data.activeClients);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
   };
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
+
+  const Totalclients = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/totalClients");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setTotalClients(data.numclients);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
   };
-  const [historicalData, sethistoricalData] = useState([
-    {
-      month: 1,
-      checkIns: 54,
-      avgWeight: 22,
-    },
-    {
-      month: 2,
-      checkIns: 31,
-      avgWeight: 52,
-    },
-    {
-      month: 3,
-      checkIns: 61,
-      avgWeight: 21,
-    },
-  ]);
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/programs");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setPrograms(data.numprograms);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchCheckIns = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/checkins");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setCheckIns(data.checkIns);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  const fetchHistoricalData = async () => {
+    try {
+      const response = await fetch("/api/coach/reports/historicalData");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        sethistoricalData(data.historicalData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Unable to get data");
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchActiveClients();
+    Totalclients();
+    fetchPrograms();
+    fetchCheckIns();
+    setIsLoading(false);
+    fetchHistoricalData();
+  }, []);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -79,9 +143,7 @@ const CoachReportsPage = () => {
             <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.activeClients || 0}
-            </div>
+            <div className="text-2xl font-bold">{totalClients}</div>
           </CardContent>
         </Card>
 
@@ -92,9 +154,7 @@ const CoachReportsPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.activeClients || 0}
-            </div>
+            <div className="text-2xl font-bold">{activeClients || 0}</div>
             <p className="text-xs text-muted-foreground">
               Clients with check-ins in the last 30 days
             </p>
@@ -106,9 +166,7 @@ const CoachReportsPage = () => {
             <CardTitle className="text-sm font-medium">Programs</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.activePrograms || 0}
-            </div>
+            <div className="text-2xl font-bold">{programs || 0}</div>
           </CardContent>
         </Card>
 
@@ -117,9 +175,7 @@ const CoachReportsPage = () => {
             <CardTitle className="text-sm font-medium">Check-ins</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.pendingCheckIns || 0}
-            </div>
+            <div className="text-2xl font-bold">{checkIns || 0}</div>
           </CardContent>
         </Card>
       </div>

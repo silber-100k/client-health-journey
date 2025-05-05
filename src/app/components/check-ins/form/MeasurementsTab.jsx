@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "../../ui/select";
 
 const MeasurementsTab = ({ checkInData, setCheckInData }) => {
   const handlechange = (e) => {
@@ -23,6 +23,16 @@ const MeasurementsTab = ({ checkInData, setCheckInData }) => {
           type="number"
           placeholder="Enter your current weight"
           value={checkInData.weight}
+          onChange={(e) => handlechange(e)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="waist">Waist</Label>
+        <Input
+          name="waist"
+          type="number"
+          placeholder="Enter your current waist"
+          value={checkInData.waist}
           onChange={(e) => handlechange(e)}
         />
       </div>

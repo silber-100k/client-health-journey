@@ -1,19 +1,40 @@
 "use client";
-
+import { useAuth } from "@/app/context/AuthContext";
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "../../lib/utils";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import NotificationBadge from "../badge";
+import { useState } from "react";
 
 const SidebarNav = ({ items }) => {
+  const { user } = useAuth();
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isMessage, setIsMessage] = useState(false);
+  const handleClick = async (item) => {
+    if (item.title == "Messages") {
+      setUnreadCount(0);
+      setIsMessage(true);
+      const markAsRead = async () => {
+        await fetch(`/api/message/mark`, {
+          method: "POST",
+          body: JSON.stringify({ email: user?.email }),
+        });
+      };
 
+      markAsRead();
+    } else {
+      setIsMessage(false);
+    }
+  };
   return (
     <ScrollArea className="flex-1 py-2">
       <nav className="grid gap-1 px-2">
         {items.map((item, index) => (
           <Link
+            onClick={() => handleClick(item)}
             key={index}
             href={item.href}
             className={cn(
@@ -23,6 +44,16 @@ const SidebarNav = ({ items }) => {
           >
             <item.icon className="h-5 w-5" />
             {item.title}
+            {item.title == "Messages" ? (
+              <NotificationBadge
+                email={user?.email}
+                unreadCount={unreadCount}
+                setUnreadCount={setUnreadCount}
+                isMessage={isMessage}
+              />
+            ) : (
+              ""
+            )}
           </Link>
         ))}
       </nav>

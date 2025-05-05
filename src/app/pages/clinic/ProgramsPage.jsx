@@ -11,74 +11,63 @@ import ProgramTable from "../../components/programs/ProgramTable";
 import AddProgramDialog from "../../components/programs/AddProgramDialog";
 import ProgramDetailsDialog from "../../components/programs/ProgramDetailsDialog";
 import { Skeleton } from "../../components/ui/skeleton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
 const ProgramsPage = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [showAddProgramDialog, setshowAddProgramDialog] = useState(false);
   const [showProgramDetails, setShowProgramDetails] = useState(false);
-  const programs = [
-    {
-      id: "1",
-      name: "pro1",
-      description: "first pro",
-      duration: 5,
-      type: "practice_naturals",
-      checkInFrequency: "daily",
-      clinicId: "asdf",
-      clientCount: 3,
-      supplements: [
-        {
-          id: "a",
-          name: "a",
-          frequency: "daily",
-          description: "hello",
-          dosage: "hi",
-          timeofDay: "morning",
-        },
-        {
-          id: "b",
-          name: "b",
-          frequency: "daily",
-          description: "hello",
-          dosage: "he",
-          timeofDay: "morning",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "pro2",
-      description: "second pro",
-      duration: 7,
-      type: "chirothin",
-      checkInFrequency: "daily",
-      clinicId: "asddf",
-      clientCount: 12,
-      supplements: [
-        {
-          id: "a",
-          name: "a",
-          frequency: "daily",
-          description: "hello",
-          dosage: "hi",
-          timeofDay: "morning",
-        },
-        {
-          id: "b",
-          name: "b",
-          frequency: "daily",
-          description: "hello",
-          dosage: "he",
-          timeofDay: "morning",
-        },
-      ],
-    },
-  ];
-  const isLoading = false;
-  const isError = false;
-  const isSubmitting = false;
-  const handleSubmitProgram = () => {};
-  const handleCloseDialog = () => {};
+  const [programs, setPrograms] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchPrograms = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/program");
+      const data = await response.json();
+      setPrograms(data.programs);
+      setIsLoading(false);
+      setIsError(false);
+    } catch (error) {
+      console.log(error);
+      setIsError(true);
+      toast.error("Failed to fetch programs");
+    }
+  };
+  useEffect(() => {
+    fetchPrograms();
+  }, []);
+
+  console.log(programs);
+  const handleSubmitProgram = async (data) => {
+    console.log(data);
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/clinic/program", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+      if (responseData.status) {
+        await fetchPrograms();
+        setshowAddProgramDialog(false);
+        toast.success("Program added successfully");
+      } else {
+        throw new Error(responseData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add program");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleCloseDialog = () => {
+    setshowAddProgramDialog(false);
+  };
   const handleAddProgram = () => {
     setshowAddProgramDialog(true);
   };

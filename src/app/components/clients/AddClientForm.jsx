@@ -1,3 +1,4 @@
+"use client";
 import { useForm, FormProvider } from "react-hook-form";
 import { DialogFooter } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
@@ -5,48 +6,116 @@ import { Form } from "../../components/ui/form";
 import ClientFormFields from "./ClientFormFields";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./AddClientSchema";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
 
-const AddClientForm = ({ onCancel }) => {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+const AddClientForm = ({ onCancel, fetchClients }) => {
+  const { user } = useAuth();
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      clinicName: "",
-      clinicEmail: "",
-      clinicPhone: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      primaryContact: "",
-      billingContactName: "",
-      billingEmail: "",
-      billingPhone: "",
-      billingAddress: "",
-      billingCity: "",
-      billingState: "",
-      billingZip: "",
-      paymentMethod: "",
-      subscriptionTier: "",
+      name: "",
+      email: "",
+      phone: "",
+      programId: "",
+      programCategory: "",
+      startDate: new Date().toISOString().split("T")[0],
+      notes: "",
+      coachId: "",
+      initialWeight: "",
+      weightDate: new Date().toISOString().split("T")[0],
+      goals: [],
     },
   });
-  const createError = false;
-  const programsError = false;
-  const coachesError = false;
-  const isProgramsLoading = false;
-  const isCoachesLoading = false;
-  const isPending = false;
+  const [createError, setCreateError] = useState(false);
+  const [programsError, setProgramError] = useState(false);
+  const [coachesError, setCoachesError] = useState(false);
+  const [isProgramsLoading, setProgramsLoading] = useState(false);
+  const [isCoachesLoading, setCoachesLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [programs, setPrograms] = useState([]);
+  const [coaches, setCoaches] = useState([]);
+  const effectiveClinicId = user?.clinic._id;
+  const isCoach = user?.role === "coach";
+  const isClinicAdmin = user?.role === "clinic_admin";
+  let apiRole = "";
+  if (isClinicAdmin) {
+    apiRole = "clinic";
+  }
+  if (isCoach) {
+    apiRole = "coach";
+  }
 
-  const programs = [];
-  const coaches = [];
+  const fetchPrograms = async () => {
+    try {
+      setProgramsLoading(true);
+      const response = await fetch("/api/clinic/program");
+      const data = await response.json();
+      setPrograms(data.programs);
+      setProgramsLoading(false);
+      setProgramError(false);
+    } catch (error) {
+      console.log(error);
+      setProgramError(true);
+      toast.error("Failed to fetch programs");
+    }
+  };
+  const fetchCoaches = async () => {
+    try {
+      setCoachesLoading(true);
+      const response = await fetch("/api/clinic/coach");
+      const data = await response.json();
+      setCoaches(data.coaches);
+      setCoachesLoading(false);
+      setCoachesError(false);
+    } catch (error) {
+      setCoachesError(true);
+      console.error(error);
+      toast.error("Failed to fetch coaches");
+    }
+  };
 
-  const effectiveClinicId = true;
+  useEffect(() => {
+    fetchPrograms();
+    if (isClinicAdmin) {
+      fetchCoaches();
+    }
+  }, []);
 
+  const onSubmit = async (data) => {
+    if (isCoach) {
+      data = { ...data, ["coachId"]: user._id };
+    }
+    if (isPending) {
+      return;
+    }
+    setIsPending(true);
+    try {
+      const response = await fetch(`/api/${apiRole}/client`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+      if (responseData.status) {
+        onCancel();
+        toast.success("client added successfully");
+        fetchClients();
+      } else {
+        throw new Error(responseData.message);
+      }
+    } catch (error) {
+      setCreateError(error);
+      console.error(error);
+      toast.error("Failed to add client");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  console.log("coaceh", coaches);
   return (
     <FormProvider {...form}>
       <Form {...form}>
@@ -101,7 +170,7 @@ const AddClientForm = ({ onCancel }) => {
             </Alert>
           )}
 
-          {!isCoachesLoading && coaches.length === 0 && (
+          {!isCoachesLoading && coaches?.length === 0 && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -129,6 +198,7 @@ const AddClientForm = ({ onCancel }) => {
           )}
 
           <ClientFormFields
+            form={form}
             programs={programs}
             coaches={coaches}
             isProgramsLoading={isProgramsLoading}

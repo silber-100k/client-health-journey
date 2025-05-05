@@ -1,3 +1,4 @@
+"use client";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +9,50 @@ import {
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
 import { AlertCircle, Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
+export const DeleteCoachDialog = ({
+  open,
+  setOpen,
+  selectedCoach,
+  fetchCoaches,
+}) => {
+  const coach = selectedCoach;
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState(null);
 
-export const DeleteCoachDialog = ({ open }) => {
-  const coach = {
-    id: "asdf",
-    name: "asdfasdf",
-    clients: 5,
+  const handleDelete = async () => {
+    console.log("selectedCoach");
+    if (!coach) return;
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/clinic/coach/${selectedCoach._id}`, {
+        method: "DELETE",
+        body: JSON.stringify(coach),
+      });
+      const responseData = await response.json();
+      if (responseData.status) {
+        setOpen(false);
+        toast.success("Coach deleted successfully");
+      } else {
+        throw new error(responseData.message);
+      }
+    } catch (err) {
+      console.error("Error deleting coach:", err);
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
+      toast.error("Failed to delete coach");
+    } finally {
+      await fetchCoaches();
+      setIsDeleting(false);
+    }
   };
-  const error = false;
-  const isDeleting = false;
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Delete Coach</DialogTitle>
@@ -54,8 +88,18 @@ export const DeleteCoachDialog = ({ open }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline">Cancel</Button>
-          <Button variant="destructive">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

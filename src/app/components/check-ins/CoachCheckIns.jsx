@@ -15,18 +15,34 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-
+import { toast } from "sonner";
+import { useAuth } from "@/app/context/AuthContext";
 const CoachCheckIns = () => {
   const [checkIns, setCheckIns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchCoachCheckIns = async () => {
-      // if (!user?.id) return;
-
       setLoading(true);
-      // First fetch all clients for this coach
-      // Get check-ins for these clients
+      try {
+        const response = await fetch("/api/coach/checkIn", {
+          method: "POST",
+          body: JSON.stringify({ id: user._id }),
+        });
+        const data = await response.json();
+        if (data.status) {
+          toast.success("CheckIn Data is fetched successfully");
+          console.log("aaaaaa", data.checkIns);
+          setCheckIns(data.checkIns);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error("Unable to get checkIn data");
+      }
+
+      setLoading(false);
     };
 
     fetchCoachCheckIns();
@@ -45,7 +61,7 @@ const CoachCheckIns = () => {
     );
   }
 
-  if (checkIns.length === 0) {
+  if (checkIns?.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">
@@ -69,47 +85,45 @@ const CoachCheckIns = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {checkIns.map((checkIn) => (
+          {checkIns?.map((checkIn) => (
             <TableRow key={checkIn.id}>
               <TableCell>
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${checkIn.clientName}`}
-                      alt={checkIn.clientName}
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${checkIn.name}`}
+                      alt={checkIn.name}
                     />
-                    <AvatarFallback>
-                      {checkIn.clientName.slice(0, 2)}
-                    </AvatarFallback>
+                    <AvatarFallback>{checkIn.name.slice(0, 2)}</AvatarFallback>
                   </Avatar>
-                  <div className="font-medium">{checkIn.clientName}</div>
+                  <div className="font-medium">{checkIn.name}</div>
                 </div>
               </TableCell>
               <TableCell>
-                {new Date(checkIn.date).toLocaleDateString()}
+                {new Date(checkIn.selectedDate).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 {checkIn.weight ? `${checkIn.weight} lbs` : "Not recorded"}
               </TableCell>
               <TableCell>
-                {checkIn.mood ? (
+                {checkIn.moodLevel ? (
                   <Badge
                     className="bg-blue-100 text-blue-800"
                     variant="outline"
                   >
-                    {checkIn.mood}/5
+                    {checkIn.moodLevel}/10
                   </Badge>
                 ) : (
                   "Not recorded"
                 )}
               </TableCell>
               <TableCell>
-                {checkIn.energy ? (
+                {checkIn.energyLevel ? (
                   <Badge
                     className="bg-green-100 text-green-800"
                     variant="outline"
                   >
-                    {checkIn.energy}/5
+                    {checkIn.energyLevel}/10
                   </Badge>
                 ) : (
                   "Not recorded"

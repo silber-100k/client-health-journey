@@ -12,18 +12,12 @@ import CoachClientList from "../../components/clients/CoachClientList";
 import AddClientDialog from "../../components/clients/AddClientDialog";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const ClientsPage = () => {
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
-  const isClinicAdmin = false;
-  const isCoach = true;
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+  const { user } = useAuth();
+  const isCoach = user?.role === "coach";
   const handleAddlclientdialogue = () => {
     setIsAddClientDialogOpen(true);
   };
@@ -43,27 +37,9 @@ const ClientsPage = () => {
         </div>
       </div>
 
-      {isClinicAdmin && (
-        <Alert className="mb-6 bg-primary-50 border-primary-200">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertTitle>Clinic Admin View</AlertTitle>
-          <AlertDescription>
-            You are viewing all clients for {user?.name || "your clinic"}. This
-            includes clients assigned to all coaches in your clinic. Your clinic
-            ID is: {user?.clinicId || "unknown"}
-          </AlertDescription>
-        </Alert>
-      )}
-
       <Card>
         <CardHeader>
-          <CardTitle>
-            {isCoach
-              ? "Your Clients"
-              : isClinicAdmin
-              ? `${user?.name || "Clinic"} Clients`
-              : "All Clients"}
-          </CardTitle>
+          <CardTitle>{isCoach ? "Your Clients" : "All Clients"}</CardTitle>
         </CardHeader>
         <CardContent>
           {isCoach ? <CoachClientList /> : <ClientList />}

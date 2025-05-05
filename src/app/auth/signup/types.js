@@ -61,6 +61,7 @@ export const clinicSignupSchema = z.object({
 
 export const coachSignupSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email format").min(1, "Email is required")
+  email: z.string().email("Invalid email format").min(1, "Email is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
 });
 

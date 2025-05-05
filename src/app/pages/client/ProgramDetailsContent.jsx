@@ -9,22 +9,22 @@ const ProgramDetailsContent = () => {
   const programType = "practice_naturals";
   const programCategory = "B"
   const supplements = [
-    // {
-    //   id:"1",
-    //   name:"aaa",
-    //   description:"adsfasdfasdf",
-    //   dosage:23,
-    //   frequency:3,
-    //   timeofDay:3,
-    // },
-    // {
-    //   id:"2",
-    //   name:"aaaddf",
-    //   description:"adfdfdsfasdfasdf",
-    //   dosage:21,
-    //   frequency:4,
-    //   timeofDay:2,
-    // },
+    {
+      id:"1",
+      name:"aaa",
+      description:"adsfasdfasdf",
+      dosage:23,
+      frequency:3,
+      timeofDay:3,
+    },
+    {
+      id:"2",
+      name:"aaaddf",
+      description:"adfdfdsfasdfasdf",
+      dosage:21,
+      frequency:4,
+      timeofDay:2,
+    },
   ]
   return (
     <div className="space-y-6">

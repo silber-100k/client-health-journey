@@ -1,4 +1,4 @@
-import ClientsPage from "../../../pages/admin/ClientsPage";
+import ClientsPage from "../../../pages/coach/ClientsPage";
 
 const Page = () => {
   return <ClientsPage />;

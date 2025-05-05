@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Button } from "../components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -6,12 +6,13 @@ import SignupDemoNotice from "../auth/signup/SignupDemoNotice";
 import { Card } from "../components/ui/card";
 import ClinicSignupForm from "../auth/signup/ClinicSignupForm";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const ClinicSignUpPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [clinicId, setClinicId] = useState("");
 
   const handleSubmit = async (data, additionalCoaches) => {
     setIsSubmitting(true);
@@ -24,18 +25,44 @@ const ClinicSignUpPage = () => {
         throw new Error("Failed to create clinic");
       }
       const result = await response.json();
+      console.log(result);
       if (result.success) {
         toast.success("Clinic created successfully");
+        setClinicId(result._id);
         router.push("/login");
       } else {
         throw new Error(result.message);
       }
     } catch (error) {
-      toast.error(error.message || "Failed to create clinic");
+      console.error(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    const registerActivity = async () => {
+      try {
+        const resActivity = await fetch("/api/activity/clinicSignup", {
+          method: "POST",
+          body: JSON.stringify({
+            type: "clinic_signup",
+            description: `'New clinic signed up: ${data.clinicName}`,
+            clinicId: clinicId,
+          }),
+        });
+        const respond = await resActivity.json();
+        if (respond.success) {
+          toast.success("Activity logged successfully");
+        } else {
+          throw new Error(respond.message);
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    registerActivity();
+  }, [clinicId]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -51,7 +78,10 @@ const ClinicSignUpPage = () => {
           <div className="px-6 pt-4">
             <SignupDemoNotice />
           </div>
-          <ClinicSignupForm isSubmitting={isSubmitting} onSubmit={handleSubmit} />
+          <ClinicSignupForm
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+          />
         </Card>
       </div>
     </div>

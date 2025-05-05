@@ -1,4 +1,7 @@
 "use client";
+
+import { useAuth } from "@/app/context/AuthContext";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,6 +10,25 @@ import {
 } from "../../components/ui/card";
 import ProgressChart from "../../components/progress/ProgressChart";
 const ClientProgress = () => {
+  const [progressData, setProgressData] = useState([]);
+
+  const { user } = useAuth();
+  const fetchProgressdata = async () => {
+    try {
+      const response = await fetch("/api/client/progress", {
+        method: "POST",
+        body: JSON.stringify({ email: user.email }),
+      });
+      const data = await response.json();
+      setProgressData(data.progress);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchProgressdata();
+  }, []);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -15,7 +37,7 @@ const ClientProgress = () => {
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
-            <ProgressChart />
+            <ProgressChart progressData={progressData} />
           </div>
         </CardContent>
       </Card>
@@ -25,7 +47,7 @@ const ClientProgress = () => {
           <CardTitle className="text-xl">Measurement History</CardTitle>
         </CardHeader>
         <CardContent>
-          <CheckInHistoryTable />
+          <CheckInHistoryTable progressData={progressData} />
         </CardContent>
       </Card>
     </div>
@@ -33,39 +55,8 @@ const ClientProgress = () => {
 };
 
 // Component to display a table of check-in history
-const CheckInHistoryTable = () => {
-  // Properly use the context type
-  const checkIns = [
-    {
-      id: "1",
-      date: "4/19/2025",
-      weight: "23",
-      waist: "3",
-      energy_score: "3",
-      mood_score: "3",
-      sleep_hours: "5",
-    },
-    {
-      id: "2",
-      date: "4/20/2025",
-      weight: "25",
-      waist: "2",
-      energy_score: "2",
-      mood_score: "3",
-      sleep_hours: "2",
-    },
-    {
-      id: "3",
-      date: "4/24/2025",
-      weight: "4",
-      waist: "3",
-      energy_score: "5",
-      mood_score: "3",
-      sleep_hours: "5",
-    },
-  ];
-
-  if (checkIns.length === 0) {
+const CheckInHistoryTable = ({ progressData }) => {
+  if (progressData.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500">
         No check-ins recorded yet. Start tracking your progress!
@@ -87,10 +78,10 @@ const CheckInHistoryTable = () => {
           </tr>
         </thead>
         <tbody>
-          {checkIns.map((checkIn) => (
+          {progressData.map((checkIn) => (
             <tr key={checkIn.id} className="border-b hover:bg-gray-50">
               <td className="py-3 px-2">
-                {new Date(checkIn.date).toLocaleDateString()}
+                {new Date(checkIn.selectedDate).toLocaleDateString()}
               </td>
               <td className="py-3 px-2">
                 {checkIn.weight ? `${checkIn.weight} lbs` : "-"}
@@ -99,13 +90,13 @@ const CheckInHistoryTable = () => {
                 {checkIn.waist ? `${checkIn.waist} in` : "-"}
               </td>
               <td className="py-3 px-2">
-                {checkIn.energy_score ? `${checkIn.energy_score}/10` : "-"}
+                {checkIn.energyLevel ? `${checkIn.energyLevel}/10` : "-"}
               </td>
               <td className="py-3 px-2">
-                {checkIn.mood_score ? `${checkIn.mood_score}/10` : "-"}
+                {checkIn.moodLevel ? `${checkIn.moodLevel}/10` : "-"}
               </td>
               <td className="py-3 px-2">
-                {checkIn.sleep_hours ? `${checkIn.sleep_hours} hrs` : "-"}
+                {checkIn.sleepHours ? `${checkIn.sleepHours} hrs` : "-"}
               </td>
             </tr>
           ))}

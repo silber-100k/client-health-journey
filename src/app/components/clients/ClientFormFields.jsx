@@ -18,35 +18,19 @@ import {
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Loader2, Globe } from "lucide-react";
-const ClientFormFields = (
+import { clientGoals } from "./AddClientSchema";
+import { useAuth } from "@/app/context/AuthContext";
+
+const ClientFormFields = ({
+  form,
   programs,
   coaches,
   selectedProgramType,
   isProgramsLoading = false,
-  isCoachesLoading = false
-) => {
-  const form = useForm({
-    defaultValues: {
-      clinicName: "",
-      clinicEmail: "",
-      clinicPhone: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      primaryContact: "",
-      billingContactName: "",
-      billingEmail: "",
-      billingPhone: "",
-      billingAddress: "",
-      billingCity: "",
-      billingState: "",
-      billingZip: "",
-      paymentMethod: "",
-      subscriptionTier: "",
-    },
-  });
-  const clientGoals = [];
+  isCoachesLoading = false,
+}) => {
+  const { user } = useAuth();
+  const isCoach = user?.role == "coach";
   return (
     <div className="space-y-3">
       <FormField
@@ -172,55 +156,60 @@ const ClientFormFields = (
           </FormItem>
         )}
       />
-
-      <FormField
-        control={form.control}
-        name="coachId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Assign Coach</FormLabel>
-            <FormDescription>
-              Select a coach to assign to this client
-            </FormDescription>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value || "none"}
-              defaultValue={field.value || "none"}
-              disabled={isCoachesLoading}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  {isCoachesLoading ? (
-                    <div className="flex items-center">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Loading coaches...
-                    </div>
-                  ) : (
-                    <SelectValue placeholder="Select a coach" />
-                  )}
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="none">No coach assigned</SelectItem>
-                {coaches && coaches.length > 0 ? (
-                  coaches.map((coach) => (
-                    <SelectItem key={coach.id} value={coach.id}>
-                      {coach.name} ({coach.email})
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-coaches-available" disabled>
-                    {isCoachesLoading
-                      ? "Loading coaches..."
-                      : "No coaches available"}
+      {!isCoach && (
+        <FormField
+          control={form.control}
+          name="coachId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Assign Coach</FormLabel>
+              <FormDescription>
+                Select a coach to assign to this client
+              </FormDescription>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || "none"}
+                defaultValue={field.value || "none"}
+                disabled={isCoachesLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    {isCoachesLoading ? (
+                      <div className="flex items-center">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading coaches...
+                      </div>
+                    ) : (
+                      <SelectValue placeholder="Select a coach" />
+                    )}
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="none">No coach assigned</SelectItem>
+                  <SelectItem value={user.clinic._id}>
+                    {user.name}
+                    {user.email}
                   </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+                  {coaches && coaches.length > 0 ? (
+                    coaches.map((coach) => (
+                      <SelectItem key={coach._id} value={coach._id}>
+                        {coach.name} ({coach.email})
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-coaches-available" disabled>
+                      {isCoachesLoading
+                        ? "Loading coaches..."
+                        : "No coaches available"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
 
       <FormField
         control={form.control}
@@ -253,7 +242,7 @@ const ClientFormFields = (
                 <SelectItem value="no-program">No program</SelectItem>
                 {programs && programs.length > 0 ? (
                   programs.map((program) => (
-                    <SelectItem key={program.id} value={program.id}>
+                    <SelectItem key={program._id} value={program._id}>
                       {program.name} ({program.type}) - {program.duration} days
                       {program.isGlobal && (
                         <span className="ml-2 inline-flex items-center">

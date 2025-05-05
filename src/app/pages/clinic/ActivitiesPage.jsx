@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Card,
@@ -15,32 +16,37 @@ import {
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Skeleton } from "../../components/ui/skeleton";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 const AdminActivitiesPage = () => {
-  const clinics = 2;
-  const coaches = 2;
-  const checkIns = 1;
-  const others = 3;
-  const activities = [
-    {
-      id: "1",
-      type: "check_in",
-      description: "okay",
-      timestamp: "2025-04-19T12:17:00",
-    },
-    {
-      id: "2",
-      type: "clinic_signup",
-      description: "okay",
-      timestamp: "2025-04-19T12:17:00",
-    },
-    {
-      id: "3",
-      type: "coach_added",
-      description: "okay",
-      timestamp: "2025-04-19T12:17:00",
-    },
-  ];
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const fetchrecentActivities = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/dashboard/recentActivities");
+      const data = await response.json();
+      if (data.status) {
+        toast.success("Fetched successfully");
+        setRecentActivities(data.recentActivity);
+        
+      } else {
+        setIsActivitiesError(true);
+        toast.error(data.message);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setError(true);
+      setIsActivitiesError(true);
+      toast.error("Unable to get data");
+    }
+  };
+  useEffect(() => {
+    fetchrecentActivities();
+  }, []);
+
   const getActivityIcon = (type) => {
     switch (type) {
       case "check_in":
@@ -57,7 +63,7 @@ const AdminActivitiesPage = () => {
   };
 
   const renderActivitySummary = () => {
-    if (!activities || activities.length === 0) {
+    if (!recentActivities || recentActivities.length === 0) {
       console.log("ActivitiesPage: No activities available for summary");
       return (
         <Card>
@@ -74,10 +80,16 @@ const AdminActivitiesPage = () => {
     }
 
     // Count activities by type
-    const checkIns = activities.filter((a) => a.type === "check_in").length;
-    const clinics = activities.filter((a) => a.type === "clinic_signup").length;
-    const coaches = activities.filter((a) => a.type === "coach_added").length;
-    const others = activities.filter(
+    const checkIns = recentActivities.filter(
+      (a) => a.type === "check_in"
+    ).length;
+    const clinics = recentActivities.filter(
+      (a) => a.type === "clinic_signup"
+    ).length;
+    const coaches = recentActivities.filter(
+      (a) => a.type === "coach_added"
+    ).length;
+    const others = recentActivities.filter(
       (a) =>
         a.type !== "check_in" &&
         a.type !== "clinic_signup" &&
@@ -85,7 +97,7 @@ const AdminActivitiesPage = () => {
     ).length;
 
     // Calculate total activities
-    const totalActivities = activities.length;
+    const totalActivities = recentActivities.length;
 
     return (
       <Card>
@@ -131,8 +143,7 @@ const AdminActivitiesPage = () => {
       </Card>
     );
   };
-  const isLoading = false;
-  const error = false;
+
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
@@ -147,6 +158,7 @@ const AdminActivitiesPage = () => {
           size="sm"
           className="flex items-center gap-2"
           disabled={isLoading}
+          onClick={() => fetchrecentActivities()}
         >
           <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           <span>Refresh</span>
@@ -182,9 +194,9 @@ const AdminActivitiesPage = () => {
                     Try Again
                   </Button>
                 </div>
-              ) : activities && activities.length > 0 ? (
+              ) : recentActivities && recentActivities.length > 0 ? (
                 <div className="space-y-6">
-                  {activities.map((activity) => (
+                  {recentActivities.map((activity) => (
                     <div
                       key={activity.id}
                       className="flex items-start space-x-3 pb-4 border-b last:border-0"

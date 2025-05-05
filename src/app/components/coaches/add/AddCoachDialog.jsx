@@ -14,7 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "@/app/components/ui/select";
 import {
   FormItem,
   FormLabel,
@@ -31,8 +31,8 @@ import { toast } from "sonner";
 export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
   const { user } = useAuth();
   const clinics = [
-    { id: "1", name: "aaa" },
-    { id: "2", name: "bbb" },
+    { _id: "1", name: "aaa" },
+    { _id: "2", name: "bbb" },
   ];
 
   const [selectedClinicId, setSelectedClinicId] = useState("");
@@ -46,6 +46,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
     setSelectedClinicId(clinicId);
   };
   const handleSubmit = async (data) => {
+    console.log("data", data);
     if (isSubmitting) {
       return;
     }
@@ -55,6 +56,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
         method: "POST",
         body: JSON.stringify(data),
       });
+
       const responseData = await response.json();
       if (responseData.status) {
         await fetchCoaches();
@@ -63,9 +65,23 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
       } else {
         throw new Error(responseData.message);
       }
+
+      const resActivity = await fetch("/api/activity/addCoach", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "coach_added",
+          description: `New coach added to ${user.name}`,
+          clinicId: user.clinic._id,
+        }),
+      });
+      const respond = await resActivity.json();
+      if (respond.success) {
+        toast.success("Activity added successfully");
+      } else {
+        throw new Error(respond.message);
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add coach");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,8 +93,8 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
         <DialogHeader>
           <DialogTitle>Add New Coach</DialogTitle>
           <DialogDescription>
-            Add a new coach to {user?.clinic?.name}. They will receive an email invitation to set
-            up their account.
+            Add a new coach to {user?.clinic?.name}. They will receive an email
+            invitation to set up their account.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,7 +121,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
                   </SelectItem>
                 ) : clinics.length > 0 ? (
                   clinics.map((clinic) => (
-                    <SelectItem key={clinic.id} value={clinic.id}>
+                    <SelectItem key={clinic._id} value={clinic._id}>
                       {clinic.name}
                     </SelectItem>
                   ))
@@ -126,7 +142,11 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
             )}
           </div>
         )}
-        <CoachForm onSubmit={handleSubmit} isSubmitting={isSubmitting} onCancel={() => setOpen(false)} />
+        <CoachForm
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          onCancel={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );

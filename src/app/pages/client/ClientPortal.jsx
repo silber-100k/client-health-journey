@@ -22,10 +22,12 @@ import {
   FileText,
   Utensils,
 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const ClientPortal = () => {
   const currentPath = usePathname();
   const router = useRouter();
+  const {user} = useAuth();
   // Determine which tab should be active based on the current path
   const getDefaultTab = () => {
     if (currentPath.includes("/messages")) return "messages";
@@ -60,13 +62,7 @@ const ClientPortal = () => {
         router.push("/client/dashboard");
     }
   };
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+
   return (
     <div>
       <div className="mb-6">

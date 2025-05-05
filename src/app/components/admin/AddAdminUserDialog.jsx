@@ -28,7 +28,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
+} from "../ui/select";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 
@@ -44,7 +44,12 @@ const formSchema = z.object({
   clinicId: z.string().optional(),
 });
 
-export function AddAdminUserDialog({ open, setOpen, isSuperAdmin = false, onAdd }) {
+export function AddAdminUserDialog({
+  open,
+  setOpen,
+  isSuperAdmin = false,
+  onAdd,
+}) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm({

@@ -17,16 +17,16 @@ export const CoachForm = ({
   onSubmit,
   isSubmitting,
   onCancel,
-  defaultValues = {
-    name: "",
-    email: "",
-    phone: "",
-  },
+
   submitButtonText = "Add Coach",
 }) => {
   const form = useForm({
-    defaultValues,
-    resolver: zodResolver(coachSignupSchema)
+    defaultValues: {
+      name: "",
+      email: "",
+      phoneNumber: "",
+    },
+    resolver: zodResolver(coachSignupSchema),
   });
 
   return (
@@ -74,16 +74,16 @@ export const CoachForm = ({
 
         <FormField
           control={form.control}
-          name="phone"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem>
               <div className="grid grid-cols-4 items-center gap-4">
-                <FormLabel htmlFor="phone" className="text-right">
+                <FormLabel htmlFor="phoneNumber" className="text-right">
                   Phone
                 </FormLabel>
                 <div className="col-span-3">
                   <FormControl>
-                    <Input id="phone" type="tel" {...field} />
+                    <Input id="phoneNumber" type="text" {...field} />
                   </FormControl>
                   <FormMessage className="text-red-500 text-sm mt-1" />
                 </div>

@@ -20,7 +20,7 @@ export async function GET(request) {
         const clinicId = user.clinic._id;
 
         const coaches = await userRepo.getCoachesByClinicId(clinicId);
-        return NextResponse.json({ staus: true, coaches });
+                return NextResponse.json({ staus: true, coaches });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -43,7 +43,7 @@ export async function POST(request) {
         }
         const clinicId = user.clinic._id;
 
-        const { name, email, phone } = await request.json();
+        const { name, email, phoneNumber } = await request.json();
         if (!name || !email) {
             return NextResponse.json({ message: "Invalid request" }, { status: 400 });
         }
@@ -51,7 +51,7 @@ export async function POST(request) {
         const coach = await userRepo.createAdminUser(
             name,
             email,
-            phone,
+            phoneNumber,
             "coach",
             randomPassword,
             clinicId

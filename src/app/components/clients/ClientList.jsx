@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { Badge } from "../../components/ui/badge";
-const ClientList = ({ clinicId }) => {
+const ClientList = ({ clients }) => {
   return (
     <Table>
       <TableHeader>
@@ -20,8 +20,8 @@ const ClientList = ({ clinicId }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {clients.map((client) => (
-          <TableRow key={client.id} className="hover:bg-gray-50">
+        {clients?.map((client) => (
+          <TableRow key={client._id} className="hover:bg-gray-50">
             <TableCell className="font-medium">{client.name}</TableCell>
             <TableCell>{client.email}</TableCell>
             <TableCell>

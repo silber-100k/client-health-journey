@@ -5,8 +5,13 @@ async function getAdminUsers() {
     return users;
 }
 
-async function createAdminUser(name, email, phone, role, password, clinic, options = {}) {
-    const user = await db.User.create([{ name, email, phone, role, password, clinic }], options);
+async function createAdminUser(name, email, phoneNumber, role, password, clinic, options = {}) {
+    const user = await db.User.create([{ name, email, phoneNumber, role, password, clinic }], options);
+    return user[0];
+}
+
+async function createClientUser(name, email, phoneNumber, role, password, clinic, coachId, options = {}) {
+    const user = await db.User.create([{ name, email, phoneNumber, role, password, clinic, coachId }], options);
     return user[0];
 }
 
@@ -52,13 +57,37 @@ async function getCoachesByClinicId(clinicId) {
     return coaches;
 }
 
+async function getNumCoachesByClinicId(clinicId) {
+    const coaches = await db.User.find({ role: "coach", clinic: clinicId }).populate("clinic");
+    return coaches.length;
+}
+
+async function updateCoach(id, name, email, phone) {
+    const user = await db.User.findByIdAndUpdate(id, { name, email, phone}, { new: true, upsert: true });
+    return user;
+}
+
+async function deleteCoach(id) {
+    const user = await db.User.findByIdAndDelete(id);
+    return user;
+}
+
+async function resetPassword(id) {
+    const user = await db.User.findByIdAndUpdate(id,{password:"22222222"});
+    return user;
+}
 export const userRepo = {
+    resetPassword,
+    updateCoach,
     getAdminUsers,
     createAdminUser,
     updateAdminUser,
     deleteAdminUser,
+    deleteCoach,
     authenticate,
     getUserById,
     getUserByEmail,
     getCoachesByClinicId,
+    getNumCoachesByClinicId,
+    createClientUser
 };

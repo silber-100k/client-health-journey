@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Badge } from "../../components/ui/badge";
 import {
@@ -7,8 +8,46 @@ import {
 } from "../../components/ui/avatar";
 import Link from "next/link";
 import { Skeleton } from "../../components/ui/skeleton";
+import { useState, useEffect } from "react";
 
 const RecentCheckIns = ({ limit = 5 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, isError] = useState(false);
+  const [checkIns, setCheckIns] = useState([]);
+  const fetchCheckIns = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/checkIns");
+      const data = await response.json();
+      setCheckIns(data.checkIns);
+      setIsLoading(false);
+      isError(false);
+    } catch (error) {
+      console.log(error);
+      isError(true);
+    }
+  };
+  useEffect(() => {
+    fetchCheckIns();
+  }, []);
+
+  // const checkIns = [
+  //   {
+  //     id: "1",
+  //     name: "oka",
+  //     date: "April 19, 2025 10:53:00",
+  //     weight: 150,
+  //     mood: 3,
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "oksa",
+  //     date: "April 19, 2022 10:53:00",
+  //     weight: 120,
+  //     mood: 1,
+  //   },
+  // ];
+
   const getMoodBadge = (mood) => {
     if (mood === null) return <Badge variant="outline">No mood</Badge>;
 
@@ -16,7 +55,7 @@ const RecentCheckIns = ({ limit = 5 }) => {
       case 5:
         return (
           <Badge
-            className="bg-green-100 text-green-800 hover:bg-green-200"
+            className="bg-cyan-100-100 text-cyan-800 hover:bg-green-200"
             variant="outline"
           >
             Great
@@ -34,13 +73,21 @@ const RecentCheckIns = ({ limit = 5 }) => {
       case 3:
         return (
           <Badge
-            className="bg-gray-100 text-gray-800 hover:bg-gray-200"
+            className="bg-amber-100 text-amber-800 hover:bg-gray-200"
             variant="outline"
           >
             Average
           </Badge>
         );
       case 2:
+        return (
+          <Badge
+            className="bg-pink-100 text-pink-800 hover:bg-gray-200"
+            variant="outline"
+          >
+            Average
+          </Badge>
+        );
       case 1:
         return (
           <Badge
@@ -51,7 +98,7 @@ const RecentCheckIns = ({ limit = 5 }) => {
           </Badge>
         );
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">very poor</Badge>;
     }
   };
 
@@ -88,24 +135,6 @@ const RecentCheckIns = ({ limit = 5 }) => {
       : `Lost ${Math.abs(diff).toFixed(1)} lbs`;
   };
 
-  const isLoading = false;
-  const error = false;
-  const checkIns = [
-    {
-      id: "1",
-      clientName: "oka",
-      date: "April 19, 2025 10:53:00",
-      weight: 150,
-      mood: 3,
-    },
-    {
-      id: "2",
-      clientName: "oksa",
-      date: "April 19, 2022 10:53:00",
-      weight: 120,
-      mood: 1,
-    },
-  ];
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -114,8 +143,6 @@ const RecentCheckIns = ({ limit = 5 }) => {
             <Skeleton className="h-8 w-8 rounded-full" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-3 w-16" />
             </div>
           </div>
         ))}
@@ -142,29 +169,29 @@ const RecentCheckIns = ({ limit = 5 }) => {
     <div className="space-y-4">
       {checkIns.map((checkIn) => (
         <Link
-          key={checkIn.id}
-          href={`/check-in/${checkIn.id}`}
+          key={checkIn._id}
+          href={`/check-in/${checkIn._id}`}
           className="block"
         >
           <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${checkIn.clientName}`}
-                alt={checkIn.clientName}
+                src={`https://api.dicebear.com/7.x/initials/svg?seed=${checkIn.name}`}
+                alt={checkIn.name}
               />
-              <AvatarFallback>{checkIn.clientName.slice(0, 2)}</AvatarFallback>
+              <AvatarFallback>{checkIn.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-sm">{checkIn.clientName}</h4>
+                <h4 className="font-medium text-sm">{checkIn.name}</h4>
                 <span className="text-xs text-gray-500">
-                  {formatDate(checkIn.date)}
+                  {formatDate(checkIn.selectedDate)}
                 </span>
               </div>
               <div className="mt-1 text-xs text-gray-500">
                 {formatWeight(checkIn.weight)}
               </div>
-              <div className="mt-2">{getMoodBadge(checkIn.mood)}</div>
+              <div className="mt-2">{getMoodBadge(Math.floor(checkIn.moodLevel[0]/2))}</div>
             </div>
           </div>
         </Link>

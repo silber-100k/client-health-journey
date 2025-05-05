@@ -17,9 +17,9 @@ import {
   Users,
 } from "lucide-react";
 
-const ProgramTable = ({programs, isLoading, isError, onSelectProgram}) => {
+const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
   const getProgramIcon = (type) => {
-    switch (type.toLowerCase()) {
+    switch (type?.toLowerCase()) {
       case "nutrition":
       case "practice_naturals":
         return <Utensils className="h-5 w-5 text-primary-700" />;
@@ -68,7 +68,7 @@ const ProgramTable = ({programs, isLoading, isError, onSelectProgram}) => {
       </div>
     );
   }
-
+  console.log("table", programs);
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -87,23 +87,33 @@ const ProgramTable = ({programs, isLoading, isError, onSelectProgram}) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {programs.map((program) => (
+          {programs.map((program, index) => (
             <TableRow
-              key={program.id}
+              key={index}
               className="cursor-pointer hover:bg-gray-50"
               onClick={() => onSelectProgram(program)}
             >
               <TableCell>
                 <div className="flex items-center space-x-3">
                   <div className="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center">
-                    {getProgramIcon(program.type)}
+                    {getProgramIcon(
+                      program?.type ? program.type : program.tempId?.type
+                    )}
                   </div>
-                  <div className="font-medium">{program.name}</div>
+                  <div className="font-medium">
+                    {program.name
+                      ? program.name
+                      : `${program.tempId?.type
+                          .replace("_", " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())} Program`}
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="capitalize">
-                  {program.type.replace("_", " ")}
+                  {program.type
+                    ? program.type.replace("_", " ")
+                    : program.tempId?.type}
                 </Badge>
               </TableCell>
               <TableCell>{formatDuration(program.duration)}</TableCell>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -8,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const ProgressChart = () => {
+const ProgressChart = ({ progressData }) => {
   // Mock weight data
   const data = [
     { day: "Day 1", weight: 185 },
@@ -23,7 +24,7 @@ const ProgressChart = () => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
-        data={data}
+        data={progressData}
         margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
       >
         <CartesianGrid
@@ -32,7 +33,7 @@ const ProgressChart = () => {
           stroke="#f0f0f0"
         />
         <XAxis
-          dataKey="day"
+          dataKey="exerciseType"
           tick={{ fontSize: 12 }}
           tickLine={false}
           axisLine={false}

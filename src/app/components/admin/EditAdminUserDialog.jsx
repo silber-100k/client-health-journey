@@ -28,7 +28,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
+} from "../ui/select";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { toast } from "sonner";
@@ -41,7 +41,13 @@ const formSchema = z.object({
   is_active: z.boolean(),
 });
 
-export function EditAdminUserDialog({ open, setOpen, isSuperAdmin = false, onEdit, userId }) {
+export function EditAdminUserDialog({
+  open,
+  setOpen,
+  isSuperAdmin = false,
+  onEdit,
+  userId,
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 

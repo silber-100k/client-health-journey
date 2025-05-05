@@ -1,5 +1,6 @@
+import ClientMessages from "../../../components/clients/ClientMessages";
 
 const Page = () => {
-  return <div></div>;
+  return <ClientMessages />;
 };
 export default Page;
