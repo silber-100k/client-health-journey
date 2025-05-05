@@ -1,0 +1,104 @@
+"use client";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { UserPlus, AlertCircle, RefreshCw } from "lucide-react";
+import ClientList from "../../components/clients/ClientList";
+import CoachClientList from "../../components/clients/CoachClientList";
+import AddClientDialog from "../../components/clients/AddClientDialog";
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
+import { motion, useAnimation } from "framer-motion";
+const ClientsPage = () => {
+  const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
+  const [clients, setClients] = useState([]);
+  const { user } = useAuth();
+  const controls = useAnimation();
+  const handleAddlclientdialogue = () => {
+    setIsAddClientDialogOpen(true);
+  };
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("/api/coach/client");
+      const data = await response.json();
+      console.log("clients", data);
+      setClients(data.clients);
+    } catch (error) {
+      toast.error("Failed to fetch clients");
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchClients();
+  }, []);
+  const handleRefresh = () => {
+    controls
+      .start({
+        rotate: 360,
+        transition: { duration: 0.8, ease: "linear" },
+      })
+      .then(() => controls.set({ rotate: 0 }));
+    fetchClients();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh}>
+            <motion.svg
+              animate={controls}
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              style={{ display: "inline-block", verticalAlign: "middle" }}
+            >
+              {/* Icon path here */}
+              <RefreshCw className="mr-2 h-4 w-4" />
+            </motion.svg>
+            Refresh
+          </Button>
+          <Button onClick={handleAddlclientdialogue}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Client
+          </Button>
+        </div>
+      </div>
+
+      <Alert className="mb-6 bg-primary-50 border-primary-200">
+        <AlertCircle className="h-4 w-4 text-primary" />
+        <AlertTitle>Coach View</AlertTitle>
+        <AlertDescription>
+          You are viewing all clients for {user?.name || "your clinic"}. This
+          includes clients assigned to all coaches in your clinic. Your Clinic
+          ID is: {user?.clinic._id || "unknown"} and Your Coach ID is:{" "}
+          {user?._id}
+        </AlertDescription>
+      </Alert>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>"Your Clients"</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CoachClientList clients={clients} />
+        </CardContent>
+      </Card>
+
+      <AddClientDialog
+        open={isAddClientDialogOpen}
+        onOpenChange={setIsAddClientDialogOpen}
+        fetchClients={fetchClients}
+      />
+    </div>
+  );
+};
+
+export default ClientsPage;
