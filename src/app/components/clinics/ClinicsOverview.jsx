@@ -8,8 +8,9 @@ import {
 import { Button } from "../../components/ui/button";
 import { Building } from "lucide-react";
 import ClinicsTable from "../../components/clinics/ClinicsTable";
-
-const ClinicsOverview = ({ clinics, getStatusColor, onAddClinic }) => {
+import { RefreshCw } from "lucide-react";
+import { Skeleton } from "../../components/ui/skeleton";
+const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic, fetchClinics, isLoading }) => {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -20,10 +21,20 @@ const ClinicsOverview = ({ clinics, getStatusColor, onAddClinic }) => {
           </p>
         </div>
         <div>
-          <Button className="flex items-center gap-2" onClick={onAddClinic}>
+        <Button
+            variant="outline"
+            size="icon"
+            className="flex items-center justify-center"
+            title="Refresh clinics"
+            onClick={fetchClinics}
+            disabled={isLoading}
+          >
+            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+          </Button>
+          {/* <Button className="flex items-center gap-2" onClick={onAddClinic} disabled>
             <Building size={18} />
             <span>Add Clinic</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -32,7 +43,15 @@ const ClinicsOverview = ({ clinics, getStatusColor, onAddClinic }) => {
           <CardTitle>All Clinics</CardTitle>
         </CardHeader>
         <CardContent>
-          <ClinicsTable clinics={clinics} getStatusColor={getStatusColor} />
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : (
+          <ClinicsTable clinics={clinics} onClinicSelect={onClinicSelect}  getStatusColor={getStatusColor} />
+          )}
         </CardContent>
       </Card>
     </div>

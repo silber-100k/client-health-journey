@@ -76,6 +76,17 @@ async function resetPassword(id) {
     const user = await db.User.findByIdAndUpdate(id,{password:"22222222"});
     return user;
 }
+
+async function updateCoachNum(id) {
+    const user = await db.Clinic.findByIdAndUpdate(id, { $inc: { coaches: 1 } });
+    return user;
+}
+
+async function getCoaches() {
+    const coaches = await db.User.find({ role: "coach" });
+    return coaches;
+}
+
 export const userRepo = {
     resetPassword,
     updateCoach,
@@ -89,5 +100,7 @@ export const userRepo = {
     getUserByEmail,
     getCoachesByClinicId,
     getNumCoachesByClinicId,
-    createClientUser
+    createClientUser,
+    updateCoachNum,
+    getCoaches
 };

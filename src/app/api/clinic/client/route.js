@@ -49,6 +49,7 @@ export async function POST(request) {
   if (!name || !email) {
     return NextResponse.json({ status: false, message: "Invalid request" });
   }
+
   const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const client = await clientRepo.createClient(name, email,randomPassword, phone, programId, programCategory, startDate,notes, coachId, clinic, weightDate, initialWeight, goals);
     const clientUser = await userRepo.createClientUser(
@@ -60,6 +61,7 @@ export async function POST(request) {
       clinic,
       coachId
   );
+  const clientsnum = await clientRepo.updateClientNum(clinic);
   console.log("randompassword",randomPassword);
     return NextResponse.json({ status: true, client });
   } catch (error) {

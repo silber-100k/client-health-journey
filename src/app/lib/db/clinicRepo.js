@@ -10,7 +10,8 @@ export const clinicRepo = {
   getCheckInsbyId,
   fetchRevenueData,
   fetchsubscriptionData,
-  fetchTotalRevenue
+  fetchTotalRevenue,
+  getCheckIns
 };
 
 async function createClinic(email, name, phoneNumber, primaryContact, streetAddress, city, state, zipCode, plan, addOns, hipaaAcknowledgment, legalAcknowledgment, options = {}) {
@@ -29,6 +30,11 @@ async function createClinic(email, name, phoneNumber, primaryContact, streetAddr
     legalAcknowledgment,
   }], options);
   return newClinic[0];
+}
+
+async function getCheckIns() {
+  const checkIns = await db.CheckIn.find();
+  return checkIns;
 }
 
 async function getClinicById(id) {

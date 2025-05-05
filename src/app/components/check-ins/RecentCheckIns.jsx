@@ -9,15 +9,24 @@ import {
 import Link from "next/link";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const RecentCheckIns = ({ limit = 5 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, isError] = useState(false);
   const [checkIns, setCheckIns] = useState([]);
+  const {user} = useAuth();
+  let apiRole = "";
+  if (user?.role === "clinic_admin") {
+    apiRole = "clinic";
+  }
+  if (user?.role === "admin") {
+    apiRole = "admin";
+  }
   const fetchCheckIns = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/clinic/checkIns");
+      const response = await fetch(`/api/${apiRole}/checkIns`);
       const data = await response.json();
       setCheckIns(data.checkIns);
       setIsLoading(false);
@@ -31,22 +40,6 @@ const RecentCheckIns = ({ limit = 5 }) => {
     fetchCheckIns();
   }, []);
 
-  // const checkIns = [
-  //   {
-  //     id: "1",
-  //     name: "oka",
-  //     date: "April 19, 2025 10:53:00",
-  //     weight: 150,
-  //     mood: 3,
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "oksa",
-  //     date: "April 19, 2022 10:53:00",
-  //     weight: 120,
-  //     mood: 1,
-  //   },
-  // ];
 
   const getMoodBadge = (mood) => {
     if (mood === null) return <Badge variant="outline">No mood</Badge>;

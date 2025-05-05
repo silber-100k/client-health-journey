@@ -23,6 +23,7 @@ const AdminActivitiesPage = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [isActivitiesError, setIsActivitiesError]= useState(false)
   const fetchrecentActivities = async () => {
     try {
       setIsLoading(true);

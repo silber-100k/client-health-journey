@@ -25,11 +25,41 @@ import {
   FormLabel,
   FormMessage,
 } from "../../components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-const AddClinicDialog = ({ open }) => {
+const addClinicSchema = z.object({
+  clinicName: z.string().min(1, "Clinic name is required"),
+  clinicEmail: z
+    .string()
+    .email("Invalid email format")
+    .min(1, "Email is required"),
+  clinicPhone: z.string().min(1, "Phone number is required"),
+  streetAddress: z.string().min(1, "Street address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(1, "ZIP code is required"),
+  primaryContact: z.string().min(1, "Primary contact is required"),
+
+  billingContactName: z.string().optional(),
+  billingEmail: z.string().optional(),
+  billingPhone: z.string().optional(),
+  billingAddress: z.string().optional(),
+  billingCity: z.string().optional(),
+  billingState: z.string().optional(),
+  billingZip: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  subscriptionTier: z.string().optional(),
+});
+
+const AddClinicDialog = ({ open, setOpen }) => {
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [tempPassword, setTempPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const form = useForm({
+    resolver: zodResolver(addClinicSchema),
     defaultValues: {
       clinicName: "",
       clinicEmail: "",
@@ -51,11 +81,30 @@ const AddClinicDialog = ({ open }) => {
     },
   });
 
-  const showSuccessDialog = false;
-  const tempPassword = "12345678";
-  const isSubmitting = false;
+  const handleSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/clinic", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+      if (responseData.status) {
+        setShowSuccessDialog(true);
+        setOpen(false);
+      } else {
+        throw new Error(responseData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add clinic");
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    }
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         {showSuccessDialog ? (
           <>
@@ -454,10 +503,14 @@ const AddClinicDialog = ({ open }) => {
                   </TabsContent>
 
                   <DialogFooter className="mt-6">
-                    <Button type="button" variant="outline">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" >
                       {isSubmitting ? "Adding..." : "Add Clinic"}
                     </Button>
                   </DialogFooter>

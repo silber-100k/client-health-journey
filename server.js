@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const db = require("./db");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "192.168.147.68";
+const hostname = "192.168.142.167";
 const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });

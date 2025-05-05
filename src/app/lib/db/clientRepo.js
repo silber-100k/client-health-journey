@@ -497,8 +497,23 @@ async function getCoachRecentActivities(id, limit = 5) {
   }
 }
 
+async function getClinics() {
+  const clinics = await db.Clinic.find();
+  return clinics;
+}
 
-export const clientRepo = {
+async function getClinentNum(id) {
+  const num = await db.Client.find({ clinic: id });
+  return num;
+}
+
+async function updateClientNum(id) {
+  const num = await db.Clinic.findByIdAndUpdate(id, { $inc: { clients: 1 } });
+  return num;
+}
+
+export const 
+clientRepo = {
     getClients,
     createClient,
     getclientsbyId,
@@ -514,6 +529,9 @@ export const clientRepo = {
     gethistoricalData,
     getPendingCheckIns,
     getCompletedProgramsCount,
-    getCoachRecentActivities
+    getCoachRecentActivities,
+    getClinics,
+    getClinentNum,
+    updateClientNum,
 
 }

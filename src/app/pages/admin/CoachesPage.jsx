@@ -15,58 +15,39 @@ import { EditCoachDialog } from "../../components/coaches/edit/EditCoachDialog";
 import { DeleteCoachDialog } from "../../components/coaches/delete/DeleteCoachDialog";
 import { ResetCoachPasswordDialog } from "../../components/coaches/reset-password/ResetCoachPasswordDialog";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 import CoachesFilter from "../../components/admin/coaches/CoachesFilter";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const CoachesPage = () => {
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
+  const {user} = useAuth();
+  const [coaches, setCoaches] = useState([]);
+  const fetchCoaches = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/admin/coach");
+      const data = await response.json();
+      setIsLoading(false);
+      if (data.status) {
+        setCoaches(data.coaches);
+      } else {
+        console.error("Error fetching coaches:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching coaches:", error);
+    }
 
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
   };
-
-  const coaches = [
-    {
-      id: "aaa",
-      name: "string",
-      email: "string",
-      phone: "13213123",
-      status: "active",
-      clinicId: "asdfasdf",
-      clinicName: "sdf",
-      clients: 2,
-    },
-    {
-      id: "aasdfa",
-      name: "stsdfring",
-      email: "strsdfweing",
-      phone: "1323242313123",
-      status: "active",
-      clinicId: "asdfasdsfdf",
-      clinicName: "sdf23",
-      clients: 22,
-    },
-    {
-      id: "aawerwerwea",
-      name: "strwerweing",
-      email: "strwering",
-      phone: "13213123233",
-      status: "active",
-      clinicId: "asdfsdfasdf",
-      clinicName: "sfffffdf",
-      clients: 2,
-    },
-  ];
-
+  useEffect(() => {
+    fetchCoaches();
+  }, []);
   const filteredCoaches = coaches.filter((coach) => {
     if (!coach) return false;
     const searchText = filterText.toLowerCase();
@@ -85,21 +66,23 @@ const CoachesPage = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Coaches</h1>
         <div className="flex space-x-2">
-          <Button
+        <Button
             variant="outline"
             size="icon"
             className="flex items-center justify-center"
             title="Refresh coaches"
+            onClick={fetchCoaches}
+            disabled={isLoading}
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </Button>
-          <Button
+          {/* <Button
             className="flex items-center gap-2"
             onClick={handleAddcoachdialogue}
           >
             <UserPlus size={16} />
             <span>Add Coach</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -125,13 +108,20 @@ const CoachesPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <CoachesFilter
+        <CoachesFilter
             filterText={filterText}
             setFilterText={setFilterText}
             count={filteredCoaches.length}
           />
-
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : (
           <CoachesTable coaches={filteredCoaches} />
+          )}
         </CardContent>
       </Card>
 

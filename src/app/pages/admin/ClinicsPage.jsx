@@ -10,51 +10,44 @@ import CoachesPage from "./CoachesPage";
 import ClientsPage from "./ClientsPage";
 import AddClinicDialog from "../../components/clinics/AddClinicDialog";
 import { useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { Skeleton } from "../../components/ui/skeleton";
+
 const ClinicsPage = () => {
   const [isAddClinicDialogOpen, setIsAddClinicDialogOpen] = useState(false);
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
+  const { user } = useAuth();
+  const [clinics, setClinics] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const handleSubmit = (data) => {
+    console.log("data", data);
   };
-  const clinics = [
-    {
-      id: "1",
-      name: "a",
-      coaches: 4,
-      clients: 2,
-      city: "asdfasdf",
-      state: "new york",
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "awe",
-      coaches: 3,
-      clients: 6,
-      city: "asdfasddf",
-      state: "neork",
-      status: "pending",
-    },
-    {
-      id: "3",
-      name: "ag",
-      coaches: 24,
-      clients: 22,
-      city: "asasdfdfasdf",
-      state: "new dsfyork",
-      status: "inactive",
-    },
-  ];
-  console.log(isAddClinicDialogOpen);
+
+  const fetchClinics = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/admin/clinic");
+      const data = await response.json();
+      setClinics(data.clinics);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch clinics");
+    }
+  };
+  useEffect(() => {
+    fetchClinics();
+  }, []);
   const handleAddlclinicdialogue = () => {
     setIsAddClinicDialogOpen(true);
   };
+  const handleClinicSelect = (clinic) => {
+    console.log("clinic", clinic);
+  };
   const isClinicAdmin = user?.role === "clinic_admin";
   const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "active":
         return "bg-green-100 text-green-800 border-green-300";
       case "pending":
@@ -88,18 +81,23 @@ const ClinicsPage = () => {
           </Tabs>
         </div>
       ) : (
-        <Tabs>
+        <Tabs defaultValue="clinics">
           <TabsList className="mb-6">
             <TabsTrigger value="clinics">Clinics</TabsTrigger>
             <TabsTrigger value="coaches">Coaches</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
           </TabsList>
           <TabsContent value="clinics">
+
             <ClinicsOverview
-              clinics={clinics}
-              getStatusColor={getStatusColor}
-              onAddClinic={handleAddlclinicdialogue}
-            />
+            clinics={clinics}
+            getStatusColor={getStatusColor}
+            onClinicSelect={handleClinicSelect}
+            fetchClinics={fetchClinics}
+            isLoading={isLoading}
+            onAddClinic={handleAddlclinicdialogue}
+          />
+
           </TabsContent>
           <TabsContent value="coaches">
             <CoachesPage />
@@ -110,7 +108,11 @@ const ClinicsPage = () => {
         </Tabs>
       )}
 
-      <AddClinicDialog open={isAddClinicDialogOpen} />
+      <AddClinicDialog
+        open={isAddClinicDialogOpen}
+        onSubmit = {handleSubmit}
+        setOpen={setIsAddClinicDialogOpen}
+      />
     </div>
   );
 };

@@ -138,6 +138,17 @@ function clinicModel() {
             type: Date,
             default: Date.now,
         },
+        coaches: {type: Number, default: 0},
+        clients: {type: Number, default: 0},
+        billingContactName: {type: String},
+        billingEmail: {type: String},
+        billingPhone: {type: String},
+        billingAddress: {type: String},
+        billingCity: {type: String},
+        billingState: {type: String},
+        billingZip: {type: String},
+        paymentMethod: {type: String},
+        subscriptionTier: {type: String},
     });
 
     return mongoose.models.Clinic || mongoose.model('Clinic', ClinicSchema);

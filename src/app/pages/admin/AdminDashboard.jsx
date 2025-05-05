@@ -1,18 +1,13 @@
+"use client"
 import { Button } from "../../components/ui/button";
 import { RefreshCw } from "lucide-react";
 import DashboardStats from "../../components/admin/dashboard/DashboardStats";
 import ClinicsTable from "../../components/admin/dashboard/ClinicsTable";
 import ActivityList from "../../components/admin/dashboard/ActivityList";
+import { useAuth } from "@/app/context/AuthContext";
 
 const AdminDashboard = () => {
-  //demo data////////////////////////////
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+  const {user} = useAuth();
 
   const dashboardStats = {
     activeClinicCount: 5,

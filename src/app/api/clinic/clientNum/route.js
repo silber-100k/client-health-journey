@@ -28,3 +28,15 @@ export async function GET() {
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
+export async function POST(request) {
+  const { clinicId} = await request.json();
+  try {
+    const clientNum = await clientRepo.getClinentNum(clinicId);
+
+    return NextResponse.json({ status: true, clientNum });
+  } catch (error) {
+    return NextResponse.json({ status: false, message: error.message });
+  }
+}
+
+
