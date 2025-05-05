@@ -2,13 +2,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import authOptions from "@/app/lib/authoption";
-import  { clinicRepo } from "@/app/lib/db/clinicRepo";
-export async function GET(request) {
+import { clinicRepo } from "@/app/lib/db/clinicRepo";
+
+export async function GET() {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
         const email = session.user.email;
         const user = await userRepo.getUserByEmail(email);
         if (!user) {
@@ -20,7 +22,7 @@ export async function GET(request) {
         const clinicId = user.clinic._id;
 
         const totalRevenue = await clinicRepo.fetchTotalRevenue(clinicId);
-                return NextResponse.json({ staus: true, totalRevenue });
+        return NextResponse.json({ staus: true, totalRevenue });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });

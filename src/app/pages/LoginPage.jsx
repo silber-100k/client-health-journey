@@ -13,26 +13,28 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { socket } from "@/socket";
+// import { socket } from "@/socket";
+
 const LoginPage = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  // const [isConnected, setIsConnected] = useState(false);
 
-  useEffect(() => {
-    if (socket.connected) {
-      onConnect();
-    }
+  // useEffect(() => {
+  //   if (socket.connected) {
+  //     onConnect();
+  //   }
 
-    function onConnect() {
-      setIsConnected(true);
-    }
-    socket.on("connect", onConnect);
-    return () => {
-      socket.off("connect", onConnect);
-    };
-  }, [socket]);
+  //   function onConnect() {
+  //     setIsConnected(true);
+  //   }
+  //   socket.on("connect", onConnect);
+  //   return () => {
+  //     socket.off("connect", onConnect);
+  //   };
+  // }, [socket]);
 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
@@ -67,10 +69,10 @@ const LoginPage = () => {
     } finally {
       console.log("logined+add-user", data.email);
       socket.emit("user_login", data.email);
-
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full">

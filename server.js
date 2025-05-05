@@ -1,17 +1,17 @@
-import { createServer } from "node:http";
-import next from "next";
-import { Server } from "socket.io";
-import db from "./src/app/lib/db/index.js"
+const http = require("node:http");
+const next = require("next");
+const { Server } = require("socket.io");
+const db = require("./db");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "192.168.142.167";
+const hostname = "192.168.147.68";
 const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const httpServer = createServer(handler);
+  const httpServer = http.createServer(handler);
 
   const io = new Server(httpServer,{
     cors: {

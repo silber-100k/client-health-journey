@@ -33,10 +33,10 @@ const CheckInForm = () => {
   const [currentTab, setCurrentTab] = useState("measurements");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkInData, setCheckInData] = useState({
-    name: user.name,
-    email: user.email,
-    coachId: user.coachId,
-    clinic: user.clinic,
+    name: user?.name || "",
+    email: user?.email || "",
+    coachId: user?.coachId || "",
+    clinic: user?.clinic || "",
     selectedDate: new Date(),
     weight: "",
     waterIntake: "",
@@ -71,9 +71,15 @@ const CheckInForm = () => {
   });
 
   const handlechange = (date) => {
-    setCheckInData((prev) => ({ ...prev, ["selectedDate"]: date }));
+    setCheckInData((prev) => ({ ...prev, selectedDate: date }));
   };
+
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please log in to submit check-in data");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/client/checkIn", {
@@ -88,15 +94,14 @@ const CheckInForm = () => {
         setIsSubmitting(false);
       } else {
         throw new Error(responseData.message);
-        setIsSubmitting(false);
       }
 
       const resActivity = await fetch("/api/activity/checkIn", {
         method: "POST",
         body: JSON.stringify({
           type: "check_in",
-          description: `Client ${user.name} completed weekly check-in`,
-          clinicId: user.clinic,
+          description: `Client ${user.name || 'Unknown'} completed weekly check-in`,
+          clinicId: user.clinic || '',
         }),
       });
       const respond = await resActivity.json();
@@ -105,14 +110,28 @@ const CheckInForm = () => {
       } else {
         throw new Error(respond.message);
       }
-
-
-      
     } catch (error) {
       console.log("Failed to add checkin", error);
+      toast.error("Failed to submit check-in data");
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Please Log In</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>You need to be logged in to submit check-in data.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -133,7 +152,6 @@ const CheckInForm = () => {
                   selected={checkInData.selectedDate}
                   onSelect={(date) => date && handlechange(date)}
                   initialFocus
-                  // Limit date selection to past 7 days and today
                   disabled={(date) => {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);

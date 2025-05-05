@@ -17,12 +17,15 @@ import { ResetCoachPasswordDialog } from "../../components/coaches/reset-passwor
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { useState } from "react";
 import CoachesFilter from "../../components/admin/coaches/CoachesFilter";
+
 const CoachesPage = () => {
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
+  
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
+
   const user = {
     id: "asdf",
     name: "okay",
@@ -30,6 +33,7 @@ const CoachesPage = () => {
     role: "admin",
     phone: "123-123-123",
   };
+
   const coaches = [
     {
       id: "aaa",
@@ -62,17 +66,19 @@ const CoachesPage = () => {
       clients: 2,
     },
   ];
+
   const filteredCoaches = coaches.filter((coach) => {
+    if (!coach) return false;
     const searchText = filterText.toLowerCase();
     return (
-      coach.name.toLowerCase().includes(searchText) ||
-      coach.email.toLowerCase().includes(searchText) ||
+      (coach.name && coach.name.toLowerCase().includes(searchText)) ||
+      (coach.email && coach.email.toLowerCase().includes(searchText)) ||
       (coach.phone && coach.phone.includes(searchText)) ||
       (coach.clinicName && coach.clinicName.toLowerCase().includes(searchText))
     );
   });
+
   const isClinicAdmin = true;
-  const selectedCoach = true;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -97,12 +103,12 @@ const CoachesPage = () => {
         </div>
       </div>
 
-      {isClinicAdmin && (
+      {isClinicAdmin && user && (
         <Alert className="bg-primary-50 border-primary-200">
           <AlertCircle className="h-4 w-4 text-primary" />
           <AlertTitle>Clinic Admin View</AlertTitle>
           <AlertDescription>
-            You are viewing coaches for {user?.name || "your clinic"} only. As a
+            You are viewing coaches for {user.name || "your clinic"} only. As a
             clinic administrator, you can manage all coaches and clients within
             your clinic.
           </AlertDescription>
@@ -113,8 +119,8 @@ const CoachesPage = () => {
         <CardHeader>
           <CardTitle>Manage Coaches</CardTitle>
           <CardDescription>
-            {isClinicAdmin
-              ? `Manage coaches for ${user?.name || "your clinic"}`
+            {isClinicAdmin && user
+              ? `Manage coaches for ${user.name || "your clinic"}`
               : "View and manage all coaches across clinics"}
           </CardDescription>
         </CardHeader>
@@ -129,7 +135,10 @@ const CoachesPage = () => {
         </CardContent>
       </Card>
 
-      <AddCoachDialog open={isAddCoachDialogOpen} />
+      <AddCoachDialog 
+        open={isAddCoachDialogOpen} 
+        onOpenChange={setIsAddCoachDialogOpen}
+      />
 
       {/* {selectedCoach && (
         <>

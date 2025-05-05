@@ -1,9 +1,53 @@
-import mongoose, { Schema } from "mongoose";
-import Crypto from "crypto";
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const Crypto = require("crypto");
+const dotenv = require("dotenv");
 
-mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/client-health-journey')
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+dotenv.config();
+
+// Cache the connection
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    console.log(process.env.MONGODB_URL);
+
+    cached.promise = mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/client-health-journey', opts)
+      .then((mongoose) => {
+        console.log('MongoDB connected');
+        return mongoose;
+      })
+      .catch(err => {
+        console.error('MongoDB connection error:', err);
+        throw err;
+      });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+// Initialize the connection
+connectDB();
+
 mongoose.Promise = global.Promise;
 
 const db = {
@@ -296,6 +340,7 @@ function checkInModel() {
     });
     return mongoose.models.CheckIn || mongoose.model('CheckIn', CheckInSchema);
 };
+
 function MessageModel() {
     const MessageSchcema = new Schema({
         id:{type:String,required:true},
@@ -325,4 +370,5 @@ function ActivityModel() {
     });
   return mongoose.models.Activity || mongoose.model('Activity', ActivitySchcema);
 }
-export default db;
+
+module.exports = db;

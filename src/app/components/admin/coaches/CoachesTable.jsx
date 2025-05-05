@@ -26,12 +26,12 @@ const CoachesTable = ({
 }) => {
   const hasActions = Boolean(onEdit || onDelete || onResetPassword);
 
-  // Convert CoachWithClinic to Coach for action handlers
+  // Convert coachWithClinic to coach for action handlers
   const coachWithClinicToCoach = (coachWithClinic) => ({
     ...coachWithClinic,
-    clinic_id: coachWithClinic.clinicId, // Add missing clinic_id
+    clinic_id: coachWithClinic.clinicId,
   });
-  console.log(coaches);
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -46,37 +46,37 @@ const CoachesTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {coaches.length > 0 ? (
+          {coaches && coaches.length > 0 ? (
             coaches.map((coach, index) => (
-              <TableRow key={index} className="hover:bg-gray-50">
+              <TableRow key={coach.id || index} className="hover:bg-gray-50">
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-8 w-8 rounded-full flex items-center justify-center">
                       <User className="h-4 w-4 text-primary-700" />
                     </div>
-                    <span className="font-medium">{coach.name}</span>
+                    <span className="font-medium">{coach?.name || 'N/A'}</span>
                   </div>
                 </TableCell>
-                <TableCell>{coach.email}</TableCell>
-                <TableCell>{coach.phoneNumber || "-"}</TableCell>
+                <TableCell>{coach?.email || 'N/A'}</TableCell>
+                <TableCell>{coach?.phone || '-'}</TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-6 w-6 rounded-full flex items-center justify-center">
                       <Building className="h-3 w-3 text-primary-700" />
                     </div>
-                    <span>{coach.clinic.name}</span>
+                    <span>{coach?.clinicName || 'N/A'}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
                     className={
-                      coach.isActive
+                      coach?.status === 'active'
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }
                     variant="outline"
                   >
-                    {coach.isActive ? "Active" : "Inactive"}
+                    {coach?.status || 'Inactive'}
                   </Badge>
                 </TableCell>
                 {hasActions && (

@@ -20,7 +20,7 @@ export function Sidebar() {
 
   return (
     !user ? (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen w-72">
         <Loader2 className="h-6 w-6 animate-spin" />
       </div>
     ) : (

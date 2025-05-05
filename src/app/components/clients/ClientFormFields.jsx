@@ -188,7 +188,7 @@ const ClientFormFields = ({
                   <SelectItem value="none">No coach assigned</SelectItem>
                   <SelectItem value={user.clinic._id}>
                     {user.name}
-                    {user.email}
+                    ({user.email})
                   </SelectItem>
                   {coaches && coaches.length > 0 ? (
                     coaches.map((coach) => (

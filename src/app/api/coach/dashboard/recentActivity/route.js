@@ -5,26 +5,27 @@ import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 
 export async function GET() {
-  try {
-          const session = await getServerSession(authOptions);
-          if (!session) {
-              return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-          }
-          const email = session.user.email;
-          const user = await userRepo.getUserByEmail(email);
-          if (!user) {
-              return NextResponse.json({ message: "User not found" }, { status: 404 });
-          }
-          if (user.role !== "coach") {
-              return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-          }
-          const coachId = user._id;
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    
+    try {
+        const email = session.user.email;
+        const user = await userRepo.getUserByEmail(email);
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        if (user.role !== "coach") {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        const coachId = user._id;
 
-          const activities = await clientRepo.getCoachRecentActivities(coachId);
+        const activities = await clientRepo.getCoachRecentActivities(coachId);
 
-          return NextResponse.json({ status: true, activities });
-      } catch (error) {
-          console.error(error);
-          return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-      }  
+        return NextResponse.json({ status: true, activities });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
 }

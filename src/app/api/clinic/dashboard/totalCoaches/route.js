@@ -3,12 +3,13 @@ import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import authOptions from "@/app/lib/authoption";
 
-export async function GET(request) {
+export async function GET() {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
         const email = session.user.email;
         const user = await userRepo.getUserByEmail(email);
         if (!user) {
