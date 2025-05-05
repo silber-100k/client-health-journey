@@ -7,15 +7,17 @@ import { cn } from "../../lib/utils";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import NotificationBadge from "../badge";
 import { useState } from "react";
+import { unreadCount } from "@/app/store";
+import { useAtom } from "jotai";
 
 const SidebarNav = ({ items }) => {
   const { user } = useAuth();
   const pathname = usePathname();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unread, setUnread] = useAtom(unreadCount);
   const [isMessage, setIsMessage] = useState(false);
+  
   const handleClick = async (item) => {
     if (item.title == "Messages") {
-      setUnreadCount(0);
       setIsMessage(true);
       const markAsRead = async () => {
         await fetch(`/api/message/mark`, {
@@ -47,8 +49,6 @@ const SidebarNav = ({ items }) => {
             {item.title == "Messages" ? (
               <NotificationBadge
                 email={user?.email}
-                unreadCount={unreadCount}
-                setUnreadCount={setUnreadCount}
                 isMessage={isMessage}
               />
             ) : (

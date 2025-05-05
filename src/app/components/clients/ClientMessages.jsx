@@ -30,19 +30,27 @@ import { socket } from "@/socket";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { tickIcon } from "../ui/Icon";
+import { unreadCount } from "@/app/store";
+import { useAtom } from "jotai";
 
 const ClientMessages = () => {
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [messages, setMessages] = useState([]);
-  // const [userlist, setUserList] = useState([]);
+  const messagesEndRef = useRef(null);
   const [currentClient, setCurrentClient] = useState("");
-  const [newMessage, setNewMessage] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
   const [clients, setClients] = useState([]);
-  const [coach, setCoach] = useState([]);
-  const [msgHistory, setMsgHistory] = useState([]);
+  const [coach, setCoach] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [, setUnread] = useAtom(unreadCount);
+
   const fetchMessageHistory = async ({ sender, receiver }) => {
+    if (!sender || !receiver) return;
+    
+    setIsLoading(true);
     try {
       const response = await fetch("/api/message/history", {
         method: "POST",
@@ -50,38 +58,53 @@ const ClientMessages = () => {
       });
       const data = await response.json();
       if (data.status) {
-        toast.success("Message history is fetched successfully");
         setMessages(data.messageHistory);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to fetch message history");
       }
     } catch (error) {
       toast.error("Unable to get message history");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const fetchClients = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("/api/coach/client");
       const data = await response.json();
-      console.log("clients", data);
-      setClients(data.clients);
-      console.log("clients list", data.clients);
+      if (data.clients) {
+        setClients(data.clients);
+      } else {
+        toast.error("Failed to fetch clients");
+      }
     } catch (error) {
       toast.error("Failed to fetch clients");
-      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchCoachbyId = async () => {
+    if (!user?.coachId) return;
+    
+    setIsLoading(true);
     try {
       const response = await fetch("/api/coach/byId", {
         method: "POST",
         body: JSON.stringify({ id: user.coachId }),
       });
       const data = await response.json();
-      setCoach(data.user);
+      if (data.user) {
+        setCoach(data.user);
+      } else {
+        toast.error("Failed to fetch coach details");
+      }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to fetch coach details");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -100,12 +123,13 @@ const ClientMessages = () => {
 
     const handleMessageRecieve = (data) => {
       //update state in database
+      console.log("data", data);
       socket.emit("message_delivered", { messageId: data.id, from: data.from });
       const updateMessage = async (data) => {
         try {
           const response = await fetch("/api/message/update", {
             method: "POST",
-            body: JSON.stringify({ id: data.id, status: "delivered",email:user.email }),
+            body: JSON.stringify({ id: data.id, status: "delivered", email: user.email }),
           });
           const jsondata = await response.json();
           if (jsondata.status) {
@@ -119,7 +143,7 @@ const ClientMessages = () => {
         }
       };
 
-      if (currentClient == data.from && (user?.role === "coach"|| user?.role === "clinic_admin")) {
+      if (currentClient == data.from && (user?.role === "coach" || user?.role === "clinic_admin")) {
         setMessages((prevMessages) => [
           ...prevMessages,
           { ...data, status: "delivered" },
@@ -141,10 +165,6 @@ const ClientMessages = () => {
       );
     });
     socket.emit("get_user_list");
-
-    // socket.on("online_users", (users) => {
-    //   setUserList(users);
-    // });
 
     function onConnect() {
       setIsConnected(true);
@@ -187,6 +207,7 @@ const ClientMessages = () => {
         messageIds: unseenMessageIds,
         viewerEmail: user?.email,
       });
+      setUnread(unseenMessageIds.length);
     }
   }, [messages]);
 
@@ -194,55 +215,62 @@ const ClientMessages = () => {
     (msg) => msg.status === "sent" && msg.to === user.email
   );
 
-  const sendMessage = () => {
-    if (!isConnected) {
-      alert("Socket not connected");
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !isConnected) {
+      toast.error("Cannot send message. Please check your connection.");
       return;
     }
+
+    setIsSending(true);
     const messageId = uuidv4();
     let receiverMail = currentClient;
 
     if (user?.role === "client") {
-      receiverMail = coach.email;
+      receiverMail = coach?.email;
     }
+
+    if (!receiverMail) {
+      toast.error("No recipient selected");
+      setIsSending(false);
+      return;
+    }
+
     const messageToSend = {
       id: messageId,
       from: user.email,
       to: receiverMail,
-      message: newMessage,
+      message: newMessage.trim(),
       status: "sent",
       timestamp: new Date(),
     };
-    socket.emit("send-message", messageToSend);
-    setMessages((prev) => [...prev, messageToSend]);
 
-    setNewMessage("");
-    const savedata = {
-      id: messageId,
-      message: newMessage,
-      receiver: receiverMail,
-      sender: user.email,
-      status: "sent",
-    };
-    const saveMessage = async (savedata) => {
-      try {
-        console.log("saved message1", savedata);
-        const response = await fetch("/api/message/save", {
-          method: "POST",
-          body: JSON.stringify(savedata),
-        });
-        const data = await response.json();
-        if (data.status) {
-          toast.success("Message added successfully");
-        } else {
-          toast.error(data.message);
-        }
-      } catch (error) {
-        toast.error("Unable to save message");
+    try {
+      socket.emit("send-message", messageToSend);
+      setMessages((prev) => [...prev, messageToSend]);
+      setNewMessage("");
+
+      const response = await fetch("/api/message/save", {
+        method: "POST",
+        body: JSON.stringify({
+          id: messageId,
+          message: newMessage.trim(),
+          receiver: receiverMail,
+          sender: user.email,
+          status: "sent",
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.status) {
+        toast.error(data.message || "Failed to save message");
       }
-    };
-    saveMessage(savedata);
+    } catch (error) {
+      toast.error("Failed to send message");
+    } finally {
+      setIsSending(false);
+    }
   };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
@@ -257,24 +285,41 @@ const ClientMessages = () => {
   const handlechange = (e) => {
     setCurrentClient(e);
   };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setUnread(0);
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <>
-      <div className="flex justify-between">
-        <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-        <p>Transport: {transport}</p>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <p className="text-sm text-muted-foreground">
+            {isConnected ? "Connected" : "Disconnected"}
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground">Transport: {transport}</p>
       </div>
+
       {user?.role === "coach" || user?.role === "clinic_admin" ? (
-        <>
-          <Label htmlFor="userList" className="mt-[20px] mb-[10px]">
-            User List
+        <div className="mb-4">
+          <Label htmlFor="userList" className="mb-2">
+            Select Client
           </Label>
           <Select
             name="userList"
             value={currentClient}
             onValueChange={handlechange}
+            disabled={isLoading}
           >
-            <SelectTrigger className="mb-[20px]">
-              <SelectValue placeholder="Select Users" />
+            <SelectTrigger>
+              <SelectValue placeholder="Select a client" />
             </SelectTrigger>
             <SelectContent>
               {clients?.map((client, index) => (
@@ -284,10 +329,9 @@ const ClientMessages = () => {
               ))}
             </SelectContent>
           </Select>
-        </>
-      ) : (
-        ""
-      )}
+        </div>
+      ) : null}
+
       <Card className="h-[calc(100vh-220px)] flex flex-col">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
@@ -297,40 +341,38 @@ const ClientMessages = () => {
         </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto mb-4">
-          {messages && messages.length > 0 ? (
-            <div className="space-y-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+                <Skeleton className="h-4 w-[300px]" />
+              </div>
+            </div>
+          ) : messages && messages.length > 0 ? (
+            <div className="space-y-4" key={messages.length}>
               {messages.map((msg, idx) => (
-                <>
+                <React.Fragment key={msg.id}>
                   {idx === firstUnreadIndex && (
-                    <>
-                      <div className="text-[10px] text-[#aaaaaa] mt-0 mb-[5px]">
-                        Unread messages
-                        <hr
-                          style={{ borderColor: "#e92450", borderWidth: 1 }}
-                          className="mb-[15px]"
-                        />
+                    <div className="text-xs text-muted-foreground mt-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <hr className="flex-1" />
+                        <span>Unread messages</span>
+                        <hr className="flex-1" />
                       </div>
-                    </>
+                    </div>
                   )}
                   <div
-                    key={idx}
-                    className={`flex ${
-                      msg.from === user.email ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${msg.from === user.email ? "justify-end" : "justify-start"}`}
                   >
                     <div
                       className={`flex items-start gap-2 max-w-[80%] ${
-                        msg.from === user.email
-                          ? "flex-row-reverse"
-                          : "flex-row"
+                        msg.from === user.email ? "flex-row-reverse" : "flex-row"
                       }`}
                     >
                       <Avatar className="h-8 w-8">
                         {msg.senderAvatar ? (
-                          <AvatarImage
-                            src={msg.senderAvatar}
-                            alt={msg.senderName}
-                          />
+                          <AvatarImage src={msg.senderAvatar} alt={msg.senderName} />
                         ) : (
                           <AvatarFallback>
                             <User size={16} />
@@ -347,33 +389,34 @@ const ClientMessages = () => {
                           }`}
                         >
                           {msg.message}
-                          <div className="ml-[10px] content-end">
-                            {user.email === msg.from &&
-                              msg.status === "sent" &&
-                              tickIcon}
-                            {user.email === msg.from &&
-                              msg.status === "delivered" && (
-                                <div className="flex">
-                                  {tickIcon}
-                                  {tickIcon}
-                                </div>
-                              )}
+                          <div className="ml-2 flex items-center">
+                            {user.email === msg.from && (
+                              <div className="flex items-center">
+                                {msg.status === "sent" && tickIcon}
+                                {msg.status === "delivered" && (
+                                  <>
+                                    <span className="mr-[-10px]">{tickIcon}</span>
+                                    {tickIcon}
+                                  </>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
-
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           {formatDate(msg.timestamp)}
                         </p>
                       </div>
                     </div>
                   </div>
-                </>
+                </React.Fragment>
               ))}
+              <div ref={messagesEndRef} />
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
               <p className="text-center text-muted-foreground">
-                No messages yet. Send your first message to your coach!
+                No messages yet. Send your first message!
               </p>
             </div>
           )}
@@ -386,6 +429,7 @@ const ClientMessages = () => {
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
               className="min-h-[60px]"
+              disabled={isSending || !isConnected}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -396,9 +440,13 @@ const ClientMessages = () => {
             <Button
               onClick={sendMessage}
               size="icon"
-              // disabled={!newMessage.trim() || isLoading}
+              disabled={!newMessage.trim() || isSending || !isConnected}
             >
-              <Send size={18} />
+              {isSending ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Send size={18} />
+              )}
             </Button>
           </div>
         </CardFooter>

@@ -67,7 +67,7 @@ export async function POST(request) {
       randomPassword,
       clinic,
       coachId
-    );
+      );
     const clientsnum = await clientRepo.updateClientNum(clinic);
     return NextResponse.json({ status: true, client });
   } catch (error) {

@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 const LatestStats = () => {
   const [checkIns, setCheckIns] = useState([]);
   const { user } = useAuth();
+  
   const fetchLatestStatus = async () => {
     try {
       const response = await fetch("/api/client/progress", {
@@ -33,9 +34,10 @@ const LatestStats = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     fetchLatestStatus();
-  }, [user, checkIns]);
+  }, [user]);
 
   const weightTrend = "down";
   const waterProgress = 12;
