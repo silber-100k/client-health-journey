@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for client-health-journey-hi75ba on 2025-05-06T21:17:51Z
+# fly.toml app configuration file generated for client-health-journey-ktpc7w on 2025-05-06T22:24:57Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'client-health-journey-hi75ba'
-primary_region = 'bos'
+app = 'client-health-journey-ktpc7w'
+primary_region = 'atl'
 
 [build]
 
