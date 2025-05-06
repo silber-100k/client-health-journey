@@ -63,19 +63,19 @@ const CoachesTable = ({
                     <div className="bg-primary-100 h-6 w-6 rounded-full flex items-center justify-center">
                       <Building className="h-3 w-3 text-primary-700" />
                     </div>
-                    <span>{coach?.clinicName || 'N/A'}</span>
+                    <span>{coach?.clinic?.name || 'N/A'}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
                     className={
-                      coach?.status === 'active'
+                      coach?.isActive
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }
                     variant="outline"
                   >
-                    {coach?.status || 'Inactive'}
+                    {coach?.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>
                 {hasActions && (

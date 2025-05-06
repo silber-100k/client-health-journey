@@ -108,8 +108,8 @@ const ClientsPage = () => {
         <AlertTitle>Clinic Admin View</AlertTitle>
         <AlertDescription>
           You are viewing all clients for {user?.name || "your clinic"}. This
-          includes clients assigned to all coaches in your clinic. Your clinic
-          ID is: {user?.clinic._id || "unknown"}
+          includes clients assigned to all coaches in your clinic. 
+          {/* Your clinic ID is: {user?.clinic._id || "unknown"} */}
         </AlertDescription>
       </Alert>
 

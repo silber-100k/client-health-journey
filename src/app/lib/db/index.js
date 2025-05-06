@@ -139,12 +139,12 @@ function clinicModel() {
             default: Date.now,
         },
         coaches: {
-            type:Number,
-            default:0,
+            type: [Schema.Types.ObjectId],
+            ref: "User",
         },
         clients: {
-            type:Number,
-            default:0,
+            type: [Schema.Types.ObjectId],
+            ref: "Client",
         },
         billingContactName: {type: String},
         billingEmail: {type: String},

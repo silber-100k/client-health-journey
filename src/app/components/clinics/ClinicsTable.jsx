@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,22 +12,6 @@ import { Button } from "../../components/ui/button";
 import { Building, ChevronRight } from "lucide-react";
 
 const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
-  const getCoaches = async (clinicId) => {
-    const response = await fetch("/api/clinic/coachnum", {
-      method: "POST",
-      body: JSON.stringify(clinicId),
-    });
-    const data = await response.json();
-    return data.coachNum;
-  };
-  const getClients = async (clinicId) => {
-    const response = await fetch("/api/clinic/clientNum", {
-      method: "POST",
-      body: JSON.stringify(clinicId),
-    });
-    const data = await response.json();
-    return data.clientNum;
-  };
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -62,8 +46,8 @@ const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
                     <div className="font-medium">{clinic.name}</div>
                   </div>
                 </TableCell>
-                <TableCell>{clinic.coaches}</TableCell>
-                <TableCell>{clinic.clients}</TableCell>
+                <TableCell>{clinic.coaches[0]?.count}</TableCell>
+                <TableCell>{clinic.clients[0]?.count}</TableCell>
                 <TableCell>
                   {clinic.city && clinic.state
                     ? `${clinic.city}, ${clinic.state}`

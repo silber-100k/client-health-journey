@@ -38,13 +38,15 @@ const SettingsPage = () => {
     coachSignup: true,
     weeklyReports: true,
   });
+
   const user = {
     id: "asdf",
     name: "okay",
-    email: "steven@gmail.com",
+    email: "admin@gmail.com",
     role: "admin",
     phone: "123-123-123",
   };
+
   useEffect(() => {
     setProfileForm({
       companyName: user.name || "HealthTracker Admin",

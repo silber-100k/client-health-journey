@@ -27,7 +27,8 @@ const CoachesPage = () => {
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
-  const {user} = useAuth();
+  
+  const { user } = useAuth();
   const [coaches, setCoaches] = useState([]);
   const fetchCoaches = async () => {
     try {
@@ -48,6 +49,7 @@ const CoachesPage = () => {
   useEffect(() => {
     fetchCoaches();
   }, []);
+
   const filteredCoaches = coaches.filter((coach) => {
     if (!coach) return false;
     const searchText = filterText.toLowerCase();
@@ -66,7 +68,7 @@ const CoachesPage = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Coaches</h1>
         <div className="flex space-x-2">
-        <Button
+          <Button
             variant="outline"
             size="icon"
             className="flex items-center justify-center"
@@ -86,7 +88,7 @@ const CoachesPage = () => {
         </div>
       </div>
 
-      {isClinicAdmin && user && (
+      {/* {isClinicAdmin && user && (
         <Alert className="bg-primary-50 border-primary-200">
           <AlertCircle className="h-4 w-4 text-primary" />
           <AlertTitle>Clinic Admin View</AlertTitle>
@@ -96,7 +98,7 @@ const CoachesPage = () => {
             your clinic.
           </AlertDescription>
         </Alert>
-      )}
+      )} */}
 
       <Card>
         <CardHeader>
@@ -108,7 +110,7 @@ const CoachesPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-        <CoachesFilter
+          <CoachesFilter
             filterText={filterText}
             setFilterText={setFilterText}
             count={filteredCoaches.length}
@@ -120,13 +122,13 @@ const CoachesPage = () => {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : (
-          <CoachesTable coaches={filteredCoaches} />
+            <CoachesTable coaches={filteredCoaches} />
           )}
         </CardContent>
       </Card>
 
-      <AddCoachDialog 
-        open={isAddCoachDialogOpen} 
+      <AddCoachDialog
+        open={isAddCoachDialogOpen}
         onOpenChange={setIsAddCoachDialogOpen}
       />
 

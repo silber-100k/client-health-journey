@@ -10,7 +10,9 @@ import { Building } from "lucide-react";
 import ClinicsTable from "../../components/clinics/ClinicsTable";
 import { RefreshCw } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
+
 const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic, fetchClinics, isLoading }) => {
+  
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -21,7 +23,7 @@ const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic,
           </p>
         </div>
         <div>
-        <Button
+          <Button
             variant="outline"
             size="icon"
             className="flex items-center justify-center"
@@ -50,7 +52,7 @@ const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic,
               <Skeleton className="h-12 w-full" />
             </div>
           ) : (
-          <ClinicsTable clinics={clinics} onClinicSelect={onClinicSelect}  getStatusColor={getStatusColor} />
+            <ClinicsTable clinics={clinics} onClinicSelect={onClinicSelect} getStatusColor={getStatusColor} />
           )}
         </CardContent>
       </Card>

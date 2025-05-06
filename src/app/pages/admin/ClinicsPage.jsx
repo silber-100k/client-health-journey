@@ -65,7 +65,7 @@ const ClinicsPage = () => {
         {isClinicAdmin ? "Clinic Management" : "Clinics Management"}
       </h1>
 
-      {isClinicAdmin ? (
+      {/* {isClinicAdmin ? (
         <div>
           <Tabs defaultValue="coaches">
             <TabsList className="mb-6">
@@ -90,13 +90,13 @@ const ClinicsPage = () => {
           <TabsContent value="clinics">
 
             <ClinicsOverview
-            clinics={clinics}
-            getStatusColor={getStatusColor}
-            onClinicSelect={handleClinicSelect}
-            fetchClinics={fetchClinics}
-            isLoading={isLoading}
-            onAddClinic={handleAddlclinicdialogue}
-          />
+              clinics={clinics}
+              getStatusColor={getStatusColor}
+              onClinicSelect={handleClinicSelect}
+              fetchClinics={fetchClinics}
+              isLoading={isLoading}
+              onAddClinic={handleAddlclinicdialogue}
+            />
 
           </TabsContent>
           <TabsContent value="coaches">
@@ -107,10 +107,19 @@ const ClinicsPage = () => {
           </TabsContent>
         </Tabs>
       )}
+       */}
+      <ClinicsOverview
+        clinics={clinics}
+        getStatusColor={getStatusColor}
+        onClinicSelect={handleClinicSelect}
+        fetchClinics={fetchClinics}
+        isLoading={isLoading}
+        onAddClinic={handleAddlclinicdialogue}
+      />
 
       <AddClinicDialog
         open={isAddClinicDialogOpen}
-        onSubmit = {handleSubmit}
+        onSubmit={handleSubmit}
         setOpen={setIsAddClinicDialogOpen}
       />
     </div>

@@ -63,7 +63,6 @@ export async function POST(request) {
     );
     await sendClientRegistrationEmail({ name, email, phone }, user.clinic.name, randomPassword);
     const clientsnum = await clientRepo.updateClientNum(clinic);
-    console.log("randompassword", randomPassword);
     return NextResponse.json({ status: true, client });
   } catch (error) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

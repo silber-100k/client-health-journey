@@ -1,4 +1,3 @@
-
 import db from "./index";
 import mongoose, { Schema } from "mongoose";
 
@@ -505,7 +504,39 @@ async function getCoachRecentActivities(id, limit = 5) {
 }
 
 async function getClinics() {
-  const clinics = await db.Clinic.find();
+  const clinics = await db.Clinic.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "clinic",
+        as: "coaches",
+        pipeline: [
+          {
+            $match: {
+              role: "coach"
+            }
+          },
+          {
+            $count: "count"
+          }
+        ]
+      }
+    },
+    {
+      $lookup: {
+        from: "clients",
+        localField: "_id",
+        foreignField: "clinic",
+        as: "clients",
+        pipeline: [
+          {
+            $count: "count"
+          }
+        ]
+      }
+    }
+  ]);
   return clinics;
 }
 

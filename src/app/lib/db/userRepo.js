@@ -73,7 +73,7 @@ async function deleteCoach(id) {
 }
 
 async function resetPassword(id) {
-    const user = await db.User.findByIdAndUpdate(id,{password:"22222222"});
+    const user = await db.User.findByIdAndUpdate(id, { password: "password123" });
     return user;
 }
 
@@ -83,7 +83,7 @@ async function updateCoachNum(id) {
 }
 
 async function getCoaches() {
-    const coaches = await db.User.find({ role: "coach" });
+    const coaches = await db.User.find({ role: "coach" }).populate("clinic");
     return coaches;
 }
 

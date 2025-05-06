@@ -19,7 +19,7 @@ export async function GET() {
               return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
           }
           const clinics=await clientRepo.getClinics();
-          console.log("clinics",clinics);
+          console.log("clinics",clinics[0].coaches);
           return NextResponse.json({ status: true, clinics });
       } catch (error) {
           console.error(error);
