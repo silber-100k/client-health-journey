@@ -19,6 +19,7 @@ export async function GET() {
               return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
           }
           const clinics=await clientRepo.getClinics();
+          console.log("clinics",clinics);
           return NextResponse.json({ status: true, clinics });
       } catch (error) {
           console.error(error);

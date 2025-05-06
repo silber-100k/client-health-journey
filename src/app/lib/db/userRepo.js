@@ -87,6 +87,17 @@ async function getCoaches() {
     return coaches;
 }
 
+async function getNumClinics() {
+    const clinics = await db.Clinic.find();
+    console.log("clinisaaaaaaaaaaaaaaa",clinics.length);
+    return clinics.length   ;
+}
+
+async function getNumTotalCoaches() {
+    const coaches = await db.User.find({ role: "coach" });
+    return coaches.length;
+}
+
 export const userRepo = {
     resetPassword,
     updateCoach,
@@ -102,5 +113,7 @@ export const userRepo = {
     getNumCoachesByClinicId,
     createClientUser,
     updateCoachNum,
-    getCoaches
+    getCoaches,
+    getNumClinics,
+    getNumTotalCoaches
 };

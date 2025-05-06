@@ -3,12 +3,12 @@ import db from "./index";
 import mongoose, { Schema } from "mongoose";
 
 async function getClients() {
-    const clients = await db.Client.find();
-    return clients;
+  const clients = await db.Client.find();
+  return clients;
 }
-async function getclientsbyId(coachId) {
-    const clients = await db.Client.find({ coachId: coachId });
-    return clients;
+async function getclientsbyclinicId(clinicId) {
+  const clients = await db.Client.find({ clinic: clinicId });
+  return clients;
 }
 
 async function getnumclientsbyId(coachId) {
@@ -17,8 +17,8 @@ async function getnumclientsbyId(coachId) {
 }
 
 async function getnumclientsbyClinicId(clinicId) {
-    const getNum = await db.Client.find({ clinic: clinicId });
-    return getNum.length;
+  const getNum = await db.Client.find({ clinic: clinicId });
+  return getNum.length;
 }
 
 async function getnumprojectsbyId(coachId) {
@@ -35,33 +35,72 @@ async function getnumprojectsbyId(coachId) {
       $count: "uniquePrograms"
     }
   ]);
-  
+
   return result.length > 0 ? result[0].uniquePrograms : 0;
 }
 
 async function createClient(name, email, password, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals) {
-    const client = await db.Client.create([{ name, email, password, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals }]);
-    return client[0];
+  const client = await db.Client.create([{ name, email, password, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals }]);
+  return client[0];
 }
 
 async function getProgressdata(email) {
 
-    const process = await db.CheckIn.find(
-        { email: email }, // filter by email
-        {
-          selectedDate: 1,
-          weight: 1,
-          waist: 1,
-          energyLevel: 1,
-          moodLevel: 1,
-          sleepHours: 1,
-          _id: 0 // exclude _id if you want
-        }
-      )
-      return process;
+  const process = await db.CheckIn.find(
+    { email: email }, // filter by email
+    {
+      selectedDate: 1,
+      weight: 1,
+      waist: 1,
+      energyLevel: 1,
+      moodLevel: 1,
+      sleepHours: 1,
+      _id: 0 // exclude _id if you want
+    }
+  )
+  return process;
 }
 
 async function createCheckIn(
+  name,
+  email,
+  coachId,
+  clinic,
+  selectedDate,
+  weight,
+  waist,
+  waterIntake,
+  energyLevel,
+  moodLevel,
+  exerciseType,
+  exercise,
+  exerciseTime,
+  sleepHours,
+  breakfastProtein,
+  breakfastProteinPortion,
+  breakfastFruit,
+  breakfastFruitPortion,
+  breakfastVegetable,
+  breakfastVegetablePortion,
+  lunchProtein,
+  lunchProteinPortion,
+  lunchFruit,
+  lunchFruitPortion,
+  lunchVegetable,
+  lunchVegetablePortion,
+  dinnerProtein,
+  dinnerProteinPortion,
+  dinnerFruit,
+  dinnerFruitPortion,
+  dinnerVegetable,
+  dinnerVegetablePortion,
+  snacks,
+  snackPortion,
+  supplements,
+  notes
+) {
+  console.log("oaky", weight)
+  const checkin = await db.CheckIn.create([{
     name,
     email,
     coachId,
@@ -98,62 +137,23 @@ async function createCheckIn(
     snackPortion,
     supplements,
     notes
-) {
-    console.log("oaky", weight)
-    const checkin = await db.CheckIn.create([{
-        name,
-        email,
-        coachId,
-        clinic,
-        selectedDate,
-        weight,
-        waist,
-        waterIntake,
-        energyLevel,
-        moodLevel,
-        exerciseType,
-        exercise,
-        exerciseTime,
-        sleepHours,
-        breakfastProtein,
-        breakfastProteinPortion,
-        breakfastFruit,
-        breakfastFruitPortion,
-        breakfastVegetable,
-        breakfastVegetablePortion,
-        lunchProtein,
-        lunchProteinPortion,
-        lunchFruit,
-        lunchFruitPortion,
-        lunchVegetable,
-        lunchVegetablePortion,
-        dinnerProtein,
-        dinnerProteinPortion,
-        dinnerFruit,
-        dinnerFruitPortion,
-        dinnerVegetable,
-        dinnerVegetablePortion,
-        snacks,
-        snackPortion,
-        supplements,
-        notes
-    }]);
-    return checkin[0];
+  }]);
+  return checkin[0];
 }
 
 async function getCheckInsbyId(id) {
-    const chechIns = await db.CheckIn.find({ coachId: id });
-    return chechIns;
+  const chechIns = await db.CheckIn.find({ coachId: id });
+  return chechIns;
 }
 
 async function getnumCheckInbyId(id) {
-    const checkIns = await db.CheckIn.find({ coachId: id });
-    return checkIns.length;
+  const checkIns = await db.CheckIn.find({ coachId: id });
+  return checkIns.length;
 }
 
 async function getActiveClients(id) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  
+
   const result = await db.CheckIn.aggregate([
     {
       $match: {
@@ -170,14 +170,14 @@ async function getActiveClients(id) {
       $count: "activeClients" // Count the unique emails
     }
   ]);
-  console.log("result",result);
+  console.log("result", result);
   return result.length > 0 ? result[0].activeClients : 0;
 }
 
 async function getCheckIns(id) {
-    const checkIns = await db.CheckIn.find({ coachId: id });
-    console.log("checkIns", checkIns.length);
-    return checkIns.length;
+  const checkIns = await db.CheckIn.find({ coachId: id });
+  console.log("checkIns", checkIns.length);
+  return checkIns.length;
 }
 
 async function gethistoricalData(id) {
@@ -185,13 +185,13 @@ async function gethistoricalData(id) {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     const clients = await db.Client.find(
-      { coachId: id }, 
+      { coachId: id },
       { email: 1, _id: 0 }
     );
-    
+
     // Extract just the email addresses
     const emails = clients.map(client => client.email);
-    
+
     // Use aggregation pipeline to process data on the server
     // Remove the .toArray() call since Mongoose aggregate() already returns an array
     const result = await db.CheckIn.aggregate([
@@ -212,20 +212,20 @@ async function gethistoricalData(id) {
       // Group by month
       {
         $group: {
-          _id: { 
-            month: "$month", 
-            monthNum: "$monthNum" 
+          _id: {
+            month: "$month",
+            monthNum: "$monthNum"
           },
           checkIns: { $sum: 1 },
-          totalWeight: { 
-            $sum: { 
-              $cond: [{ $ne: ["$weight", null] }, "$weight", 0] 
-            } 
+          totalWeight: {
+            $sum: {
+              $cond: [{ $ne: ["$weight", null] }, "$weight", 0]
+            }
           },
-          weightCount: { 
-            $sum: { 
-              $cond: [{ $ne: ["$weight", null] }, 1, 0] 
-            } 
+          weightCount: {
+            $sum: {
+              $cond: [{ $ne: ["$weight", null] }, 1, 0]
+            }
           }
         }
       },
@@ -236,7 +236,7 @@ async function gethistoricalData(id) {
           month: "$_id.month",
           monthNum: "$_id.monthNum",
           checkIns: 1,
-          avgWeight: { 
+          avgWeight: {
             $cond: [
               { $gt: ["$weightCount", 0] },
               { $round: [{ $divide: ["$totalWeight", "$weightCount"] }] },
@@ -261,7 +261,7 @@ async function gethistoricalData(id) {
   } catch (error) {
     console.error('[CoachDashboard] Error fetching historical data:', error);
     return [];
-  } 
+  }
 }
 
 async function getPendingCheckIns(id) {
@@ -269,31 +269,37 @@ async function getPendingCheckIns(id) {
     // Calculate date from 7 days ago
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     // Find clients with no check-ins or last check-in older than 7 days
     const pendingCheckIns = await db.CheckIn.aggregate([
       // Match check-ins for the specific coach
-      { $match: { coachId:new mongoose.Types.ObjectId(id) } },
+      { $match: { coachId: new mongoose.Types.ObjectId(id) } },
       // Group by client (email used as identifier)
-      { $group: {
+      {
+        $group: {
           _id: "$email",
           lastCheckIn: { $max: "$selectedDate" },
           clientName: { $first: "$name" }
-      }},
+        }
+      },
       // Filter for clients with no check-ins or old check-ins
-      { $match: {
+      {
+        $match: {
           $or: [
             { lastCheckIn: { $lt: oneWeekAgo } },
             { lastCheckIn: { $exists: false } }
           ]
-      }},
+        }
+      },
       // Project the fields we want to return
-      { $project: {
+      {
+        $project: {
           _id: 0,
           email: "$_id",
           name: "$clientName",
           lastCheckIn: 1
-      }}
+        }
+      }
     ]);
     console.log("pendingCheckIns", pendingCheckIns);
     return pendingCheckIns;
@@ -306,7 +312,7 @@ async function getPendingCheckIns(id) {
 async function getCompletedProgramsCount(id) {
   try {
     const currentDate = new Date();
-    
+
     const result = await db.Client.aggregate([
       // Match clients for this coach
       {
@@ -435,41 +441,42 @@ async function getCoachRecentActivities(id, limit = 5) {
   try {
     // Create an array to store activities from multiple sources
     const activities = [];
-  
-    
+
+
     // First get unique clients for this coach
     const clientsData = await db.CheckIn.aggregate([
-      { $match: { coachId:new mongoose.Types.ObjectId(id) } },
-      { $group: { 
-          _id: "$email", 
+      { $match: { coachId: new mongoose.Types.ObjectId(id) } },
+      {
+        $group: {
+          _id: "$email",
           name: { $first: "$name" },
           id: { $first: "$_id" }
         }
       }
     ]);
-    
+
     if (!clientsData || clientsData.length === 0) {
       return [];
     }
-    
+
     // Get client emails for querying check-ins
     const clientEmails = clientsData.map(client => client._id); // _id contains email from the aggregation
-    
+
     // Create a map of client emails to names for lookup
     const clientNameMap = Object.fromEntries(
       clientsData.map(client => [client._id, client.name])
     );
-    
+
     // Get recent check-ins for coach's clients
-    const checkInsData = await db.CheckIn.find({ 
-        email: { $in: clientEmails },
-        coachId: new mongoose.Types.ObjectId(id)
-      })
+    const checkInsData = await db.CheckIn.find({
+      email: { $in: clientEmails },
+      coachId: new mongoose.Types.ObjectId(id)
+    })
       .select('_id selectedDate email')
       .sort({ selectedDate: -1 }) // descending order (newest first)
       .limit(limit)
       .lean();
-    
+
     // Process check-ins into activity items
     for (const checkIn of checkInsData) {
       activities.push({
@@ -480,17 +487,17 @@ async function getCoachRecentActivities(id, limit = 5) {
         email: checkIn.email // Using email as clientId since that's our unique identifier
       });
     }
-    
+
     // Sort activities by timestamp (newest first)
     activities.sort((a, b) => {
       return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
-    
+
     // Return activities (limited to requested amount)
 
     console.log('Activitiellllllllllls:', clientNameMap);
     return activities.slice(0, limit);
-    
+
   } catch (error) {
     console.error('[CoachDashboard] Error fetching recent activities:', error);
     throw error;
@@ -500,6 +507,11 @@ async function getCoachRecentActivities(id, limit = 5) {
 async function getClinics() {
   const clinics = await db.Clinic.find();
   return clinics;
+}
+
+async function getclientNum() {
+  const num = await db.Client.find();
+  return num.length;
 }
 
 async function getClinentNum(id) {
@@ -512,11 +524,17 @@ async function updateClientNum(id) {
   return num;
 }
 
-export const 
-clientRepo = {
+async function getclientsbycoachId(coachId) {
+  const clients = await db.Client.find({ coachId: coachId });
+  return clients;
+}
+
+export const
+  clientRepo = {
+    getclientsbycoachId,
     getClients,
     createClient,
-    getclientsbyId,
+    getclientsbyclinicId,
     getnumclientsbyClinicId,
     createCheckIn,
     getProgressdata,
@@ -533,5 +551,6 @@ clientRepo = {
     getClinics,
     getClinentNum,
     updateClientNum,
+    getclientNum
 
-}
+  }

@@ -19,14 +19,9 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     let coachId = user._id
-    if (user.role === "coach") {
-      coachId = user._id;
-    }
-    else {
-      coachId = user.clinic._id;
-    }
+
     console.log(coachId)
-    const clients = await clientRepo.getclientsbyId(coachId);
+    const clients = await clientRepo.getclientsbycoachId(coachId);
     return NextResponse.json({ status: true, clients });
   } catch (error) {
     console.error(error);
@@ -67,7 +62,7 @@ export async function POST(request) {
       randomPassword,
       clinic,
       coachId
-      );
+    );
     const clientsnum = await clientRepo.updateClientNum(clinic);
     return NextResponse.json({ status: true, client });
   } catch (error) {

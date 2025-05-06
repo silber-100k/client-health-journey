@@ -138,8 +138,14 @@ function clinicModel() {
             type: Date,
             default: Date.now,
         },
-        coaches: {type: Number, default: 0},
-        clients: {type: Number, default: 0},
+        coaches: {
+            type:Number,
+            default:0,
+        },
+        clients: {
+            type:Number,
+            default:0,
+        },
         billingContactName: {type: String},
         billingEmail: {type: String},
         billingPhone: {type: String},

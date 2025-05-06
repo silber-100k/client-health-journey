@@ -19,7 +19,7 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const clinicId = user.clinic._id;
-    const clients = await clientRepo.getclientsbyId(clinicId);
+    const clients = await clientRepo.getclientsbyclinicId(clinicId);
     return NextResponse.json({ status: true, clients });
   } catch (error) {
     console.error(error);

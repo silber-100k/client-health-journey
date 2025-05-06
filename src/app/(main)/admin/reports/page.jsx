@@ -1,6 +1,6 @@
-import ProgramsPage from "../../../pages/admin/ProgramsPage";
+import ReportsPage from "../../../pages/admin/ReportsPage";
 
 const Page = () => {
-  return <ProgramsPage />;
+  return <ReportsPage />;
 };
 export default Page;

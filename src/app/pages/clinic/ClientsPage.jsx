@@ -14,16 +14,46 @@ import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
+import { Label } from "../../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 
 const ClientsPage = () => {
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const [clients, setClients] = useState([]);
+  const [coaches, setCoaches] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const isClinicAdmin = true;
   const isCoach = false;
+  const [currentCoach, setCurrentCoach] = useState("");
   const { user } = useAuth();
   const handleAddlclientdialogue = () => {
     setIsAddClientDialogOpen(true);
+  };
+
+  const handlechange = (e) => {
+    setCurrentCoach(e);
+    if(e === "all"){
+      fetchClients();
+    }else{
+      fetchClientsByCoach(e);
+    }
+  };
+
+  const fetchCoaches = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/clinic/coach");
+      const data = await response.json();
+      if (data.coaches) {
+        setCoaches(data.coaches);
+      } else {
+        toast.error("Failed to fetch coaches");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch coaches");
+    } finally {
+      setIsLoading(false);
+    }
   };
   const fetchClients = async () => {
     try {
@@ -37,8 +67,24 @@ const ClientsPage = () => {
     }
     setIsLoading(false);
   };
+  const fetchClientsByCoach = async (coachId) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/client/bycoachId", {
+        method: "POST",
+        body: JSON.stringify({ coachId }),
+      });
+      const data = await response.json();
+      setClients(data.clients);
+    } catch (error) {
+      toast.error("Failed to fetch clients");
+      console.log(error);
+    }
+    setIsLoading(false);
+  };  
   useEffect(() => {
     fetchClients();
+    fetchCoaches();
   }, []);
 
   return (
@@ -78,6 +124,30 @@ const ClientsPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+        <div className="mb-4">
+          <Label htmlFor="userList" className="mb-2">
+            Select Coach
+          </Label>
+          <Select
+            name="userList"
+            value={currentCoach}
+            onValueChange={handlechange}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a coach" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value={user?._id}>{user?.name}</SelectItem>
+              {coaches?.map((coach, index) => (
+                <SelectItem value={coach._id} key={index}>
+                  {coach.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
           {isCoach ? <CoachClientList /> : <ClientList clients={clients} />}
         </CardContent>
       </Card>
