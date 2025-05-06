@@ -33,6 +33,21 @@ const ClinicSignUpPage = () => {
       } else {
         throw new Error(result.message);
       }
+
+      const resActivity = await fetch("/api/activity/addMembers", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "clinic_signup",
+          description: `New clinic added to ${user.name}`,
+          clinicId: user.clinic._id,
+        }),
+      });
+      const respond = await resActivity.json();
+      if (respond.success) {
+        toast.success("Activity added successfully");
+      } else {
+        throw new Error(respond.message);
+      }
     } catch (error) {
       console.error(error.message);
     } finally {

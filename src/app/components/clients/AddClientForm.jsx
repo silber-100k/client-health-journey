@@ -106,6 +106,21 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
       } else {
         throw new Error(responseData.message);
       }
+
+      const resActivity = await fetch("/api/activity/addMembers", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "client_added",
+          description: `New client added to ${user.name}`,
+          clinicId: user.clinic._id,
+        }),
+      });
+      const respond = await resActivity.json();
+      if (respond.success) {
+        toast.success("Activity added successfully");
+      } else {
+        throw new Error(respond.message);
+      }
     } catch (error) {
       setCreateError(error);
       console.error(error);

@@ -27,13 +27,15 @@ const ActivityList = ({ activities, isLoading, isError }) => {
         return <Building size={16} className="text-green-500 mt-1" />;
       case "coach_added":
         return <Users size={16} className="text-amber-500 mt-1" />;
+      case "client_added":
+        return <Users size={16} className="text-cyan-500 mt-1" />;
       default:
         return <Activity size={16} className="text-gray-500 mt-1" />;
     }
   };
 
   const [showAll, setShowAll] = useState(false);
-  
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -81,31 +83,31 @@ const ActivityList = ({ activities, isLoading, isError }) => {
           <div className="space-y-4">
             {showAll
               ? activities.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  {getActivityIcon(activity.type)}
-                  <div>
-                    <p className="text-sm font-medium">
-                      {activity.description}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {activity.timestamp}
-                    </p>
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    {getActivityIcon(activity.type)}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {activity.timestamp}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
               : activities.slice(0, 3).map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  {getActivityIcon(activity.type)}
-                  <div>
-                    <p className="text-sm font-medium">
-                      {activity.description}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {activity.timestamp}
-                    </p>
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    {getActivityIcon(activity.type)}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {activity.timestamp}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
           </div>
         )}
       </CardContent>

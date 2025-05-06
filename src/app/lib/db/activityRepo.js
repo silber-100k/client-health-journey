@@ -10,10 +10,6 @@ async function createActivity(type,description,clinicId) {
     return activity[0];
 }
 
-async function createActivitywithCoach(type,description,clinicId) {
-    const activity = await db.Activity.create([{type,description,clinicId }]);
-    return activity[0];
-}
 
 async function updateclientActivity(email) {
     const currentTime = new Date();
@@ -26,6 +22,5 @@ async function updateclientActivity(email) {
 export const activityRepo = {
     getActivities,
     createActivity,
-    createActivitywithCoach,
     updateclientActivity
 };

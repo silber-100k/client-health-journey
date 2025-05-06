@@ -66,7 +66,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
         throw new Error(responseData.message);
       }
 
-      const resActivity = await fetch("/api/activity/addCoach", {
+      const resActivity = await fetch("/api/activity/addMembers", {
         method: "POST",
         body: JSON.stringify({
           type: "coach_added",

@@ -56,6 +56,7 @@ export async function POST(request) {
     }
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals);
+    console.log(randomPassword);
     await userRepo.createClientUser(
       name,
       email,
