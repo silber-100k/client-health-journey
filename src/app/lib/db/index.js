@@ -196,6 +196,7 @@ function clientModel() {
         email: {
             type: String,
             required: true,
+            unique: true,
         },
         phone: {
             type: String,
@@ -219,7 +220,7 @@ function clientModel() {
         },
         clinic: {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Clinic",
         },
         weightDate: {
             type: Date,

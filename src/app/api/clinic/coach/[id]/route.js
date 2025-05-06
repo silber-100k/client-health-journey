@@ -25,7 +25,8 @@ export async function DELETE(request, { params }) {
 export async function PUT(request, { params }) {
   const { id } = await params;
   try {
-    const user = await userRepo.resetPassword(id);
+    const resetPassword = "password123";
+    const user = await userRepo.resetPassword(id, resetPassword);
     return NextResponse.json({ status: true, user });
   } catch (error) {
     return NextResponse.json({ status: false, message: error.message });

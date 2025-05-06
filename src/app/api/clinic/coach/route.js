@@ -58,7 +58,6 @@ export async function POST(request) {
             clinicId
         );
         await sendCoachRegistrationEmail({ name, email }, randomPassword);
-        const coachnum = await userRepo.updateCoachNum(clinicId);
         return NextResponse.json({ status: true, coach });
     } catch (error) {
         console.error(error);

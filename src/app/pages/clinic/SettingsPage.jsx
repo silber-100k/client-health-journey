@@ -18,6 +18,8 @@ import {
   TabsTrigger,
 } from "../../components/ui/tabs";
 import { Switch } from "../../components/ui/switch";
+import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
 
 const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
@@ -38,20 +40,16 @@ const SettingsPage = () => {
     coachSignup: true,
     weeklyReports: true,
   });
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+
+  const { user } = useAuth();
+
   useEffect(() => {
     setProfileForm({
-      companyName: user.name || "HealthTracker Admin",
-      email: user.email || "",
-      phone: user.phone || "", // Safe to use now that we've added it to the UserData type
+      companyName: user?.name || "HealthTracker Admin",
+      email: user?.email || "",
+      phone: user?.phone || "", // Safe to use now that we've added it to the UserData type
     });
-  }, []);
+  }, [user]);
 
   const handleProfileSubmit = (e) => {
     e.preventDefault();
@@ -61,14 +59,49 @@ const SettingsPage = () => {
     // });
   };
 
-  const handleSecuritySubmit = (e) => {
+  const handleSecuritySubmit = async (e) => {
     e.preventDefault();
+    if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-    setSecurityForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    if (!securityForm.newPassword) {
+      toast.error("New password is required");
+      return;
+    }
+
+    if (!securityForm.currentPassword) {
+      toast.error("Current password is required");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user/updatePassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword: securityForm.currentPassword,
+          newPassword: securityForm.newPassword
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Password updated successfully");
+        setSecurityForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while updating the password");
+    }
   };
 
   const handleNotificationChange = (setting) => {

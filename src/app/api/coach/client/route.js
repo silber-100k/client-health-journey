@@ -54,7 +54,7 @@ export async function POST(request) {
     }
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals);
-    const clientUser = await userRepo.createClientUser(
+    await userRepo.createClientUser(
       name,
       email,
       phone,
@@ -64,7 +64,6 @@ export async function POST(request) {
       coachId
     );
     await sendClientRegistrationEmail({ name, email, phone }, user.clinic.name, randomPassword);
-    await clientRepo.updateClientNum(clinic);
     return NextResponse.json({ status: true, client });
   } catch (error) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

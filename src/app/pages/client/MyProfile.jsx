@@ -23,21 +23,21 @@ import {
 } from "../../components/ui/avatar";
 import { User, Settings, Shield, BellRing, LogOut } from "lucide-react";
 import { Switch } from "../../components/ui/switch";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "sonner";
 
 const MyProfile = () => {
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    phone: "",
+    phone: user?.phone || ""
+  });
+
+  const [securityForm, setSecurityForm] = useState({
     currentPassword: "",
-    password: "",
+    newPassword: "",
     confirmPassword: "",
   });
 
@@ -48,13 +48,58 @@ const MyProfile = () => {
     messages: true,
     updates: false,
   });
+
   const handleChange = (e) => {
     setFormData((pre) => ({ ...pre, [e.target.name]: e.target.value }));
   };
+
+  const handleSecurityChange = (e) => {
+    setSecurityForm((pre) => ({ ...pre, [e.target.name]: e.target.value }));
+  };
+
   const [loading, setLoading] = useState(false);
-  const handleSaveProfile = () => {};
-  const handlePasswordChange = () => {};
-  const logout = () => {};
+  const handleSaveProfile = () => { };
+  const handlePasswordChange = async () => {
+    if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (!securityForm.newPassword) {
+      toast.error("New password is required");
+      return;
+    }
+
+    if (!securityForm.currentPassword) {
+      toast.error("Current password is required");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user/updatePassword", {
+        method: "POST",
+        body: JSON.stringify({
+          currentPassword: securityForm.currentPassword,
+          newPassword: securityForm.newPassword
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Password updated successfully");
+        setSecurityForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while updating the password");
+    }
+  };
+  const logout = () => { };
   const handleNotificationChange = (key, value) => {
     const newNotifications = { ...notifications, [key]: value };
     setNotifications(newNotifications);
@@ -81,6 +126,7 @@ const MyProfile = () => {
 
     // Note: No upload, purely frontend
   };
+
   console.log(avatarSrc);
   return (
     <div>
@@ -193,11 +239,11 @@ const MyProfile = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end">
+            {/* <CardFooter className="flex justify-end">
               <Button onClick={handleSaveProfile} disabled={loading}>
                 {loading ? "Saving..." : "Save Changes"}
               </Button>
-            </CardFooter>
+            </CardFooter> */}
           </Card>
         </TabsContent>
 
@@ -218,8 +264,8 @@ const MyProfile = () => {
                         id="current-password"
                         name="currentPassword"
                         type="password"
-                        value={formData.currentPassword}
-                        onChange={handleChange}
+                        value={securityForm.currentPassword}
+                        onChange={handleSecurityChange}
                         placeholder="Enter your current password"
                         disabled={loading}
                       />
@@ -228,11 +274,11 @@ const MyProfile = () => {
                     <div>
                       <Label htmlFor="password">New Password</Label>
                       <Input
-                        id="password"
-                        name="password"
+                        id="newPassword"
+                        name="newPassword"
                         type="password"
-                        value={formData.password}
-                        onChange={handleChange}
+                        value={securityForm.newPassword}
+                        onChange={handleSecurityChange}
                         placeholder="Enter your new password"
                         disabled={loading}
                       />
@@ -246,8 +292,8 @@ const MyProfile = () => {
                         id="confirmPassword"
                         name="confirmPassword"
                         type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
+                        value={securityForm.confirmPassword}
+                        onChange={handleSecurityChange}
                         placeholder="Confirm your new password"
                         disabled={loading}
                       />

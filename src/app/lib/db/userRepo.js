@@ -16,7 +16,11 @@ async function createClientUser(name, email, phoneNumber, role, password, clinic
 }
 
 async function updateAdminUser(id, name, email, phone, role, isActive) {
-    const user = await db.User.findByIdAndUpdate(id, { name, email, phone, role, isActive }, { new: true, upsert: true });
+    const user = await db.User.findByIdAndUpdate(
+        id, 
+        { name, email, phone, role, isActive }, 
+        { new: true, upsert: true }
+    );
     return user;
 }
 
@@ -35,7 +39,7 @@ async function authenticate(email, password) {
     if (!isAuthenticated) {
         return null;
     }
-    
+
     if (!user.isActive) {
         throw new Error("User is not active");
     }
@@ -63,7 +67,7 @@ async function getNumCoachesByClinicId(clinicId) {
 }
 
 async function updateCoach(id, name, email, phone) {
-    const user = await db.User.findByIdAndUpdate(id, { name, email, phone}, { new: true, upsert: true });
+    const user = await db.User.findByIdAndUpdate(id, { name, email, phone }, { new: true, upsert: true });
     return user;
 }
 
@@ -72,8 +76,11 @@ async function deleteCoach(id) {
     return user;
 }
 
-async function resetPassword(id) {
-    const user = await db.User.findByIdAndUpdate(id, { password: "password123" });
+async function resetPassword(id, newPassword) {
+    const user = await db.User.findById(id);
+    if (!user) return null;
+    user.password = newPassword;
+    await user.save();
     return user;
 }
 
@@ -89,8 +96,8 @@ async function getCoaches() {
 
 async function getNumClinics() {
     const clinics = await db.Clinic.find();
-    console.log("clinisaaaaaaaaaaaaaaa",clinics.length);
-    return clinics.length   ;
+    console.log("clinisaaaaaaaaaaaaaaa", clinics.length);
+    return clinics.length;
 }
 
 async function getNumTotalCoaches() {

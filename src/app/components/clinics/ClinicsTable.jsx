@@ -26,17 +26,8 @@ const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {clinics?.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={6}
-                className="text-center py-8 text-muted-foreground"
-              >
-                No clinics found. Add a clinic to get started.
-              </TableCell>
-            </TableRow>
-          ) : (
-            clinics.map((clinic) => (
+          {
+            clinics && clinics.length > 0 ? clinics.map((clinic) => (
               <TableRow key={clinic._id} className="hover:bg-gray-50">
                 <TableCell>
                   <div className="flex items-center space-x-3">
@@ -73,8 +64,17 @@ const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
                   </Button> */}
                 </TableCell>
               </TableRow>
-            ))
-          )}
+            )) : (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  No clinics found. Add a clinic to get started.
+                </TableCell>
+              </TableRow>
+            )
+          }
         </TableBody>
       </Table>
     </div>
