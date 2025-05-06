@@ -13,7 +13,6 @@ export default function NotificationBadge({
   const [unread, setUnread] = useAtom(unreadCount);
 
   useEffect(() => {
-    // Initial load
     const number = async (email) => {
       try {
         const response = await fetch("/api/message/notification", {
@@ -21,7 +20,6 @@ export default function NotificationBadge({
           body: JSON.stringify({ email }),
         });
         const data = await response.json();
-        console.log("data", data);
         setUnread(data?.getNumber || 0);
       } catch (error) {
         toast.error("Unable to get number");
@@ -29,8 +27,9 @@ export default function NotificationBadge({
     };
     number(email);
     socket.on("msg-recieve", (data) => {
+      console.log("msg-recieve", data, isMessage);
       if (!isMessage) {
-        console.log("msg-recieve", data);
+        console.log("msg-recieve", data, isMessage);
         setUnread((prev) => prev + 1);
       }
     });
@@ -39,11 +38,6 @@ export default function NotificationBadge({
       socket.off("msg-recieve");
     };
   }, [email]);
-
-  useEffect(() => {
-    console.log("countaaaaaaaaaaaaaaaa", unread);
-    console.log("ismessageeeeeeeeeeeeeeee", isMessage);
-  }, [unread, isMessage]);
 
   return unread > 0 ? (
     <div className="w-[20px] h-[20px] rounded-full bg-red-500 text-white text-center">

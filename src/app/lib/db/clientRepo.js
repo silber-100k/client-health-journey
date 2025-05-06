@@ -39,8 +39,8 @@ async function getnumprojectsbyId(coachId) {
   return result.length > 0 ? result[0].uniquePrograms : 0;
 }
 
-async function createClient(name, email, password, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals) {
-  const client = await db.Client.create([{ name, email, password, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals }]);
+async function createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals) {
+  const client = await db.Client.create([{ name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals }]);
   return client[0];
 }
 

@@ -7,30 +7,27 @@ import { cn } from "../../lib/utils";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import NotificationBadge from "../badge";
 import { useState } from "react";
-import { unreadCount } from "@/app/store";
-import { useAtom } from "jotai";
 
 const SidebarNav = ({ items }) => {
   const { user } = useAuth();
   const pathname = usePathname();
-  const [unread, setUnread] = useAtom(unreadCount);
   const [isMessage, setIsMessage] = useState(false);
   
   const handleClick = async (item) => {
-    if (item.title == "Messages") {
-      setIsMessage(true);
-      const markAsRead = async () => {
-        await fetch(`/api/message/mark`, {
-          method: "POST",
-          body: JSON.stringify({ email: user?.email }),
-        });
-      };
-
-      markAsRead();
-    } else {
-      setIsMessage(false);
-    }
+    // if (item.title == "Messages") {
+    //   setIsMessage(true);
+    //   const markAsRead = async () => {
+    //     await fetch(`/api/message/mark`, {
+    //       method: "POST",
+    //       body: JSON.stringify({ email: user?.email }),
+    //     });
+    //   };
+    //   markAsRead();
+    // } else {
+    //   setIsMessage(false);
+    // }
   };
+  
   return (
     <ScrollArea className="flex-1 py-2">
       <nav className="grid gap-1 px-2">

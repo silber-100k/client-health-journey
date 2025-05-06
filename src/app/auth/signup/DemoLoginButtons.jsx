@@ -24,10 +24,7 @@ const DemoLoginButtons = () => {
         </AlertDescription>
       </Alert>
 
-      <div className="grid grid-cols-3 gap-3">
-        <Button variant="outline" className="text-xs">
-          Login as Admin
-        </Button>
+      <div className="grid grid-cols-2 gap-3">
         <Button variant="outline" className="text-xs">
           Login as Coach
         </Button>

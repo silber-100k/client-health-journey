@@ -197,9 +197,6 @@ function clientModel() {
             type: String,
             required: true,
         },
-        password: {
-            type: String,
-        },
         phone: {
             type: String,
         },

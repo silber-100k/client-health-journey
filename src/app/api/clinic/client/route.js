@@ -3,6 +3,7 @@ import { clientRepo } from "@/app/lib/db/clientRepo";
 import authOptions from "@/app/lib/authoption";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
+import { sendClientRegistrationEmail } from "@/app/lib/api/email";
 
 export async function GET() {
   try {
@@ -60,7 +61,8 @@ export async function POST(request) {
       clinic,
       coachId
     );
-  const clientsnum = await clientRepo.updateClientNum(clinic);
+    await sendClientRegistrationEmail({ name, email, phone }, user.clinic.name, randomPassword);
+    const clientsnum = await clientRepo.updateClientNum(clinic);
     console.log("randompassword", randomPassword);
     return NextResponse.json({ status: true, client });
   } catch (error) {

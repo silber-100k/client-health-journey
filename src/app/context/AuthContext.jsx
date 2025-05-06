@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { socket } from "@/socket";
 
 const AuthContext = createContext(undefined);
 
@@ -29,6 +30,24 @@ export const AuthProvider = ({ children }) => {
       fetchUserData();
     }
   }, [session]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    function onConnect() {
+      socket.emit("user_login", user.email);
+    }
+
+    socket.on("connect", onConnect);
+
+    if (socket.connected) {
+      onConnect();
+    }
+
+    return () => {
+      socket.off("connect", onConnect);
+    };
+  }, [user]);
 
   return (
     <AuthContext.Provider

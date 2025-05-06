@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clinicRepo } from "@/app/lib/db/clinicRepo";
 import { userRepo } from "@/app/lib/db/userRepo";
+import { sendCoachRegistrationEmail } from "@/app/lib/api/email";
 
 export async function POST(request) {
     const {
@@ -77,6 +78,7 @@ export async function POST(request) {
                     clinic._id
                 );
                 createdCoachUsers.push(coachUser);
+                await sendCoachRegistrationEmail(coach, randomPassword);
             }
         }
 

@@ -14,10 +14,9 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-import { MessageSquare, Send, User, Users } from "lucide-react";
+import { MessageSquare, Send, User } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useAuth } from "@/app/context/AuthContext";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
   Select,
@@ -49,7 +48,7 @@ const ClientMessages = () => {
 
   const fetchMessageHistory = async ({ sender, receiver }) => {
     if (!sender || !receiver) return;
-    
+
     setIsLoading(true);
     try {
       const response = await fetch("/api/message/history", {
@@ -66,6 +65,7 @@ const ClientMessages = () => {
       toast.error("Unable to get message history");
     } finally {
       setIsLoading(false);
+      setUnread(0);
     }
   };
 
@@ -88,7 +88,7 @@ const ClientMessages = () => {
 
   const fetchCoachbyId = async () => {
     if (!user?.coachId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await fetch("/api/coach/byId", {
@@ -123,8 +123,6 @@ const ClientMessages = () => {
 
     const handleMessageRecieve = (data) => {
       //update state in database
-      console.log("data", data);
-      socket.emit("message_delivered", { messageId: data.id, from: data.from });
       const updateMessage = async (data) => {
         try {
           const response = await fetch("/api/message/update", {
@@ -144,17 +142,22 @@ const ClientMessages = () => {
       };
 
       if (currentClient == data.from && (user?.role === "coach" || user?.role === "clinic_admin")) {
+        console.log("message_delivered", data);
+        socket.emit("message_delivered", { messageId: data.id, from: data.from });
         setMessages((prevMessages) => [
           ...prevMessages,
           { ...data, status: "delivered" },
         ]);
         updateMessage(data);
-      } else {
+        setUnread(0);
+      } else if (user.email == data.to && user?.role === "client") {
+        console.log("message_delivered", data);
+        socket.emit("message_delivered", { messageId: data.id, from: data.from });
         setMessages((prevMessages) => [
           ...prevMessages,
           { ...data, status: "delivered" },
         ]);
-        updateMessage(data);
+        setUnread(0);
       }
     };
 
@@ -191,25 +194,11 @@ const ClientMessages = () => {
   }, [currentClient, user]);
 
   useEffect(() => {
-    console.log("coach", coach);
     if (coach) {
       fetchClients();
       fetchMessageHistory({ sender: user?.email, receiver: coach.email });
     }
   }, [coach]);
-
-  useEffect(() => {
-    const unseenMessageIds = messages
-      .filter((msg) => msg.to === user?.email && msg.status === "sent")
-      .map((msg) => msg.id);
-    if (unseenMessageIds.length > 0) {
-      socket.emit("messages_viewed", {
-        messageIds: unseenMessageIds,
-        viewerEmail: user?.email,
-      });
-      setUnread(unseenMessageIds.length);
-    }
-  }, [messages]);
 
   const firstUnreadIndex = messages.findIndex(
     (msg) => msg.status === "sent" && msg.to === user.email
@@ -288,10 +277,18 @@ const ClientMessages = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    setUnread(0);
   };
 
   useEffect(() => {
+    const unseenMessageIds = messages
+      .filter((msg) => msg.to === user?.email && msg.status === "sent")
+      .map((msg) => msg.id);
+    if (unseenMessageIds.length > 0) {
+      socket.emit("messages_viewed", {
+        messageIds: unseenMessageIds,
+        viewerEmail: user?.email,
+      });
+    }
     scrollToBottom();
   }, [messages]);
 
@@ -366,9 +363,8 @@ const ClientMessages = () => {
                     className={`flex ${msg.from === user.email ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`flex items-start gap-2 max-w-[80%] ${
-                        msg.from === user.email ? "flex-row-reverse" : "flex-row"
-                      }`}
+                      className={`flex items-start gap-2 max-w-[80%] ${msg.from === user.email ? "flex-row-reverse" : "flex-row"
+                        }`}
                     >
                       <Avatar className="h-8 w-8">
                         {msg.senderAvatar ? (
@@ -382,11 +378,10 @@ const ClientMessages = () => {
 
                       <div>
                         <div
-                          className={`px-4 py-2 rounded-lg text-sm flex justify-between ${
-                            msg.from === user.email
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
-                          }`}
+                          className={`px-4 py-2 rounded-lg text-sm flex justify-between ${msg.from === user.email
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                            }`}
                         >
                           {msg.message}
                           <div className="ml-2 flex items-center">

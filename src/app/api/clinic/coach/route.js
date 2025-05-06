@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import authOptions from "@/app/lib/authoption";
+import { sendCoachRegistrationEmail } from "@/app/lib/api/email";
 
 export async function GET(request) {
     try {
@@ -56,6 +57,7 @@ export async function POST(request) {
             randomPassword,
             clinicId
         );
+        await sendCoachRegistrationEmail({ name, email }, randomPassword);
         const coachnum = await userRepo.updateCoachNum(clinicId);
         return NextResponse.json({ status: true, coach });
     } catch (error) {
