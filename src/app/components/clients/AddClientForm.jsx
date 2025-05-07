@@ -116,7 +116,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
         }),
       });
       const respond = await resActivity.json();
-      if (respond.success) {
+      if (respond.status) {
         toast.success("Activity added successfully");
       } else {
         throw new Error(respond.message);
@@ -185,7 +185,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
             </Alert>
           )}
 
-          {!isCoachesLoading && coaches?.length === 0 && (
+          {/* {!isCoachesLoading && coaches?.length === 0 && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -193,7 +193,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
                 from the Coaches page.
               </AlertDescription>
             </Alert>
-          )}
+          )} */}
 
           {!isProgramsLoading && programs.length > 0 && (
             <Alert variant="default" className="bg-blue-50 border-blue-200">
