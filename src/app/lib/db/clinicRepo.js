@@ -114,12 +114,12 @@ async function getNumWeeklyActivities() {
   }
 }
 async function getRecentactivity(clinicId) {
-  const recentActivity = await db.Activity.find({ clinicId: clinicId });
+  const recentActivity = await db.Activity.find({ clinicId: clinicId }).sort({ timeStamp: -1 });;
   return recentActivity;
 }
 
 async function getAllRecentactivity() {
-  const recentActivity = await db.Activity.find();
+  const recentActivity = await db.Activity.find().sort({ timeStamp: -1 });;
   return recentActivity;
 }
 
