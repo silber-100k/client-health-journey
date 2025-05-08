@@ -185,10 +185,9 @@ const ClientFormFields = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="none">No coach assigned</SelectItem>
-                  <SelectItem value={user._id}>
-                    {user.name}
-                    ({user.email})
+                  <SelectItem value="none">No coach</SelectItem>
+                  <SelectItem value={user?._id}>
+                    {user.name}({user.email})
                   </SelectItem>
                   {coaches && coaches.length > 0 ? (
                     coaches.map((coach) => (

@@ -20,9 +20,6 @@ const ClinicsPage = () => {
   const { user } = useAuth();
   const [clinics, setClinics] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const handleSubmit = (data) => {
-    console.log("data", data);
-  };
 
   const fetchClinics = async () => {
     try {
@@ -65,49 +62,6 @@ const ClinicsPage = () => {
         {isClinicAdmin ? "Clinic Management" : "Clinics Management"}
       </h1>
 
-      {/* {isClinicAdmin ? (
-        <div>
-          <Tabs defaultValue="coaches">
-            <TabsList className="mb-6">
-              <TabsTrigger value="coaches">Coaches</TabsTrigger>
-              <TabsTrigger value="clients">Clients</TabsTrigger>
-            </TabsList>
-            <TabsContent value="coaches">
-              <CoachesPage />
-            </TabsContent>
-            <TabsContent value="clients">
-              <ClientsPage />
-            </TabsContent>
-          </Tabs>
-        </div>
-      ) : (
-        <Tabs defaultValue="clinics">
-          <TabsList className="mb-6">
-            <TabsTrigger value="clinics">Clinics</TabsTrigger>
-            <TabsTrigger value="coaches">Coaches</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-          </TabsList>
-          <TabsContent value="clinics">
-
-            <ClinicsOverview
-              clinics={clinics}
-              getStatusColor={getStatusColor}
-              onClinicSelect={handleClinicSelect}
-              fetchClinics={fetchClinics}
-              isLoading={isLoading}
-              onAddClinic={handleAddlclinicdialogue}
-            />
-
-          </TabsContent>
-          <TabsContent value="coaches">
-            <CoachesPage />
-          </TabsContent>
-          <TabsContent value="clients">
-            <ClientsPage />
-          </TabsContent>
-        </Tabs>
-      )}
-       */}
       <ClinicsOverview
         clinics={clinics}
         getStatusColor={getStatusColor}
@@ -119,7 +73,6 @@ const ClinicsPage = () => {
 
       <AddClinicDialog
         open={isAddClinicDialogOpen}
-        onSubmit={handleSubmit}
         setOpen={setIsAddClinicDialogOpen}
       />
     </div>

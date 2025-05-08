@@ -11,8 +11,17 @@ import ClinicsTable from "../../components/clinics/ClinicsTable";
 import { RefreshCw } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 
-const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic, fetchClinics, isLoading }) => {
-  
+const ClinicsOverview = ({
+  clinics,
+  onEdit,
+  onDelete,
+  onClinicSelect,
+  getStatusColor,
+  onAddClinic,
+  fetchClinics,
+  isLoading,
+}) => {
+  const hasActions = onEdit||onDelete;
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -22,7 +31,7 @@ const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic,
             Manage clinics, their coaches, and billing information.
           </p>
         </div>
-        <div>
+        <div className="flex items-center gap-4">
           <Button
             variant="outline"
             size="icon"
@@ -33,10 +42,14 @@ const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic,
           >
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </Button>
-          {/* <Button className="flex items-center gap-2" onClick={onAddClinic} disabled>
+          <Button
+            className="flex items-center gap-2"
+            onClick={onAddClinic}
+            disabled={isLoading}
+          >
             <Building size={18} />
             <span>Add Clinic</span>
-          </Button> */}
+          </Button>
         </div>
       </div>
 
@@ -52,7 +65,11 @@ const ClinicsOverview = ({ clinics, onClinicSelect, getStatusColor, onAddClinic,
               <Skeleton className="h-12 w-full" />
             </div>
           ) : (
-            <ClinicsTable clinics={clinics} onClinicSelect={onClinicSelect} getStatusColor={getStatusColor} />
+            <ClinicsTable
+              clinics={clinics}
+              onClinicSelect={onClinicSelect}
+              getStatusColor={getStatusColor}
+            />
           )}
         </CardContent>
       </Card>

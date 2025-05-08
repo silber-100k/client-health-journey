@@ -20,14 +20,31 @@ import { useAuth } from "@/app/context/AuthContext";
 const TemplateDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
   const [templateType, setTemplateType] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
+  const [data, setData] = useState({
+    type: "",
+    description: "",
+  });
+  useEffect(() => {
+    if (data.type !== "" || data.description !== "") {
+      onSubmit(data);
 
-  const handleSubmit = async () => {
-    const data = {
+      // Reset data object
+      setData({
+        type: "",
+        description: "",
+      });
+
+      // Also reset input states to clear form fields
+      setTemplateType("");
+      setTemplateDescription("");
+    }
+  }, [data, onSubmit]);
+
+  const handleSubmit = () => {
+    setData({
       type: templateType,
       description: templateDescription,
-    };
-    console.log("server",data);
-    await onSubmit(data);
+    });
   };
 
   return (
@@ -42,10 +59,18 @@ const TemplateDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
         <div className="grid gap-4 py-4">
           <Label htmlFor="template-type">Template Type</Label>
-          <Input id="template-type" value={templateType} onChange={(e) => setTemplateType(e.target.value)} />
+          <Input
+            id="template-type"
+            value={templateType}
+            onChange={(e) => setTemplateType(e.target.value)}
+          />
           <Label htmlFor="template-description">Template Description</Label>
-          <Textarea id="template-description" value={templateDescription} onChange={(e) => setTemplateDescription(e.target.value)} />
-         </div>
+          <Textarea
+            id="template-description"
+            value={templateDescription}
+            onChange={(e) => setTemplateDescription(e.target.value)}
+          />
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>

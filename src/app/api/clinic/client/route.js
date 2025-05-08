@@ -54,9 +54,12 @@ export async function POST(request) {
     if (!name || !email) {
       return NextResponse.json({ status: false, message: "Invalid request" });
     }
+
+    if(!coachId || !programId){
+      return NextResponse.json({ status: false, message: "Select Coach and Program" });
+    }
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals);
-    console.log(randomPassword);
     await userRepo.createClientUser(
       name,
       email,

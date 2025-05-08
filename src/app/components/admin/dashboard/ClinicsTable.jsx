@@ -74,13 +74,17 @@ const ClinicsTable = ({
               </thead>
               <tbody>
                 {dashboardStats.clinicsSummary.map((clinic) => (
-                  <tr key={clinic.id} className="border-b hover:bg-gray-50">
+                  <tr key={clinic._id} className="border-b hover:bg-gray-50">
                     <td className="py-3">{clinic.name}</td>
-                    <td className="py-3">{clinic.coaches[0]?.count}</td>
-                    <td className="py-3">{clinic.clients[0]?.count}</td>
+                    <td className="py-3">
+                      {clinic.coaches[0]?.count || clinic.coaches}
+                    </td>
+                    <td className="py-3">
+                      {clinic.clients[0]?.count || clinic.clients}
+                    </td>
                     <td className="py-3">
                       <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                        {clinic.status === "active" ? "Active" : "Inactive"}
+                        {clinic.isActive == true ? "Active" : "Inactive"}
                       </span>
                     </td>
                   </tr>

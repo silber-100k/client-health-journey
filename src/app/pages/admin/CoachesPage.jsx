@@ -56,8 +56,8 @@ const CoachesPage = () => {
     return (
       (coach.name && coach.name.toLowerCase().includes(searchText)) ||
       (coach.email && coach.email.toLowerCase().includes(searchText)) ||
-      (coach.phone && coach.phone.includes(searchText)) ||
-      (coach.clinicName && coach.clinicName.toLowerCase().includes(searchText))
+      (coach.phoneNumber && coach.phoneNumber.includes(searchText)) ||
+      (coach.clinic.name && coach.clinic.name.toLowerCase().includes(searchText))
     );
   });
 

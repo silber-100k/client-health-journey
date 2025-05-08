@@ -146,6 +146,10 @@ function clinicModel() {
             type: [Schema.Types.ObjectId],
             ref: "Client",
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         billingContactName: {type: String},
         billingEmail: {type: String},
         billingPhone: {type: String},

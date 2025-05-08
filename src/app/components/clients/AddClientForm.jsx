@@ -92,6 +92,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
     if (isPending) {
       return;
     }
+
     setIsPending(true);
     try {
       const response = await fetch(`/api/${apiRole}/client`, {
@@ -104,6 +105,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
         toast.success("client added successfully");
         fetchClients();
       } else {
+        toast.error(responseData.message);
         throw new Error(responseData.message);
       }
 

@@ -27,7 +27,7 @@ const ProgramsPage = () => {
   const fetchPrograms = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/clinic/program");
+      const response = await fetch("/api/admin/program");
       const data = await response.json();
       setPrograms(data.programs);
       setIsLoading(false);

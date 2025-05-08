@@ -42,3 +42,23 @@ export const sendCoachRegistrationEmail = async (newCoach, tempPassword) => {
         emailUserId
     );
 }
+
+export const sendClinicRegistrationEmail = async (clinicEmail,clinicName,clinicPhone,email, password) => {
+    const templateParams = {
+        name: clinicName,
+        login_url: `${process.env.NEXTAUTH_URL}/login`,
+        user_email: email,
+        user_pwd: password,
+        support_email: 'support@clienthealthtracker.com',
+        website_url: 'www.clienthealthtracker.com',
+        email:clinicEmail,
+        phone_number: clinicPhone,
+    }
+
+    await emailjs.send(
+        process.env.EMAIL_SERVICE_ID,
+        process.env.EMAIL_COACH_TEMPLATE_ID,
+        templateParams,
+        emailUserId
+    );
+}

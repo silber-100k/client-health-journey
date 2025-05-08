@@ -78,7 +78,7 @@ const TempTable = ({
                 <Button className="mr-[10px]" onClick={() => onEdit(true)}>
                   Edit
                 </Button>
-                <Button onClick={onDelete}>Delete</Button>
+                <Button onClick={()=>onDelete(template._id)}>Delete</Button>
               </TableCell>
             </TableRow>
           ))}

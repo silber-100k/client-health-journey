@@ -23,7 +23,7 @@ import { useAuth } from "@/app/context/AuthContext";
 const ReportsPage = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  // const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
   const [revenueData, setRevenueData] = useState([]);
   const [subscriptionData, setSubscriptionData] = useState([]);
@@ -55,15 +55,15 @@ const ReportsPage = () => {
     }
   };
   //totalcheckIn*100
-  const fetchTotalRevenue = async () => {
-    try {
-      const response = await fetch("/api/clinic/report/totalRevenue");
-      const data = await response.json();
-      setTotalRevenue(data.totalRevenue);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const fetchTotalRevenue = async () => {
+  //   try {
+  //     const response = await fetch("/api/clinic/report/totalRevenue");
+  //     const data = await response.json();
+  //     setTotalRevenue(data.totalRevenue);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const fetchTotalClients = async () => {
     try {
@@ -78,7 +78,7 @@ const ReportsPage = () => {
   useEffect(() => {
     fetchRevenueData();
     fetchsubscriptionData();
-    fetchTotalRevenue();
+    // fetchTotalRevenue();
     fetchTotalClients();
   }, []);
 
@@ -98,7 +98,7 @@ const ReportsPage = () => {
     );
   }
 
-  const dashboardTitle = "Clinic Financial Reports";
+  const dashboardTitle = "Clinic Reports";
   const dashboardDescription = "Overview of your clinic performance";
 
   return (
@@ -110,7 +110,7 @@ const ReportsPage = () => {
 
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <Banknote className="h-4 w-4 text-primary-500" />
@@ -121,7 +121,7 @@ const ReportsPage = () => {
             </div>
             <p className="text-xs text-green-500">+8% from last month</p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -138,7 +138,7 @@ const ReportsPage = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">
               Monthly Revenue
@@ -151,7 +151,7 @@ const ReportsPage = () => {
             </div>
             <p className="text-xs text-green-500">+5% from last month</p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -169,7 +169,7 @@ const ReportsPage = () => {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-[24px]">
-            Your Clinic Monthly Revenue
+            Your Clinic Monthly New checkIn clients
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -190,12 +190,12 @@ const ReportsPage = () => {
                 <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
                 <Tooltip />
                 <Legend />
-                <Bar
+                {/* <Bar
                   yAxisId="left"
                   dataKey="revenue"
                   name="Revenue ($)"
                   fill="#8884d8"
-                />
+                /> */}
                 <Bar
                   yAxisId="right"
                   dataKey="clients"

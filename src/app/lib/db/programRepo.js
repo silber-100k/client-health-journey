@@ -1,8 +1,55 @@
 import db from "./index";
+import mongoose from "mongoose";
 
-async function getPrograms() {
+async function getPrograms(clinicId) {
+    // Get all programs for the clinic
+    const programs = await db.Program.find({clinicId: clinicId}).populate("tempId");
+    
+    // Get all client counts in a single query
+    const clientCounts = await db.Client.aggregate([
+        { $match: { clinic: new mongoose.Types.ObjectId(clinicId) } },
+        { $group: { _id: "$programId", count: { $sum: 1 } } }
+    ]);
+    
+    // Convert to a map for easy lookup
+    const countMap = {};
+    clientCounts.forEach(item => {
+        countMap[item._id] = item.count;
+    });
+    
+    // Add client count to each program
+    const result = programs.map(program => {
+        const programObj = program.toObject();
+        programObj.clientCount = countMap[program._id] || 0;
+        return programObj;
+    });
+    
+    return result;
+}
+
+async function getAllProgramsAdmin() {
+    // Get all programs for the clinic
     const programs = await db.Program.find().populate("tempId");
-    return programs;
+    
+    // Get all client counts in a single query
+    const clientCounts = await db.Client.aggregate([
+        { $group: { _id: "$programId", count: { $sum: 1 } } }
+    ]);
+    
+    // Convert to a map for easy lookup
+    const countMap = {};
+    clientCounts.forEach(item => {
+        countMap[item._id] = item.count;
+    });
+    
+    // Add client count to each program
+    const result = programs.map(program => {
+        const programObj = program.toObject();
+        programObj.clientCount = countMap[program._id] || 0;
+        return programObj;
+    });
+    
+    return result;
 }
 
 async function createProgram(name, type, duration, checkInFrequency, description,tempId, clinicId) {
@@ -40,4 +87,5 @@ export const programRepo = {
     updateTemplate,
     getTemplateDescription,
     deleteTemplate,
+    getAllProgramsAdmin,
 }

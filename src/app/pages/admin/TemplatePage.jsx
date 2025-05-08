@@ -73,15 +73,12 @@ const ProgramsPage = () => {
     setShowTemplateDetails(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (data) => {
     try {
-      const response = await fetch(
-        `/api/admin/template/${selectedTemplate?._id}`,
-        {
-          method: "DELETE",
-          body: JSON.stringify(selectedTemplate?._id),
-        }
-      );
+      const response = await fetch(`/api/admin/template/${data}`, {
+        method: "DELETE",
+        body: JSON.stringify(data),
+      });
       const responseData = await response.json();
       if (responseData.status) {
         await fetchTemplates();

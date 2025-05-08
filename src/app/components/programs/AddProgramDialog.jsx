@@ -77,6 +77,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
     if (value == "custom") {
       setProgramType("custom");
     } else {
+      setProgramType("template");
       settempId(value);
     }
     setvalue(value);

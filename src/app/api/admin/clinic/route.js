@@ -3,6 +3,8 @@ import { clientRepo } from "@/app/lib/db/clientRepo";
 import authOptions from "@/app/lib/authoption";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
+import { clinicRepo } from "@/app/lib/db/clinicRepo";
+import { sendClinicRegistrationEmail } from "@/app/lib/api/email";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
@@ -24,5 +26,83 @@ export async function GET() {
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
+}
+
+
+
+export async function POST(request) {
+    const {
+        clinicName,
+        clinicEmail,
+        clinicPhone,
+        streetAddress,
+        city,
+        state,
+        zipCode,
+        primaryContact,
+        email,
+        hipaaAcknowledgment,
+        legalAcknowledgment,
+        selectedPlan,
+        addOns,
+        additionalCoaches,
+    } = await request.json();
+
+    if (!clinicName || !clinicEmail || !clinicPhone || !streetAddress || !city || !state || !zipCode || !primaryContact || !email || !hipaaAcknowledgment || !legalAcknowledgment || !selectedPlan) {
+        return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 });
+    }
+
+    let clinic = null;
+    let adminUser = null;
+    const createdCoachUsers = [];
+    const password = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    try {
+        // Create clinic
+        clinic = await clinicRepo.createClinic(
+            clinicEmail, 
+            clinicName, 
+            clinicPhone, 
+            primaryContact, 
+            streetAddress, 
+            city, 
+            state, 
+            zipCode, 
+            selectedPlan, 
+            addOns, 
+            hipaaAcknowledgment, 
+            legalAcknowledgment
+        );
+
+        // Create admin user
+        adminUser = await userRepo.createAdminUser(
+            primaryContact, 
+            email, 
+            clinicPhone, 
+            "clinic_admin", 
+            password, 
+            clinic._id
+        );
+        await sendClinicRegistrationEmail(clinicEmail,clinicName,clinicPhone,email, password);
+        return NextResponse.json({ success: true, message: "Clinic created successfully" }, { status: 200 });
+    } catch (error) {
+        console.error(error);
+        // Rollback in reverse order
+        try {
+            
+            // Delete admin user if created
+            if (adminUser) {
+                await userRepo.deleteAdminUser(adminUser._id);
+            }
+            
+            // Delete clinic if created
+            if (clinic) {
+                await clinicRepo.deleteClinic(clinic._id);
+            }
+        } catch (rollbackError) {
+            console.error("Error during rollback:", rollbackError);
+        }
+        
+        return NextResponse.json({ success: false, message: "Error creating clinic" }, { status: 500 });
     }
 }

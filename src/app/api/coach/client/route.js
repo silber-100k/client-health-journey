@@ -21,7 +21,6 @@ export async function GET() {
     }
     let coachId = user._id
 
-    console.log(coachId)
     const clients = await clientRepo.getclientsbycoachId(coachId);
     return NextResponse.json({ status: true, clients });
   } catch (error) {

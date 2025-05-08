@@ -182,6 +182,10 @@ function clinicModel() {
             type: Date,
             default: Date.now,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     });
 
     return mongoose.models.Clinic || mongoose.model('Clinic', ClinicSchema);
