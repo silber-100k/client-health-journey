@@ -18,3 +18,23 @@ export async function GET() {
         return Response.json({ success: false, message: "User fetch failed" });
     }
 }
+
+export async function PUT(req) {
+    const session = await getServerSession();
+    if (!session?.user?.email) {
+        return Response.json({ success: false, message: "User not found" });
+    }
+    try {
+        const user = await userRepo.getUserByEmail(session?.user?.email);
+        if (!user) {
+            return Response.json({ success: false, message: "User not found" });
+        }
+        const { name, email, phone } = await req.json();
+        console.log(name, email, phone);
+        const updatedUser = await userRepo.updateAdminUser(user._id, name, email, phone, user.role, user.isActive);
+        return Response.json({ success: true, user: updatedUser });
+    } catch (error) {
+        console.error(error);
+        return Response.json({ success: false, message: "User update failed" });
+    }
+}

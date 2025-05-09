@@ -28,7 +28,8 @@ import { toast } from "sonner";
 
 const MyProfile = () => {
   const { user } = useAuth();
-
+  const [loading, setLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -57,7 +58,6 @@ const MyProfile = () => {
     setSecurityForm((pre) => ({ ...pre, [e.target.name]: e.target.value }));
   };
 
-  const [loading, setLoading] = useState(false);
   const handleSaveProfile = () => { };
   const handlePasswordChange = async () => {
     if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {

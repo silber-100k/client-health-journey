@@ -14,7 +14,7 @@ import { useState } from "react";
 export const ResetCoachPasswordDialog = ({
   open,
   selectedCoach,
-  onchange,
+  setOpen,
   fetchCoaches,
 }) => {
   const coach = selectedCoach;
@@ -33,13 +33,13 @@ export const ResetCoachPasswordDialog = ({
       });
       const responseData = await response.json();
       if (responseData.status) {
-        onchange(false);
-        toast.success("Password reseted successfully");
+        setOpen(false);
+        toast.success("Password reset successfully");
       } else {
         throw new error(responseData.message);
       }
     } catch (err) {
-      console.error("Error deleting coach:", err);
+      console.error("Error resetting password:", err);
       seterrorMessage(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
@@ -50,15 +50,10 @@ export const ResetCoachPasswordDialog = ({
     }
   };
   return (
-    <Dialog open={open} onOpenChange={onchange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Reset Coach Password</DialogTitle>
-          <DialogDescription>
-            {coach?.email
-              ? `Send a password reset link to ${coach.name} at ${coach.email}`
-              : "Send a password reset link to the coach email address"}
-          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
@@ -69,23 +64,22 @@ export const ResetCoachPasswordDialog = ({
           )}
 
           <p className="text-sm text-muted-foreground">
-            This will send an email with a secure link that will allow the coach
-            to reset their password.
+            The coach password will be reset to the default password.
           </p>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onchange(false)}>
+          <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button onClick={handleReset}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
+                Resetting...
               </>
             ) : (
-              "Send Reset Link"
+              "Reset Password"
             )}
           </Button>
         </DialogFooter>

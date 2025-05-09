@@ -1,24 +1,21 @@
 "use client";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../components/ui/tabs";
 import ClinicsOverview from "../../components/clinics/ClinicsOverview";
-import CoachesPage from "./CoachesPage";
-import ClientsPage from "./ClientsPage";
 import AddClinicDialog from "../../components/clinics/AddClinicDialog";
-import { useState } from "react";
+import EditClinicDialog from "../../components/clinics/EditClinicDialog";
+import DeleteClinicDialog from "../../components/clinics/DeleteClinicDialog";
+import ResetPwdDialog from "../../components/clinics/ResetPwdDialog";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
-import { useEffect } from "react";
-import { Skeleton } from "../../components/ui/skeleton";
 
 const ClinicsPage = () => {
   const [isAddClinicDialogOpen, setIsAddClinicDialogOpen] = useState(false);
+  const [isEditClinicDialogOpen, setIsEditClinicDialogOpen] = useState(false);
+  const [isDeleteClinicDialogOpen, setIsDeleteClinicDialogOpen] = useState(false);
+  const [isResetPwdDialogOpen, setIsResetPwdDialogOpen] = useState(false);
   const { user } = useAuth();
   const [clinics, setClinics] = useState([]);
+  const [selectedClinic, setSelectedClinic] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchClinics = async () => {
@@ -36,12 +33,26 @@ const ClinicsPage = () => {
   useEffect(() => {
     fetchClinics();
   }, []);
+  
   const handleAddlclinicdialogue = () => {
     setIsAddClinicDialogOpen(true);
   };
-  const handleClinicSelect = (clinic) => {
-    console.log("clinic", clinic);
+
+  const handleClinicEditDialogue = (clinic) => {
+    setSelectedClinic(clinic);
+    setIsEditClinicDialogOpen(true);
   };
+
+  const handleClinicDelete = (clinic) => {
+    setSelectedClinic(clinic);
+    setIsDeleteClinicDialogOpen(true);
+  };
+
+  const handleClinicResetPassword = (clinic) => {
+    setSelectedClinic(clinic);
+    setIsResetPwdDialogOpen(true);
+  };
+
   const isClinicAdmin = user?.role === "clinic_admin";
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -58,14 +69,16 @@ const ClinicsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">
+      {/* <h1 className="text-2xl font-bold mb-6">
         {isClinicAdmin ? "Clinic Management" : "Clinics Management"}
-      </h1>
+      </h1> */}
 
       <ClinicsOverview
         clinics={clinics}
         getStatusColor={getStatusColor}
-        onClinicSelect={handleClinicSelect}
+        onEdit={handleClinicEditDialogue}
+        onDelete={handleClinicDelete}
+        onResetPassword={handleClinicResetPassword}
         fetchClinics={fetchClinics}
         isLoading={isLoading}
         onAddClinic={handleAddlclinicdialogue}
@@ -74,6 +87,28 @@ const ClinicsPage = () => {
       <AddClinicDialog
         open={isAddClinicDialogOpen}
         setOpen={setIsAddClinicDialogOpen}
+        fetchClinics={fetchClinics}
+      />
+
+      <EditClinicDialog
+        open={isEditClinicDialogOpen}
+        setOpen={setIsEditClinicDialogOpen}
+        clinic={selectedClinic}
+        fetchClinics={fetchClinics}
+      />
+
+      <DeleteClinicDialog
+        open={isDeleteClinicDialogOpen}
+        setOpen={setIsDeleteClinicDialogOpen}
+        selectedClinic={selectedClinic}
+        fetchClinics={fetchClinics}
+      />
+
+      <ResetPwdDialog
+        open={isResetPwdDialogOpen}
+        setOpen={setIsResetPwdDialogOpen}
+        selectedClinic={selectedClinic}
+        fetchClinics={fetchClinics}
       />
     </div>
   );

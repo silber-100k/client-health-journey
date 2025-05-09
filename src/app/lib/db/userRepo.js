@@ -18,7 +18,7 @@ async function createClientUser(name, email, phoneNumber, role, password, clinic
 async function updateAdminUser(id, name, email, phone, role, isActive) {
     const user = await db.User.findByIdAndUpdate(
         id, 
-        { name, email, phone, role, isActive }, 
+        { name, email, phoneNumber: phone, role, isActive }, 
         { new: true, upsert: true }
     );
     return user;
@@ -105,6 +105,15 @@ async function getNumTotalCoaches() {
     return coaches.length;
 }
 
+async function getClinicAdmin(clinicId) {
+    const clinicAdmin = await db.User.findOne({ role: "clinic_admin", clinic: clinicId });
+    return clinicAdmin;
+}
+
+async function deleteClinicMembers(clinicId) {
+    await db.User.deleteMany({ clinic: clinicId });
+}
+
 export const userRepo = {
     resetPassword,
     updateCoach,
@@ -122,5 +131,7 @@ export const userRepo = {
     updateCoachNum,
     getCoaches,
     getNumClinics,
-    getNumTotalCoaches
+    getNumTotalCoaches,
+    getClinicAdmin,
+    deleteClinicMembers
 };

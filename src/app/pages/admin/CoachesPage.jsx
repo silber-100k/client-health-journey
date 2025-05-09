@@ -23,13 +23,34 @@ import { Skeleton } from "../../components/ui/skeleton";
 const CoachesPage = () => {
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
+  const [isEditCoachDialogOpen, setIsEditCoachDialogOpen] = useState(false);
+  const [isDeleteCoachDialogOpen, setIsDeleteCoachDialogOpen] = useState(false);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCoach, setSelectedCoach] = useState(null);
+  const [coaches, setCoaches] = useState([]);
+  const [clinics, setClinics] = useState([]);
+  const { user } = useAuth();
+
   const handleAddcoachdialogue = () => {
     setIsAddCoachDialogOpen(true);
   };
-  
-  const { user } = useAuth();
-  const [coaches, setCoaches] = useState([]);
+
+  const handleEditCoach = (coach) => {
+    setSelectedCoach(coach);
+    setIsEditCoachDialogOpen(true);
+  };
+
+  const handleDeleteCoach = (coach) => {
+    setSelectedCoach(coach);
+    setIsDeleteCoachDialogOpen(true);
+  };
+
+  const handleResetPassword = (coach) => {
+    setSelectedCoach(coach);
+    setIsResetPasswordDialogOpen(true);
+  };
+
   const fetchCoaches = async () => {
     try {
       setIsLoading(true);
@@ -44,10 +65,24 @@ const CoachesPage = () => {
     } catch (error) {
       console.error("Error fetching coaches:", error);
     }
-
   };
+
+  const fetchClinics = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/admin/clinic");
+      const data = await response.json();
+      setClinics(data.clinics);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch clinics");
+    }
+  };
+
   useEffect(() => {
     fetchCoaches();
+    fetchClinics();
   }, []);
 
   const filteredCoaches = coaches.filter((coach) => {
@@ -78,13 +113,13 @@ const CoachesPage = () => {
           >
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </Button>
-          {/* <Button
+          <Button
             className="flex items-center gap-2"
             onClick={handleAddcoachdialogue}
           >
             <UserPlus size={16} />
             <span>Add Coach</span>
-          </Button> */}
+          </Button>
         </div>
       </div>
 
@@ -122,25 +157,48 @@ const CoachesPage = () => {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : (
-            <CoachesTable coaches={filteredCoaches} />
+            <CoachesTable
+              coaches={filteredCoaches}
+              onEdit={handleEditCoach}
+              onDelete={handleDeleteCoach}
+              onResetPassword={handleResetPassword}
+              isSystemAdmin={true}
+            />
           )}
         </CardContent>
       </Card>
 
       <AddCoachDialog
         open={isAddCoachDialogOpen}
-        onOpenChange={setIsAddCoachDialogOpen}
+        setOpen={setIsAddCoachDialogOpen}
+        fetchCoaches={fetchCoaches}
+        clinics={clinics}
       />
 
-      {/* {selectedCoach && (
+      {selectedCoach && (
         <>
-          <EditCoachDialog />
+          <EditCoachDialog
+            open={isEditCoachDialogOpen}
+            setOpen={setIsEditCoachDialogOpen}
+            selectedCoach={selectedCoach}
+            fetchCoaches={fetchCoaches}
+          />
 
-          <DeleteCoachDialog />
+          <DeleteCoachDialog
+            open={isDeleteCoachDialogOpen}
+            setOpen={setIsDeleteCoachDialogOpen}
+            selectedCoach={selectedCoach}
+            fetchCoaches={fetchCoaches}
+          />
 
-          <ResetCoachPasswordDialog />
+          <ResetCoachPasswordDialog
+            open={isResetPasswordDialogOpen} 
+            setOpen={setIsResetPasswordDialogOpen} 
+            selectedCoach={selectedCoach} 
+            fetchCoaches={fetchCoaches}
+          />
         </>
-      )} */}
+      )}
     </div>
   );
 };

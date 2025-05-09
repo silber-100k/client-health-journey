@@ -15,25 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import {
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from "../../../components/ui/form";
-import { useForm, FormProvider } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "sonner";
 
-export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
+export const AddCoachDialog = ({ open, setOpen, fetchCoaches, clinics }) => {
   const { user } = useAuth();
-  const clinics = [
-    { _id: "1", name: "aaa" },
-    { _id: "2", name: "bbb" },
-  ];
 
   const [selectedClinicId, setSelectedClinicId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,18 +33,25 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
   const handleClinicChange = (clinicId) => {
     setSelectedClinicId(clinicId);
   };
+
   const handleSubmit = async (data) => {
-    console.log("data", data);
     if (isSubmitting) {
       return;
     }
     setIsSubmitting(true);
+    if (isSystemAdmin) {
+      if (!selectedClinicId) {
+        toast.error("Please select a clinic");
+        setIsSubmitting(false);
+        return;
+      }
+      data.clinicId = selectedClinicId;
+    }
     try {
-      const response = await fetch("/api/clinic/coach", {
+      const response = await fetch(isSystemAdmin ? "/api/admin/coach" : "/api/clinic/coach", {
         method: "POST",
         body: JSON.stringify(data),
       });
-
       const responseData = await response.json();
       if (responseData.status) {
         await fetchCoaches();
@@ -65,23 +60,23 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches }) => {
       } else {
         throw new Error(responseData.message);
       }
-
       const resActivity = await fetch("/api/activity/addMembers", {
         method: "POST",
         body: JSON.stringify({
           type: "coach_added",
           description: `New coach added to ${user.name}`,
-          clinicId: user.clinic._id,
+          clinicId: isSystemAdmin ? selectedClinicId : user.clinic._id,
         }),
       });
       const respond = await resActivity.json();
-      if (respond.success) {
+      if (respond.status) {
         toast.success("Activity added successfully");
       } else {
         throw new Error(respond.message);
       }
     } catch (error) {
       console.error(error);
+      toast.error("Failed to add coach");
     } finally {
       setIsSubmitting(false);
     }

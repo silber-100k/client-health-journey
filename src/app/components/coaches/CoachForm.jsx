@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -17,7 +18,7 @@ export const CoachForm = ({
   onSubmit,
   isSubmitting,
   onCancel,
-
+  coach,
   submitButtonText = "Add Coach",
 }) => {
   const form = useForm({
@@ -28,6 +29,16 @@ export const CoachForm = ({
     },
     resolver: zodResolver(coachSignupSchema),
   });
+
+  useEffect(() => {
+    if (coach) {
+      form.reset({
+        name: coach.name,
+        email: coach.email,
+        phoneNumber: coach.phoneNumber,
+      });
+    }
+  }, [coach]);
 
   return (
     <Form {...form}>

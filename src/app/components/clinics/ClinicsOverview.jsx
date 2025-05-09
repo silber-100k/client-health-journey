@@ -15,18 +15,17 @@ const ClinicsOverview = ({
   clinics,
   onEdit,
   onDelete,
-  onClinicSelect,
+  onResetPassword,
   getStatusColor,
   onAddClinic,
   fetchClinics,
   isLoading,
 }) => {
-  const hasActions = onEdit||onDelete;
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clinics</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Clinic Management</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Manage clinics, their coaches, and billing information.
           </p>
@@ -67,8 +66,10 @@ const ClinicsOverview = ({
           ) : (
             <ClinicsTable
               clinics={clinics}
-              onClinicSelect={onClinicSelect}
               getStatusColor={getStatusColor}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onResetPassword={onResetPassword}
             />
           )}
         </CardContent>

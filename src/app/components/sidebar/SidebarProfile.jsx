@@ -8,6 +8,7 @@ import {
 } from "../../components/ui/dropdown-menu";
 import { User, LogOut, Settings, Building } from "lucide-react";
 import { signOut } from "next-auth/react";
+
 const SidebarProfile = ({ user, userRole, roleIcon: RoleIcon = User }) => {
   if (!user) return null;
 

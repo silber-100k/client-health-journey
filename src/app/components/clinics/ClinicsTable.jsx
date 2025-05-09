@@ -9,9 +9,16 @@ import {
 } from "../../components/ui/table";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Building, ChevronRight } from "lucide-react";
+import { Building } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
-const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
+const ClinicsTable = ({ clinics, getStatusColor, onEdit, onDelete, onResetPassword }) => {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -53,14 +60,28 @@ const ClinicsTable = ({ clinics, onClinicSelect, getStatusColor }) => {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {/* <Button
-                    variant="ghost"
-                    className="flex items-center"
-                    onClick={() => onClinicSelect(clinic._id)}
-                  >
-                    <span className="mr-1">Manage</span>
-                    <ChevronRight size={16} />
-                  </Button> */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEdit(clinic)}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onResetPassword(clinic)}>
+                        Reset Password
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600"
+                        onClick={() => onDelete(clinic)}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))

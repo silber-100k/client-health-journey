@@ -148,7 +148,7 @@ const CoachesPage = () => {
           <EditCoachDialog
             selectedCoach={selectedCoach}
             open={isEditCoachDialogOpen}
-            onchange={setIsEditCoachDialogOpen}
+            setOpen={setIsEditCoachDialogOpen}
             fetchCoaches={fetchCoaches}
           />
 
@@ -162,7 +162,7 @@ const CoachesPage = () => {
           <ResetCoachPasswordDialog
             selectedCoach={selectedCoach}
             open={isResetPasswordCoachDialogOpen}
-            onchange={setIsResetPasswordCoachDialogOpen}
+            setOpen={setIsResetPasswordCoachDialogOpen}
             fetchCoaches={fetchCoaches}
           />
         </>

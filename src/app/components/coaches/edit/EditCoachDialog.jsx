@@ -12,10 +12,11 @@ import { toast } from "sonner";
 export const EditCoachDialog = ({
   open,
   selectedCoach,
-  onchange,
+  setOpen,
   fetchCoaches,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (data) => {
     if (isSubmitting) {
       return;
@@ -28,8 +29,8 @@ export const EditCoachDialog = ({
       });
       const responseData = await response.json();
       if (responseData.status) {
-        onchange(false);
-        toast.success("Coach added successfully");
+        setOpen(false);
+        toast.success("Coach updated successfully");
       } else {
         throw new Error(responseData.message);
       }
@@ -43,7 +44,7 @@ export const EditCoachDialog = ({
   };
   return (
     <>
-      <Dialog open={open} onOpenChange={onchange}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Coach</DialogTitle>
@@ -54,9 +55,10 @@ export const EditCoachDialog = ({
           {selectedCoach && (
             <CoachForm
               submitButtonText="Save Changes"
+              coach={selectedCoach}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
-              onCancel={() => onchange(false)}
+              onCancel={() => setOpen(false)}
             />
           )}
         </DialogContent>

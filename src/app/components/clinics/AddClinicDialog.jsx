@@ -54,7 +54,7 @@ const addClinicSchema = z.object({
   legalAcknowledgment: z.boolean().optional(),
 });
 
-const AddClinicDialog = ({ open, setOpen }) => {
+const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const form = useForm({
@@ -97,6 +97,7 @@ const AddClinicDialog = ({ open, setOpen }) => {
       if (responseData.success) {
         toast.success("Clinic added successfully");
         setOpen(false);
+        fetchClinics();
       } else {
         throw new Error(responseData.message);
       }
@@ -285,7 +286,7 @@ const AddClinicDialog = ({ open, setOpen }) => {
                     render={({ field }) => (
                       <FormItem className="grid grid-cols-4 items-center gap-4">
                         <FormLabel className="text-right">
-                          Email <span className="text-red-500">*</span>
+                          Admin Email <span className="text-red-500">*</span>
                         </FormLabel>
                         <div className="col-span-3">
                           <FormControl>

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Button } from "../components/ui/button";
 import Link from "next/link";
@@ -8,10 +9,34 @@ import {
   LineChart,
   ArrowRight,
   Building,
+  User,
+  LogOut,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import DemoLoginButtons from "../auth/signup/DemoLoginButtons";
+import { useSession, signOut } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 
 const LandingPage = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const goDashboard = () => {
+    if (session?.user?.role === "admin") {
+      router.push("/admin/dashboard");
+    } else if (session?.user?.role === "coach") {
+      router.push("/coach/dashboard");
+    } else if (session?.user?.role === "client") {
+      router.push("/client/dashboard");
+    } else if (session?.user?.role === "clinic_admin") {
+      router.push("/clinic/dashboard");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -37,11 +62,36 @@ const LandingPage = () => {
                 health goals.
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-4 space-y-2">
-                <Button
-                  className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  <Link href="/login">Sign In</Link>
-                </Button>
+                {
+                  !session ? (
+                    <Button
+                      className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      <Link href="/login">Sign In</Link>
+                    </Button>) :
+                    (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            className="w-full sm:w-auto px-8 py-3 text-base font-medium bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <User size={16} />
+                            {session.user.name}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer" onClick={goDashboard}>
+                            <User size={16} />
+                            Dashboard
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer" onClick={() => signOut()}>
+                            <LogOut size={16} />
+                            Sign Out
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )
+                }
                 <Button
                   asChild
                   variant="secondary"

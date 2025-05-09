@@ -126,15 +126,14 @@ const ReportsPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">
-              Your Subscription
+              Total Clinics
             </CardTitle>
             <Activity className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {subscriptionData[0]?.plan || "Basic"}
+              {subscriptionData.length}
             </div>
-            <p className="text-xs text-green-500">Active</p>
           </CardContent>
         </Card>
 

@@ -18,10 +18,14 @@ import {
   TabsTrigger,
 } from "../../components/ui/tabs";
 import { Switch } from "../../components/ui/switch";
+import { toast } from "sonner";
+import { useAuth } from "../../context/AuthContext";
 
 const SettingsPage = () => {
+  const { user, setUser } = useAuth();
+
   const [profileForm, setProfileForm] = useState({
-    companyName: "",
+    name: "",
     email: "",
     phone: "",
   });
@@ -39,38 +43,75 @@ const SettingsPage = () => {
     weeklyReports: true,
   });
 
-  const user = {
-    id: "asdf",
-    name: "okay",
-    email: "admin@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
-
   useEffect(() => {
     setProfileForm({
-      companyName: user.name || "HealthTracker Admin",
-      email: user.email || "",
-      phone: user.phone || "", // Safe to use now that we've added it to the UserData type
+      name: user?.name || "HealthTracker Admin",
+      email: user?.email || "",
+      phone: user?.phoneNumber || "", // Safe to use now that we've added it to the UserData type
     });
-  }, []);
+  }, [user]);
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    // toast({
-    //   title: "Profile Updated",
-    //   description: "Your profile information has been saved.",
-    // });
+    console.log(profileForm);
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        body: JSON.stringify(profileForm),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Profile updated successfully");
+        setUser(data.user);
+      } else {
+        toast.error("Profile update failed");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Profile update failed");
+    }
   };
 
-  const handleSecuritySubmit = (e) => {
+  const handleSecuritySubmit = async (e) => {
     e.preventDefault();
+    if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-    setSecurityForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    if (!securityForm.newPassword) {
+      toast.error("New password is required");
+      return;
+    }
+
+    if (!securityForm.currentPassword) {
+      toast.error("Current password is required");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user/updatePassword", {
+        method: "POST",
+        body: JSON.stringify({
+          currentPassword: securityForm.currentPassword,
+          newPassword: securityForm.newPassword
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Password updated successfully");
+        setSecurityForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while updating the password");
+    }
   };
 
   const handleNotificationChange = (setting) => {
@@ -106,14 +147,14 @@ const SettingsPage = () => {
             <CardContent>
               <form onSubmit={handleProfileSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input
-                    id="companyName"
-                    value={profileForm.companyName}
+                    id="name"
+                    value={profileForm.name}
                     onChange={(e) =>
                       setProfileForm({
                         ...profileForm,
-                        companyName: e.target.value,
+                        name: e.target.value,
                       })
                     }
                   />

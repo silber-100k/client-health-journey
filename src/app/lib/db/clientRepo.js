@@ -548,6 +548,28 @@ async function getClinics() {
           }
         ]
       }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "clinic",
+        as: "clinicAdmin",
+        pipeline: [
+          {
+            $match: {
+              role: "clinic_admin"
+            }
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1
+            }
+          }
+        ]
+      }
     }
   ]);
   return clinics;

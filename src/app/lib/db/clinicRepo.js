@@ -16,7 +16,8 @@ export const clinicRepo = {
   fetchAllRevenueData,
   fetchAllsubscriptionData,
   fetchAllTotalRevenue,
-  getNumWeeklyActivities
+  getNumWeeklyActivities,
+  updateClinic
 };
 
 async function createClinic(email, name, phoneNumber, primaryContact, streetAddress, city, state, zipCode, plan, addOns, hipaaAcknowledgment, legalAcknowledgment, options = {}) {
@@ -412,3 +413,23 @@ async function fetchAllTotalRevenue() {
   }
 }
 
+async function updateClinic(id, clinic) {
+  const updatedClinic = await db.Clinic.findByIdAndUpdate(
+    id, 
+    {
+      email: clinic.clinicEmail, 
+      name: clinic.clinicName,
+      phoneNumber: clinic.clinicPhone, 
+      primaryContact: clinic.primaryContact, 
+      streetAddress: clinic.streetAddress, 
+      city: clinic.city, 
+      state: clinic.state, 
+      zipCode: clinic.zipCode,
+      addOns: clinic.addOns, 
+      hipaaAcknowledgment: clinic.hipaaAcknowledgment, 
+      legalAcknowledgment: clinic.legalAcknowledgment
+    }, 
+    { new: true }
+  );
+  return updatedClinic;
+}
