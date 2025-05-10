@@ -15,6 +15,7 @@ import PlanOption from "./PlanOption";
 import AddOnOptions from "./AddOnOptions";
 import AccountCreationFields from "./AccountCreationFields";
 import { planOptions, addOnOptions } from "./types";
+import { SubscriptionPlan } from "../../lib/stack";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
 
 const AccountSetupTab = ({
@@ -132,7 +133,7 @@ const AccountSetupTab = ({
             <FormItem className="space-y-3">
               <FormControl>
                 <div className="space-y-3">
-                  {planOptions.map((plan) => (
+                  {SubscriptionPlan.map((plan) => (
                     <PlanOption
                       key={plan.id}
                       id={plan.id}
@@ -155,7 +156,7 @@ const AccountSetupTab = ({
         />
       </div>
 
-      <div className="space-y-4">
+      {/* <div className="space-y-4">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-medium">Add-ons</h3>
           <TooltipProvider>
@@ -175,7 +176,7 @@ const AccountSetupTab = ({
           availableAddOns={availableAddOns}
           onToggleAddOn={handleAddOnToggle}
         />
-      </div>
+      </div> */}
 
       {createAccount && (
         <div className="space-y-4">

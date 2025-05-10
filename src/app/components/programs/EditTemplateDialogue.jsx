@@ -24,8 +24,10 @@ import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
 
 const formSchema = z.object({
+  type: z.string(),
   description: z.string(),
 });
 
@@ -41,6 +43,7 @@ export function EditTemplateDialogue({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      type: "",
       description: "",
     },
   });
@@ -52,9 +55,9 @@ export function EditTemplateDialogue({
         try {
           const response = await fetch(`/api/admin/template/${tempId}`);
           const data = await response.json();
-          console.log("data", data);
           if (data.status) {
             form.reset({
+              type: data.template.type,
               description: data.template.description,
             });
             setErrorMessage(null);
@@ -124,12 +127,26 @@ export function EditTemplateDialogue({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <FormControl>
+                      <Input placeholder="" {...field} className="overflow-hi" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="" {...field} className="overflow-hi"/>
+                      <Textarea placeholder="" {...field} className="overflow-hi" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

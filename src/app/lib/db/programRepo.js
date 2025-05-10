@@ -70,8 +70,8 @@ async function createTemplate(type,description){
     return template[0];
 }
 
-async function updateTemplate(id, description) {
-    const template = await db.Template.findByIdAndUpdate(id, {description}, { new: true, upsert: true });
+async function updateTemplate(id, description, type) {
+    const template = await db.Template.findByIdAndUpdate(id, {description, type}, { new: true, upsert: true });
     return template;
 }
 async function deleteTemplate(id) {

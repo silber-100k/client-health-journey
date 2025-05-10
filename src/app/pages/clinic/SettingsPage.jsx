@@ -41,22 +41,34 @@ const SettingsPage = () => {
     weeklyReports: true,
   });
 
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
     setProfileForm({
       companyName: user?.name || "HealthTracker Admin",
       email: user?.email || "",
-      phone: user?.phone || "", // Safe to use now that we've added it to the UserData type
+      phone: user?.phoneNumber || "", // Safe to use now that we've added it to the UserData type
     });
   }, [user]);
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    // toast({
-    //   title: "Profile Updated",
-    //   description: "Your profile information has been saved.",
-    // });
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        body: JSON.stringify(profileForm),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Profile updated successfully");
+        setUser(data.user);
+      } else {
+        toast.error("Profile update failed");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Profile update failed");
+    }
   };
 
   const handleSecuritySubmit = async (e) => {

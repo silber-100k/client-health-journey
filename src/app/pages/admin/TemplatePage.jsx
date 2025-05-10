@@ -16,8 +16,6 @@ import TemplateDetailsDialog from "../../components/programs/TemplateDetailsDial
 import { EditTemplateDialogue } from "@/app/components/programs/EditTemplateDialogue";
 
 const ProgramsPage = () => {
-  const [programs, setPrograms] = useState([]);
-
   const [Templates, setTemplates] = useState([]);
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [isTemplateError, setIsTemplateError] = useState(false);

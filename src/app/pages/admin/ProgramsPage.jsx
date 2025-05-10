@@ -85,10 +85,10 @@ const ProgramsPage = () => {
     <div>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Programs</h1>
-        {/* <Button onClick={handleAddProgram} className="flex items-center gap-2">
+        <Button onClick={handleAddProgram} className="flex items-center gap-2">
           <PlusCircle size={18} />
           <span>Add Program</span>
-        </Button> */}
+        </Button>
       </div>
 
       <Card>

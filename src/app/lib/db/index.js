@@ -16,6 +16,8 @@ const db = {
     Message: MessageModel(),
     Notification: NotificationModel(),
     Activity: ActivityModel(),
+    SubscriptionTier: SubscriptionTierModel(),
+    SubscriptionHistory: SubscriptionHistoryModel(),
 }
 
 function userModel() {
@@ -315,6 +317,7 @@ function checkInModel() {
     });
     return mongoose.models.CheckIn || mongoose.model('CheckIn', CheckInSchema);
 };
+
 function MessageModel() {
     const MessageSchcema = new Schema({
         id:{type:String,required:true},
@@ -344,4 +347,30 @@ function ActivityModel() {
     });
   return mongoose.models.Activity || mongoose.model('Activity', ActivitySchcema);
 }
+
+function SubscriptionTierModel() {
+    const SubscriptionTierSchema = new Schema({
+        userId: {type: Schema.Types.ObjectId, ref: "User", required: true},
+        subscriptionId: {type: String, required: true},
+        startDate: {type: Date, required: true},
+        endDate: {type: Date, required: true},
+        isActive: {type: Boolean, required: true},
+        createdAt: {type: Date, default: Date.now},
+        updatedAt: {type: Date, default: Date.now},
+    });
+    return mongoose.models.SubscriptionTier || mongoose.model('SubscriptionTier', SubscriptionTierSchema);
+}
+
+function SubscriptionHistoryModel() {
+    const SubscriptionHistorySchema = new Schema({
+        userId: {type: Schema.Types.ObjectId, ref: "User", required: true},
+        subscriptionId: {type: String, required: true},
+        startDate: {type: Date, required: true},
+        endDate: {type: Date, required: true},
+        createdAt: {type: Date, default: Date.now},
+        updatedAt: {type: Date, default: Date.now},
+    });
+    return mongoose.models.SubscriptionHistory || mongoose.model('SubscriptionHistory', SubscriptionHistorySchema);
+}
+
 export default db;

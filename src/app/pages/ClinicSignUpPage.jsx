@@ -66,9 +66,9 @@ const ClinicSignUpPage = () => {
         </div>
 
         <Card className="w-full">
-          <div className="px-6 pt-4">
+          {/* <div className="px-6 pt-4">
             <SignupDemoNotice />
-          </div>
+          </div> */}
           <ClinicSignupForm
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit}

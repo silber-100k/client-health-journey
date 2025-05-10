@@ -13,12 +13,12 @@ import ClinicInformationTab from './ClinicInformationTab';
 import CoachSetupTab from './CoachSetupTab';
 import AccountSetupTab from './AccountSetupTab';
 import { clinicSignupSchema, planOptions } from './types';
+import { SubscriptionPlan } from '../../lib/stack';
 
 const ClinicSignupForm = ({ isSubmitting, onSubmit }) => {
   const [activeTab, setActiveTab] = React.useState('clinic');
   const [additionalCoaches, setAdditionalCoaches] = React.useState([]);
   const [createAccount, setCreateAccount] = React.useState(true);
-  const [formData, setFormData] = React.useState(null);
 
   const form = useForm({
     resolver: zodResolver(clinicSignupSchema),
@@ -36,7 +36,7 @@ const ClinicSignupForm = ({ isSubmitting, onSubmit }) => {
       confirmPassword: '',
       hipaaAcknowledgment: false,
       legalAcknowledgment: false,
-      selectedPlan: planOptions[1].id,
+      selectedPlan: SubscriptionPlan[0].id,
       addOns: [],
     },
     mode: 'onChange'

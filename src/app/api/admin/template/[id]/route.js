@@ -15,9 +15,9 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
 
   const { id } = await params;
-  const { description } = await request.json();
+  const { description, type } = await request.json();
   try {
-    const template = await programRepo.updateTemplate(id, description);
+    const template = await programRepo.updateTemplate(id, description, type);
     return NextResponse.json({ status: true, template });
   } catch (error) {
     return NextResponse.json({ status: false, message: error.message });

@@ -111,9 +111,7 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="capitalize">
-                  {program.type
-                    ? program.type.replace("_", " ")
-                    : program.tempId?.type}
+                  {program.tempId?.type ?? "custom"}
                 </Badge>
               </TableCell>
               <TableCell>{formatDuration(program.duration)}</TableCell>

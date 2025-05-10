@@ -39,7 +39,7 @@ const PlanOption = ({
             >
               {name}
             </Label>
-            <div className="text-lg font-bold text-primary">{price}</div>
+            <div className="text-lg font-bold text-primary">${price}/month</div>
           </div>
           <p className="text-sm text-gray-500 mt-1">{description}</p>
           <ul className="mt-3 space-y-2">

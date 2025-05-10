@@ -44,11 +44,11 @@ export const adminNavItems = [
     href: "/admin/clients",
     icon: Users,
   },
-  {
-    title: "Programs",
-    href: "/admin/programs",
-    icon: ClipboardList,
-  },
+  // {
+  //   title: "Programs",
+  //   href: "/admin/programs",
+  //   icon: ClipboardList,
+  // },
   {
     title: "Check-ins",
     href: "/admin/check-ins",

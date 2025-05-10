@@ -41,9 +41,7 @@ const ProgramsPage = () => {
     fetchPrograms();
   }, []);
 
-  console.log(programs);
   const handleSubmitProgram = async (data) => {
-    console.log(data);
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/clinic/program", {
@@ -72,10 +70,10 @@ const ProgramsPage = () => {
     setshowAddProgramDialog(true);
   };
   const handleViewProgramDetails = (program) => {
-    console.log("Selected program for details:", program);
     setSelectedProgram(program);
     setShowProgramDetails(true);
   };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">

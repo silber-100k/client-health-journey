@@ -63,6 +63,7 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
       toast.error("Failed to fetch programs");
     }
   };
+  
   const fetchCoaches = async () => {
     try {
       setCoachesLoading(true);

@@ -7,6 +7,7 @@ import ActivityList from "../../components/admin/dashboard/ActivityList";
 import { useAuth } from "@/app/context/AuthContext";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [totalCoaches, setTotalCoaches] = useState(0);

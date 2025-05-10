@@ -51,6 +51,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
       toast.error("Failed to fetch templates");
     }
   };
+
   useEffect(() => {
     if (!isOpen) {
       setProgramType("");
@@ -69,7 +70,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
     } else if (programType) {
       return `${programType
         .replace("_", " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase())} Program`;
+        .replace(/\b\w/g, (l) => l.toUpperCase())} PM`;
     }
   };
 
@@ -77,7 +78,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
     if (value == "custom") {
       setProgramType("custom");
     } else {
-      setProgramType("template");
+      setProgramType(Templates.find((template) => template._id === value).type);
       settempId(value);
     }
     setvalue(value);

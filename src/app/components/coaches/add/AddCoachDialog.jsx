@@ -101,7 +101,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches, clinics }) => {
             <Select
               value={selectedClinicId}
               onValueChange={handleClinicChange}
-              disabled={clinicsLoading || clinics.length === 0}
+              disabled={clinicsLoading || !clinics || clinics.length === 0}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a clinic" />
@@ -114,7 +114,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches, clinics }) => {
                       Loading clinics...
                     </span>
                   </SelectItem>
-                ) : clinics.length > 0 ? (
+                ) : clinics?.length > 0 ? (
                   clinics.map((clinic) => (
                     <SelectItem key={clinic._id} value={clinic._id}>
                       {clinic.name}
