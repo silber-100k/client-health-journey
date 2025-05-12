@@ -8,7 +8,13 @@ import {
 } from "../../components/ui/dialog";
 import AddClientForm from "./AddClientForm";
 
-const AddClientDialog = ({ open, onOpenChange,fetchClients }) => {
+const AddClientDialog = ({
+  open,
+  onOpenChange,
+  fetchClients,
+  clientLimit = 0,
+  clientCount = 0
+}) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -19,7 +25,12 @@ const AddClientDialog = ({ open, onOpenChange,fetchClients }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <AddClientForm onCancel={() => onOpenChange(false)} fetchClients={fetchClients} />
+        <AddClientForm
+          onCancel={() => onOpenChange(false)}
+          fetchClients={fetchClients}
+          clientLimit={clientLimit}
+          clientCount={clientCount}
+        />
       </DialogContent>
     </Dialog>
   );

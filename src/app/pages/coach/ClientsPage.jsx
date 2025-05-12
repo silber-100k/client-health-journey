@@ -15,28 +15,35 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { motion, useAnimation } from "framer-motion";
+
 const ClientsPage = () => {
+  
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const [clients, setClients] = useState([]);
+  const [clientLimit, setClientLimit] = useState(0);
   const { user } = useAuth();
   const controls = useAnimation();
   const handleAddlclientdialogue = () => {
     setIsAddClientDialogOpen(true);
   };
+  
   const fetchClients = async () => {
     try {
       const response = await fetch("/api/coach/client");
       const data = await response.json();
       console.log("clients", data);
       setClients(data.clients);
+      setClientLimit(data.clientLimit);
     } catch (error) {
       toast.error("Failed to fetch clients");
       console.log(error);
     }
   };
+  
   useEffect(() => {
     fetchClients();
   }, []);
+  
   const handleRefresh = () => {
     controls
       .start({
@@ -96,6 +103,8 @@ const ClientsPage = () => {
         open={isAddClientDialogOpen}
         onOpenChange={setIsAddClientDialogOpen}
         fetchClients={fetchClients}
+        clientLimit={clientLimit}
+        clientCount={clients.length}
       />
     </div>
   );

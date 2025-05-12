@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 
-const AddClientForm = ({ onCancel, fetchClients }) => {
+const AddClientForm = ({ onCancel, fetchClients, clientLimit = 0, clientCount = 0 }) => {
   const { user } = useAuth();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -91,6 +91,10 @@ const AddClientForm = ({ onCancel, fetchClients }) => {
       data = { ...data, ["coachId"]: user._id };
     }
     if (isPending) {
+      return;
+    }
+    if (clientLimit === 0 || clientLimit <= clientCount) {
+      toast.error("You have reached the maximum number of clients");
       return;
     }
 

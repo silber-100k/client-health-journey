@@ -16,6 +16,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Label } from "../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { useClinic } from "@/app/context/ClinicContext";
 
 const ClientsPage = () => {
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
@@ -26,15 +27,21 @@ const ClientsPage = () => {
   const isCoach = false;
   const [currentCoach, setCurrentCoach] = useState("");
   const { user } = useAuth();
+  const { clientLimit } = useClinic();
+
   const handleAddlclientdialogue = () => {
+    if (clientLimit === 0 || clientLimit <= clients.length) {
+      toast.error("You have reached the maximum number of clients");
+      return;
+    }
     setIsAddClientDialogOpen(true);
   };
 
   const handlechange = (e) => {
     setCurrentCoach(e);
-    if(e === "all"){
+    if (e === "all") {
       fetchClients();
-    }else{
+    } else {
       fetchClientsByCoach(e);
     }
   };
@@ -55,6 +62,7 @@ const ClientsPage = () => {
       setIsLoading(false);
     }
   };
+
   const fetchClients = async () => {
     try {
       setIsLoading(true);
@@ -67,6 +75,7 @@ const ClientsPage = () => {
     }
     setIsLoading(false);
   };
+
   const fetchClientsByCoach = async (coachId) => {
     try {
       setIsLoading(true);
@@ -81,7 +90,8 @@ const ClientsPage = () => {
       console.log(error);
     }
     setIsLoading(false);
-  };  
+  };
+
   useEffect(() => {
     fetchClients();
     fetchCoaches();
@@ -92,7 +102,7 @@ const ClientsPage = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
         <div className="flex gap-2">
-          <Button variant="outline" disabled={isLoading} onClick = {fetchClients}>
+          <Button variant="outline" disabled={isLoading} onClick={fetchClients}>
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
             Refresh
           </Button>
@@ -108,7 +118,7 @@ const ClientsPage = () => {
         <AlertTitle>Clinic Admin View</AlertTitle>
         <AlertDescription>
           You are viewing all clients for {user?.name || "your clinic"}. This
-          includes clients assigned to all coaches in your clinic. 
+          includes clients assigned to all coaches in your clinic.
           {/* Your clinic ID is: {user?.clinic._id || "unknown"} */}
         </AlertDescription>
       </Alert>
@@ -119,35 +129,35 @@ const ClientsPage = () => {
             {isCoach
               ? "Your Clients"
               : isClinicAdmin
-              ? `${user?.name || "Clinic"} Clients`
-              : "All Clients"}
+                ? `${user?.name || "Clinic"} Clients`
+                : "All Clients"}
           </CardTitle>
         </CardHeader>
         <CardContent>
-        <div className="mb-4">
-          <Label htmlFor="userList" className="mb-2">
-            Select Coach
-          </Label>
-          <Select
-            name="userList"
-            value={currentCoach}
-            onValueChange={handlechange}
-            disabled={isLoading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a coach" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value={user?._id}>{user?.name}</SelectItem>
-              {coaches?.map((coach, index) => (
-                <SelectItem value={coach._id} key={index}>
-                  {coach.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="mb-4">
+            <Label htmlFor="userList" className="mb-2">
+              Select Coach
+            </Label>
+            <Select
+              name="userList"
+              value={currentCoach}
+              onValueChange={handlechange}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a coach" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value={user?._id}>{user?.name}</SelectItem>
+                {coaches?.map((coach, index) => (
+                  <SelectItem value={coach._id} key={index}>
+                    {coach.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {isCoach ? <CoachClientList /> : <ClientList clients={clients} />}
         </CardContent>
       </Card>
@@ -156,6 +166,8 @@ const ClientsPage = () => {
         open={isAddClientDialogOpen}
         onOpenChange={setIsAddClientDialogOpen}
         fetchClients={fetchClients}
+        clientLimit={clientLimit}
+        clientCount={clients.length}
       />
     </div>
   );

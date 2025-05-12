@@ -357,13 +357,6 @@ async function fetchAllsubscriptionData() {
     // Fetch clinics
     const clinics = await db.Clinic.find(clinicQuery).lean();
 
-    // Map subscription tier to price
-    const priceMap = {
-      'basic': '$149/month',
-      'professional': '$249/month',
-      'enterprise': '$399/month'
-    };
-
     // Process each clinic to get subscription data
     const subscriptionData = [];
 
@@ -373,26 +366,15 @@ async function fetchAllsubscriptionData() {
         clinic: new mongoose.Types.ObjectId(clinic._id)
       }).then(emails => emails.length);
 
-      // Format the date
-      const startDate = clinic.createdAt
-        ? new Date(clinic.createdAt).toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        })
-        : new Date().toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        });
+      const subscriptionTier = await db.SubscriptionTier.findOne({ clinicId: clinic._id });
 
       // Add to subscription data array
       subscriptionData.push({
         id: clinic._id.toString(),
         name: clinic.name,
-        plan: clinic.plan || 'basic',
-        price: priceMap[clinic.plan || 'basic'] || '$149/month',
-        startDate: startDate,
+        plan: subscriptionTier.planId || 'N/A',
+        price: subscriptionTier.price || 'N/A',
+        startDate: subscriptionTier.startDate || 'N/A',
         clients: clientCount
       });
     }

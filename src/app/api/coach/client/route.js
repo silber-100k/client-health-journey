@@ -4,6 +4,7 @@ import authOptions from "@/app/lib/authoption";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import { sendClientRegistrationEmail } from "@/app/lib/api/email";
+import { subscriptionTierRepo } from "@/app/lib/db/subscriptionTierRepo";
 
 export async function GET() {
   try {
@@ -19,10 +20,15 @@ export async function GET() {
     if (user.role !== "coach" && user.role !== "clinic_admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    let coachId = user._id
 
+    let coachId = user._id;
+    let clientLimit = 0;
+    const subscriptionTier = await subscriptionTierRepo.getSubscriptionTierByClinicId(user.clinic._id);
+    if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate >= new Date()) {
+      clientLimit = subscriptionTier.clientLimit || 0;
+    }
     const clients = await clientRepo.getclientsbycoachId(coachId);
-    return NextResponse.json({ status: true, clients });
+    return NextResponse.json({ status: true, clients, clientLimit });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
