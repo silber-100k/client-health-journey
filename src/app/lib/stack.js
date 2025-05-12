@@ -11,8 +11,8 @@ export const SubscriptionPlan = [
             "Reports and Analytics",
         ],
         clientLimit: 20,
-        priceId: "price_1RMPwaR4fX2MXH35ry2i1Dqx",
-        productId: "prod_SGxsXPiP34ZWZn",
+        priceId: "price_1RMPvoR4fX2MXH35fOl8CbFQ",
+        productId: "prod_SGxrjwoUIIHtGC",
     },
     {
         id: "pro",
@@ -28,7 +28,7 @@ export const SubscriptionPlan = [
             "AI Driven Analytics",
         ],
         clientLimit: false,
-        priceId: "price_1RMPvoR4fX2MXH35fOl8CbFQ",
-        productId: "prod_SGxrjwoUIIHtGC",
+        priceId: "price_1RMPwaR4fX2MXH35ry2i1Dqx",
+        productId: "prod_SGxsXPiP34ZWZn",
     }
 ]

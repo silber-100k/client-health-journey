@@ -6,15 +6,12 @@ import {
   FormItem,
   FormMessage,
   FormControl,
-  FormDescription,
 } from "../../components/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
 import HipaaNotice from "./HipaaNotice";
 import PlanOption from "./PlanOption";
-import AddOnOptions from "./AddOnOptions";
 import AccountCreationFields from "./AccountCreationFields";
-import { planOptions, addOnOptions } from "./types";
 import { SubscriptionPlan } from "../../lib/stack";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
 
@@ -32,27 +29,8 @@ const AccountSetupTab = ({
     }
   }, [createAccount, form]);
 
-  const selectedPlan = form.watch("selectedPlan");
-  const addOns = form.watch("addOns") || [];
   const formState = form.formState;
   const hasErrors = Object.keys(formState.errors).length > 0;
-
-  const availableAddOns = addOnOptions.filter((addon) =>
-    addon.availableFor.includes(selectedPlan)
-  );
-
-  const handleAddOnToggle = (addOnId, checked) => {
-    const currentAddOns = form.getValues("addOns") || [];
-    let updatedAddOns = [...currentAddOns];
-
-    if (checked) {
-      updatedAddOns.push(addOnId);
-    } else {
-      updatedAddOns = updatedAddOns.filter((id) => id !== addOnId);
-    }
-
-    form.setValue("addOns", updatedAddOns);
-  };
 
   const handlePlanSelect = (planId) => {
     form.setValue("selectedPlan", planId, {
@@ -60,16 +38,6 @@ const AccountSetupTab = ({
       shouldDirty: true,
       shouldTouch: true,
     });
-
-    const currentAddOns = form.getValues("addOns") || [];
-    const validAddOns = currentAddOns.filter((addOnId) => {
-      const addOn = addOnOptions.find((a) => a.id === addOnId);
-      return addOn && addOn.availableFor.includes(planId);
-    });
-
-    if (currentAddOns.length !== validAddOns.length) {
-      form.setValue("addOns", validAddOns);
-    }
   };
 
   return (

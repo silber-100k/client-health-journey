@@ -60,6 +60,8 @@ const db = {
     Message: MessageModel(),
     Notification: NotificationModel(),
     Activity: ActivityModel(),
+    SubscriptionTier: SubscriptionTierModel(),
+    SubscriptionHistory: SubscriptionHistoryModel(),
 }
 
 function userModel() {
@@ -162,9 +164,6 @@ function clinicModel() {
         zipCode: {
             type: String,
         },
-        plan: {
-            type: String,
-        },
         addOns: {
             type: [String],
         },
@@ -174,6 +173,21 @@ function clinicModel() {
         legalAcknowledgment: {
             type: Boolean,
         },
+        customerId: {
+            type: String,
+        },
+        coaches: {
+            type: [Schema.Types.ObjectId],
+            ref: "User",
+        },
+        clients: {
+            type: [Schema.Types.ObjectId],
+            ref: "Client",
+        },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         createdAt: {
             type: Date,
             default: Date.now,
@@ -181,11 +195,7 @@ function clinicModel() {
         updatedAt: {
             type: Date,
             default: Date.now,
-        },
-        isActive: {
-            type: Boolean,
-            default: true,
-        },
+        }
     });
 
     return mongoose.models.Clinic || mongoose.model('Clinic', ClinicSchema);
@@ -227,9 +237,7 @@ function clientModel() {
         email: {
             type: String,
             required: true,
-        },
-        password: {
-            type: String,
+            unique: true,
         },
         phone: {
             type: String,
@@ -253,7 +261,7 @@ function clientModel() {
         },
         clinic: {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Clinic",
         },
         weightDate: {
             type: Date,
@@ -373,6 +381,32 @@ function ActivityModel() {
         timeStamp: {type: Date, default: Date.now,},
     });
   return mongoose.models.Activity || mongoose.model('Activity', ActivitySchcema);
+}
+
+function SubscriptionTierModel() {
+    const SubscriptionTierSchema = new Schema({
+        clinicId: {type: Schema.Types.ObjectId, ref: "Clinic", required: true, unique: true},
+        planId: {type: String, required: true},
+        customerId: {type: String, required: true, unique: true},
+        subscriptionId: {type: String},
+        startDate: {type: Date},
+        endDate: {type: Date},
+        isActive: {type: Boolean, default: false},
+        createdAt: {type: Date, default: Date.now},
+        updatedAt: {type: Date, default: Date.now},
+    });
+    return mongoose.models.SubscriptionTier || mongoose.model('SubscriptionTier', SubscriptionTierSchema);
+}
+
+function SubscriptionHistoryModel() {
+    const SubscriptionHistorySchema = new Schema({
+        clinicId: {type: Schema.Types.ObjectId, ref: "Clinic", required: true},
+        subscriptionId: {type: Schema.Types.ObjectId, ref: "SubscriptionTier", required: true, unique: true},
+        paymentAmount: {type: Number},
+        createdAt: {type: Date, default: Date.now},
+        updatedAt: {type: Date, default: Date.now},
+    });
+    return mongoose.models.SubscriptionHistory || mongoose.model('SubscriptionHistory', SubscriptionHistorySchema);
 }
 
 module.exports = db;

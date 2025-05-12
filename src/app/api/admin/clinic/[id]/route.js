@@ -5,7 +5,6 @@ import { userRepo } from "@/app/lib/db/userRepo";
 export async function PUT(request, { params }) {
     const { id } = params;
     const clinic = await request.json();
-    console.log("clinic", clinic);
     try {
         const updatedClinic = await clinicRepo.updateClinic(id, clinic);
         const clinicAdmin = await userRepo.getClinicAdmin(id);

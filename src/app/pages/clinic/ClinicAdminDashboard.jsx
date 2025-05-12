@@ -116,7 +116,7 @@ const AdminDashboard = () => {
         name: user?.name,
         coaches: totalCoaches,
         clients: clients,
-        status: "active",
+        isActive: true
       },
     ],
   };

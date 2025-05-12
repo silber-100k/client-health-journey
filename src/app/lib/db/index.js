@@ -120,9 +120,6 @@ function clinicModel() {
         zipCode: {
             type: String,
         },
-        plan: {
-            type: String,
-        },
         addOns: {
             type: [String],
         },
@@ -132,13 +129,8 @@ function clinicModel() {
         legalAcknowledgment: {
             type: Boolean,
         },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-        },
-        updatedAt: {
-            type: Date,
-            default: Date.now,
+        customerId: {
+            type: String,
         },
         coaches: {
             type: [Schema.Types.ObjectId],
@@ -152,15 +144,14 @@ function clinicModel() {
             type: Boolean,
             default: true,
         },
-        billingContactName: {type: String},
-        billingEmail: {type: String},
-        billingPhone: {type: String},
-        billingAddress: {type: String},
-        billingCity: {type: String},
-        billingState: {type: String},
-        billingZip: {type: String},
-        paymentMethod: {type: String},
-        subscriptionTier: {type: String},
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now,
+        }
     });
 
     return mongoose.models.Clinic || mongoose.model('Clinic', ClinicSchema);
@@ -350,11 +341,13 @@ function ActivityModel() {
 
 function SubscriptionTierModel() {
     const SubscriptionTierSchema = new Schema({
-        userId: {type: Schema.Types.ObjectId, ref: "User", required: true},
-        subscriptionId: {type: String, required: true},
-        startDate: {type: Date, required: true},
-        endDate: {type: Date, required: true},
-        isActive: {type: Boolean, required: true},
+        clinicId: {type: Schema.Types.ObjectId, ref: "Clinic", required: true, unique: true},
+        planId: {type: String, required: true},
+        customerId: {type: String, required: true, unique: true},
+        subscriptionId: {type: String},
+        startDate: {type: Date},
+        endDate: {type: Date},
+        isActive: {type: Boolean, default: false},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now},
     });
@@ -363,10 +356,9 @@ function SubscriptionTierModel() {
 
 function SubscriptionHistoryModel() {
     const SubscriptionHistorySchema = new Schema({
-        userId: {type: Schema.Types.ObjectId, ref: "User", required: true},
-        subscriptionId: {type: String, required: true},
-        startDate: {type: Date, required: true},
-        endDate: {type: Date, required: true},
+        clinicId: {type: Schema.Types.ObjectId, ref: "Clinic", required: true},
+        subscriptionId: {type: Schema.Types.ObjectId, ref: "SubscriptionTier", required: true, unique: true},
+        paymentAmount: {type: Number},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now},
     });

@@ -1,5 +1,6 @@
 import db from "./index";
 import mongoose, { Schema } from "mongoose";
+
 export const clinicRepo = {
   createClinic,
   getClinicById,
@@ -17,10 +18,31 @@ export const clinicRepo = {
   fetchAllsubscriptionData,
   fetchAllTotalRevenue,
   getNumWeeklyActivities,
-  updateClinic
+  updateClinic,
+  getClinicByEmail,
+  updateClinicSubscription
 };
 
-async function createClinic(email, name, phoneNumber, primaryContact, streetAddress, city, state, zipCode, plan, addOns, hipaaAcknowledgment, legalAcknowledgment, options = {}) {
+async function createClinic(
+  email,
+  name,
+  phoneNumber,
+  primaryContact,
+  streetAddress,
+  city,
+  state,
+  zipCode,
+  addOns,
+  hipaaAcknowledgment,
+  legalAcknowledgment,
+  customerId,
+  options = {}
+) {
+  const existingClinic = await db.Clinic.findOne({ email });
+  if (existingClinic) {
+    return existingClinic;
+  }
+  console.log("customerId", customerId);
   const newClinic = await db.Clinic.create([{
     email,
     name,
@@ -30,10 +52,10 @@ async function createClinic(email, name, phoneNumber, primaryContact, streetAddr
     city,
     state,
     zipCode,
-    plan,
     addOns,
     hipaaAcknowledgment,
     legalAcknowledgment,
+    customerId
   }], options);
   return newClinic[0];
 }
@@ -56,8 +78,8 @@ async function deleteClinic(id) {
 }
 
 async function getnumcoachesbyId(coachId) {
-    const clients = await db.Client.find({ coachId: coachId });
-    return clients;
+  const clients = await db.Client.find({ coachId: coachId });
+  return clients;
 }
 
 async function getNumWactiveCount(clinicId) {
@@ -65,7 +87,7 @@ async function getNumWactiveCount(clinicId) {
     // Calculate the date for 7 days ago
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     const result = await db.Activity.aggregate([
       // Match activities for this clinic within the past week
       {
@@ -79,7 +101,7 @@ async function getNumWactiveCount(clinicId) {
         $count: "pastWeekCount"
       }
     ]);
-    console.log("result",result);
+    console.log("result", result);
     // Return the count or 0 if no results
     return result.length > 0 ? result[0].pastWeekCount : 0;
   } catch (error) {
@@ -93,7 +115,7 @@ async function getNumWeeklyActivities() {
     // Calculate the date for 7 days ago
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     const result = await db.Activity.aggregate([
       // Match activities for this clinic within the past week
       {
@@ -106,7 +128,7 @@ async function getNumWeeklyActivities() {
         $count: "pastWeekCount"
       }
     ]);
-    console.log("result",result);
+    console.log("result", result);
     // Return the count or 0 if no results
     return result.length > 0 ? result[0].pastWeekCount : 0;
   } catch (error) {
@@ -130,18 +152,18 @@ async function fetchRevenueData(clinicId) {
     // Calculate date ranges for the last 6 months
     const months = [];
     const revenueData = [];
-    
+
     for (let i = 5; i >= 0; i--) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
-      
+
       const monthName = date.toLocaleString('default', { month: 'short' });
       months.push(monthName);
-      
+
       // Calculate start and end dates for the month
       const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
       const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-      
+
       // Build the query
       const query = {
         selectedDate: {
@@ -149,17 +171,17 @@ async function fetchRevenueData(clinicId) {
           $lte: endDate
         }
       };
-      
+
       // Add clinic filter if provided
       if (clinicId) {
         query.clinic = new mongoose.Types.ObjectId(clinicId);
       }
-      
+
       // Execute aggregation to get check-in count and unique clients
       const result = await db.CheckIn.aggregate([
         // Match check-ins for the current month
         { $match: query },
-        
+
         // Group by month to calculate metrics
         {
           $group: {
@@ -168,7 +190,7 @@ async function fetchRevenueData(clinicId) {
             uniqueClients: { $addToSet: "$email" }
           }
         },
-        
+
         // Project the final format
         {
           $project: {
@@ -179,19 +201,19 @@ async function fetchRevenueData(clinicId) {
         }
       ]);
 
-    
-      
+
+
       // Calculate revenue (assuming $100 per check-in)
       const monthData = result.length > 0 ? result[0] : { checkInCount: 0, uniqueClientCount: 0 };
       const revenue = monthData.checkInCount * 100;
-      
+
       revenueData.push({
         month: monthName,
         revenue: revenue,
         clients: monthData.uniqueClientCount
       });
     }
-    
+
     return revenueData;
   } catch (error) {
     console.error('Error fetching revenue data:', error);
@@ -206,18 +228,18 @@ async function fetchAllRevenueData() {
     // Calculate date ranges for the last 6 months
     const months = [];
     const revenueData = [];
-    
+
     for (let i = 5; i >= 0; i--) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
-      
+
       const monthName = date.toLocaleString('default', { month: 'short' });
       months.push(monthName);
-      
+
       // Calculate start and end dates for the month
       const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
       const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-      
+
       // Build the query
       const query = {
         selectedDate: {
@@ -225,13 +247,13 @@ async function fetchAllRevenueData() {
           $lte: endDate
         }
       };
-      
+
 
       // Execute aggregation to get check-in count and unique clients
       const result = await db.CheckIn.aggregate([
         // Match check-ins for the current month
         { $match: query },
-        
+
         // Group by month to calculate metrics
         {
           $group: {
@@ -240,7 +262,7 @@ async function fetchAllRevenueData() {
             uniqueClients: { $addToSet: "$email" }
           }
         },
-        
+
         // Project the final format
         {
           $project: {
@@ -250,18 +272,18 @@ async function fetchAllRevenueData() {
           }
         }
       ]);
-      
+
       // Calculate revenue (assuming $100 per check-in)
       const monthData = result.length > 0 ? result[0] : { checkInCount: 0, uniqueClientCount: 0 };
       const revenue = monthData.checkInCount * 100;
-      
+
       revenueData.push({
         month: monthName,
         revenue: revenue,
         clients: monthData.uniqueClientCount
       });
     }
-    console.log("revenueData",revenueData);
+    console.log("revenueData", revenueData);
     return revenueData;
   } catch (error) {
     console.error('Error fetching revenue data:', error);
@@ -276,39 +298,39 @@ async function fetchsubscriptionData(clinicId) {
     if (clinicId) {
       clinicQuery._id = new mongoose.Types.ObjectId(clinicId);
     }
-    
+
     // Fetch clinics
     const clinics = await db.Clinic.find(clinicQuery).lean();
-    
+
     // Map subscription tier to price
     const priceMap = {
       'basic': '$149/month',
       'professional': '$249/month',
       'enterprise': '$399/month'
     };
-    
+
     // Process each clinic to get subscription data
     const subscriptionData = [];
-    
+
     for (const clinic of clinics) {
       // Count unique clients for this clinic
       const clientCount = await db.CheckIn.distinct('email', {
         clinic: new mongoose.Types.ObjectId(clinic._id)
       }).then(emails => emails.length);
-      
+
       // Format the date
-      const startDate = clinic.createdAt 
+      const startDate = clinic.createdAt
         ? new Date(clinic.createdAt).toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: 'numeric'
-          })
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        })
         : new Date().toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: 'numeric'
-          });
-      
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        });
+
       // Add to subscription data array
       subscriptionData.push({
         id: clinic._id.toString(),
@@ -319,7 +341,7 @@ async function fetchsubscriptionData(clinicId) {
         clients: clientCount
       });
     }
-    
+
     return subscriptionData;
   } catch (error) {
     console.error('Error fetching subscription data:', error);
@@ -331,39 +353,39 @@ async function fetchAllsubscriptionData() {
   try {
     // Build the query for clinics
     const clinicQuery = {};
-    
+
     // Fetch clinics
     const clinics = await db.Clinic.find(clinicQuery).lean();
-    
+
     // Map subscription tier to price
     const priceMap = {
       'basic': '$149/month',
       'professional': '$249/month',
       'enterprise': '$399/month'
     };
-    
+
     // Process each clinic to get subscription data
     const subscriptionData = [];
-    
+
     for (const clinic of clinics) {
       // Count unique clients for this clinic
       const clientCount = await db.CheckIn.distinct('email', {
         clinic: new mongoose.Types.ObjectId(clinic._id)
       }).then(emails => emails.length);
-      
+
       // Format the date
-      const startDate = clinic.createdAt 
+      const startDate = clinic.createdAt
         ? new Date(clinic.createdAt).toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: 'numeric'
-          })
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        })
         : new Date().toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: 'numeric'
-          });
-      
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        });
+
       // Add to subscription data array
       subscriptionData.push({
         id: clinic._id.toString(),
@@ -374,7 +396,7 @@ async function fetchAllsubscriptionData() {
         clients: clientCount
       });
     }
-    
+
     return subscriptionData;
   } catch (error) {
     console.error('Error fetching subscription data:', error);
@@ -386,15 +408,15 @@ async function fetchTotalRevenue(clinicId) {
   try {
     // Build the query
     const query = {};
-    
+
     // Add clinic filter if provided
     if (clinicId) {
       query.clinic = new mongoose.Types.ObjectId(clinicId);
     }
-    
+
     // Count check-ins
     const count = await db.CheckIn.countDocuments(query);
-    
+
     // Calculate revenue (assuming $100 per check-in)
     return count * 100;
   } catch (error) {
@@ -404,7 +426,7 @@ async function fetchTotalRevenue(clinicId) {
 }
 
 async function fetchAllTotalRevenue() {
-  try{
+  try {
     const count = await db.CheckIn.find();
     return count.length * 100;
   } catch (error) {
@@ -415,21 +437,36 @@ async function fetchAllTotalRevenue() {
 
 async function updateClinic(id, clinic) {
   const updatedClinic = await db.Clinic.findByIdAndUpdate(
-    id, 
+    id,
     {
-      email: clinic.clinicEmail, 
+      email: clinic.clinicEmail,
       name: clinic.clinicName,
-      phoneNumber: clinic.clinicPhone, 
-      primaryContact: clinic.primaryContact, 
-      streetAddress: clinic.streetAddress, 
-      city: clinic.city, 
-      state: clinic.state, 
+      phoneNumber: clinic.clinicPhone,
+      primaryContact: clinic.primaryContact,
+      streetAddress: clinic.streetAddress,
+      city: clinic.city,
+      state: clinic.state,
       zipCode: clinic.zipCode,
-      addOns: clinic.addOns, 
-      hipaaAcknowledgment: clinic.hipaaAcknowledgment, 
-      legalAcknowledgment: clinic.legalAcknowledgment
-    }, 
+      addOns: clinic.addOns,
+      hipaaAcknowledgment: clinic.hipaaAcknowledgment,
+      legalAcknowledgment: clinic.legalAcknowledgment,
+      subscriptionTier: clinic.subscriptionTier
+    },
     { new: true }
   );
   return updatedClinic;
+}
+
+async function updateClinicSubscription(id, subscriptionTier) {
+  const updatedClinic = await db.Clinic.findByIdAndUpdate(
+    id,
+    { subscriptionTier: subscriptionTier },
+    { new: true }
+  );
+  return updatedClinic;
+}
+
+async function getClinicByEmail(email) {
+  const clinic = await db.Clinic.findOne({ email: email });
+  return clinic;
 }

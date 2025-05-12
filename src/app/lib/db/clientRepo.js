@@ -39,6 +39,11 @@ async function getnumprojectsbyId(coachId) {
 }
 
 async function createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals) {
+  const existingClient = await db.Client.findOne({ email });
+  if (existingClient) {
+    return existingClient;
+  }
+
   const client = await db.Client.create([{
     name,
     email,
@@ -53,6 +58,7 @@ async function createClient(name, email, phone, programId, programCategory, star
     initialWeight,
     goals
   }]);
+
   return client[0];
 }
 

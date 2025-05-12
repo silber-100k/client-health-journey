@@ -6,11 +6,19 @@ async function getAdminUsers() {
 }
 
 async function createAdminUser(name, email, phoneNumber, role, password, clinic, options = {}) {
+    const existingUser = await db.User.findOne({ email });
+    if (existingUser) {
+        return existingUser;
+    }
     const user = await db.User.create([{ name, email, phoneNumber, role, password, clinic }], options);
     return user[0];
 }
 
 async function createClientUser(name, email, phoneNumber, role, password, clinic, coachId, options = {}) {
+    const existingUser = await db.User.findOne({ email });
+    if (existingUser) {
+        return existingUser;
+    }
     const user = await db.User.create([{ name, email, phoneNumber, role, password, clinic, coachId }], options);
     return user[0];
 }

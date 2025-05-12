@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clinicRepo } from "@/app/lib/db/clinicRepo";
 import { userRepo } from "@/app/lib/db/userRepo";
+import { subscriptionRepo } from "@/app/lib/db/subscriptionRepo";
 import { sendCoachRegistrationEmail } from "@/app/lib/api/email";
+import { createCustomer, createCheckoutSession } from "@/app/lib/api/stripe";
+import { SubscriptionPlan } from "@/app/lib/stack";
 
 export async function POST(request) {
     const {
@@ -37,20 +40,31 @@ export async function POST(request) {
 
     try {
         // Create clinic
+        const customer = await createCustomer(clinicEmail, clinicName);
         clinic = await clinicRepo.createClinic(
-            clinicEmail, 
-            clinicName, 
-            clinicPhone, 
-            primaryContact, 
-            streetAddress, 
-            city, 
-            state, 
-            zipCode, 
-            selectedPlan, 
-            addOns, 
-            hipaaAcknowledgment, 
-            legalAcknowledgment
+            clinicEmail,
+            clinicName,
+            clinicPhone,
+            primaryContact,
+            streetAddress,
+            city,
+            state,
+            zipCode,
+            addOns,
+            hipaaAcknowledgment,
+            legalAcknowledgment,
+            customer.id
         );
+
+        const subscriptionTier = await subscriptionRepo.createSubscriptionTier(clinic._id, selectedPlan, customer.id);
+        console.log("Created subscription tier:", subscriptionTier);
+        
+        if (!subscriptionTier || !subscriptionTier._id) {
+            throw new Error("Failed to create subscription tier");
+        }
+                
+        const priceId = SubscriptionPlan.find(plan => plan.id === selectedPlan).priceId;
+        const session = await createCheckoutSession(customer.id, priceId, clinicEmail);
 
         // Create admin user
         adminUser = await userRepo.createAdminUser(
@@ -68,21 +82,25 @@ export async function POST(request) {
                 if (!coach.name || !coach.email || !coach.phone) {
                     continue;
                 }
-                const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                const coachUser = await userRepo.createAdminUser(
-                    coach.name, 
-                    coach.email, 
-                    coach.phone, 
-                    "coach", 
-                    randomPassword, 
-                    clinic._id
-                );
-                createdCoachUsers.push(coachUser);
-                await sendCoachRegistrationEmail(coach, randomPassword);
+                try {
+                    const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    await sendCoachRegistrationEmail(coach, randomPassword);
+                    const coachUser = await userRepo.createAdminUser(
+                        coach.name,
+                        coach.email,
+                        coach.phone,
+                        "coach",
+                        randomPassword,
+                        clinic._id
+                    );
+                    createdCoachUsers.push(coachUser);
+                } catch (error) {
+                    console.error("Error creating coach user:", error);
+                }
             }
         }
 
-        return NextResponse.json({ success: true, message: "Clinic created successfully" }, { status: 200 });
+        return NextResponse.json({ success: true, message: "Clinic created successfully", url: session.url }, { status: 200 });
     } catch (error) {
         console.error(error);
         // Rollback in reverse order

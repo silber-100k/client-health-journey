@@ -12,12 +12,11 @@ import { toast } from "sonner";
 const ClinicSignUpPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [clinicId, setClinicId] = useState("");
 
   const handleSubmit = async (data, additionalCoaches) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/clinic", {
+      const response = await fetch("/api/auth/clinicRegister", {
         method: "POST",
         body: JSON.stringify({ ...data, additionalCoaches }),
       });
@@ -25,11 +24,9 @@ const ClinicSignUpPage = () => {
         throw new Error("Failed to create clinic");
       }
       const result = await response.json();
-      console.log(result);
       if (result.success) {
         toast.success("Clinic created successfully");
-        setClinicId(result._id);
-        router.push("/login");
+        router.push(result.url);
       } else {
         throw new Error(result.message);
       }
@@ -49,6 +46,7 @@ const ClinicSignUpPage = () => {
       }
     } catch (error) {
       console.log(error.message);
+      toast.error("Failed to Create Clinic");
     } finally {
       setIsSubmitting(false);
     }

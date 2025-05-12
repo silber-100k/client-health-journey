@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import { clinicRepo } from "@/app/lib/db/clinicRepo";
 import { sendClinicRegistrationEmail } from "@/app/lib/api/email";
+import { createCustomer } from "@/app/lib/api/stripe";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
@@ -57,44 +58,46 @@ export async function POST(request) {
     let adminUser = null;
     const createdCoachUsers = [];
     const password = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const customer = await createCustomer(clinicEmail, clinicName);
     try {
         // Create clinic
         clinic = await clinicRepo.createClinic(
-            clinicEmail, 
-            clinicName, 
-            clinicPhone, 
-            primaryContact, 
-            streetAddress, 
-            city, 
-            state, 
-            zipCode, 
-            selectedPlan, 
-            addOns, 
-            hipaaAcknowledgment, 
-            legalAcknowledgment
+            clinicEmail,
+            clinicName,
+            clinicPhone,
+            primaryContact,
+            streetAddress,
+            city,
+            state,
+            zipCode,
+            selectedPlan,
+            addOns,
+            hipaaAcknowledgment,
+            legalAcknowledgment,
+            customer.id
         );
 
         // Create admin user
         adminUser = await userRepo.createAdminUser(
-            primaryContact, 
-            email, 
-            clinicPhone, 
-            "clinic_admin", 
-            password, 
+            primaryContact,
+            email,
+            clinicPhone,
+            "clinic_admin",
+            password,
             clinic._id
         );
-        await sendClinicRegistrationEmail(clinicEmail,clinicName,clinicPhone,email, password);
+        await sendClinicRegistrationEmail(clinicEmail, clinicName, clinicPhone, email, password);
         return NextResponse.json({ success: true, message: "Clinic created successfully" }, { status: 200 });
     } catch (error) {
         console.error(error);
         // Rollback in reverse order
         try {
-            
+
             // Delete admin user if created
             if (adminUser) {
                 await userRepo.deleteAdminUser(adminUser._id);
             }
-            
+
             // Delete clinic if created
             if (clinic) {
                 await clinicRepo.deleteClinic(clinic._id);
@@ -102,7 +105,7 @@ export async function POST(request) {
         } catch (rollbackError) {
             console.error("Error during rollback:", rollbackError);
         }
-        
+
         return NextResponse.json({ success: false, message: "Error creating clinic" }, { status: 500 });
     }
 }
