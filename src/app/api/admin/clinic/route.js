@@ -70,7 +70,6 @@ export async function POST(request) {
             city,
             state,
             zipCode,
-            selectedPlan,
             addOns,
             hipaaAcknowledgment,
             legalAcknowledgment,
