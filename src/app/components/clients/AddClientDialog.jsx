@@ -12,8 +12,8 @@ const AddClientDialog = ({
   open,
   onOpenChange,
   fetchClients,
-  clientLimit = 0,
-  clientCount = 0
+  clientLimit,
+  clientCount
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

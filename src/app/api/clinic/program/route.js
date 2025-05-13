@@ -15,9 +15,9 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    if (user.role !== "clinic_admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // if (user.role !== "clinic_admin") {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
     const clinicId = user.clinic._id;
     const programs = await programRepo.getPrograms(clinicId);
     return NextResponse.json({ status: true, programs });
@@ -41,7 +41,5 @@ export async function POST(request) {
     return NextResponse.json({ status: true, program });
   } catch (error) {
     return NextResponse.json({ status: false, message: "error to create program" });
-
-
   }
 }

@@ -76,11 +76,9 @@ const ClientMessages = () => {
       const data = await response.json();
       if (data.clients) {
         setClients(data.clients);
-      } else {
-        toast.error("Failed to fetch clients");
       }
     } catch (error) {
-      toast.error("Failed to fetch clients");
+      console.log("Failed to fetch clients", error);
     } finally {
       setIsLoading(false);
     }

@@ -11,6 +11,7 @@ export async function GET(req, { params }) {
         let clientLimit = 0;
         let plan = null;
         if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate > new Date()) {
+            console.log("subscriptionTier", subscriptionTier);
             plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);
             clientLimit = plan.clientLimit;
         }

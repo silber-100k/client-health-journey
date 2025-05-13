@@ -6,7 +6,7 @@ const emailUserId = {
 };
 
 export const sendClientRegistrationEmail = async (newClient, clinicName, tempPassword) => {
-    if (process.env.NODE_ENV == "production") {
+    try {
         const templateParams = {
             name: newClient.name,
             login_url: `${process.env.NEXTAUTH_URL}/login`,
@@ -23,13 +23,13 @@ export const sendClientRegistrationEmail = async (newClient, clinicName, tempPas
             templateParams,
             emailUserId
         );
-    } else {
-        console.log("send confirm mail");
+    } catch (error) {
+        console.log(error);
     }
 }
 
 export const sendCoachRegistrationEmail = async (newCoach, tempPassword) => {
-    if (process.env.NODE_ENV == "production") {
+    try {
         const templateParams = {
             name: newCoach.name,
             login_url: `${process.env.NEXTAUTH_URL}/login`,
@@ -46,13 +46,13 @@ export const sendCoachRegistrationEmail = async (newCoach, tempPassword) => {
             templateParams,
             emailUserId
         );
-    } else {
-        console.log("send confirm mail");
+    } catch (error) {
+        console.log(error);
     }
 }
 
 export const sendClinicRegistrationEmail = async (clinicEmail, clinicName, clinicPhone, email, password) => {
-    if (process.env.NODE_ENV == "production") {
+    try {
         const templateParams = {
             name: clinicName,
             login_url: `${process.env.NEXTAUTH_URL}/login`,
@@ -70,7 +70,7 @@ export const sendClinicRegistrationEmail = async (clinicEmail, clinicName, clini
             templateParams,
             emailUserId
         );
-    } else {
-        console.log("send confirm mail");
+    } catch (error) {
+        console.log(error);
     }
 }

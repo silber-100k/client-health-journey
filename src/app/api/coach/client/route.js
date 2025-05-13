@@ -25,7 +25,7 @@ export async function GET() {
     let clientLimit = 0;
     const subscriptionTier = await subscriptionRepo.getSubscriptionTier(user.clinic._id);
     if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate >= new Date()) {
-      clientLimit = subscriptionTier.clientLimit || 0;
+      clientLimit = subscriptionTier.clientLimit;
     }
     const clients = await clientRepo.getclientsbycoachId(coachId);
     return NextResponse.json({ status: true, clients, clientLimit });

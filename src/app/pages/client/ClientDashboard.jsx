@@ -10,7 +10,7 @@ const ClientDashboard = () => {
       <ClientDailyDrip />
 
       {/* Program progress */}
-      <ProgramProgress />
+      {/* <ProgramProgress /> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Latest stats */}

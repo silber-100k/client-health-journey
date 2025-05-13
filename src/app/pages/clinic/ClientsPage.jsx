@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Label } from "../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { useClinic } from "@/app/context/ClinicContext";
+import { useRouter } from "next/navigation";
 
 const ClientsPage = () => {
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
@@ -28,10 +29,19 @@ const ClientsPage = () => {
   const [currentCoach, setCurrentCoach] = useState("");
   const { user } = useAuth();
   const { clientLimit } = useClinic();
+  const router = useRouter();
 
   const handleAddlclientdialogue = () => {
-    if (clientLimit === 0 || clientLimit <= clients.length) {
-      toast.error("You have reached the maximum number of clients");
+    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clients.length)) {
+      toast.custom(() => (
+        <Alert>
+          <AlertTitle>You have reached the maximum number of clients</AlertTitle>
+          <AlertDescription>
+            You have reached the maximum number of clients for your plan. Please upgrade to a higher plan to add more clients.
+          </AlertDescription>
+          <Button variant="outline" onClick={() => router.push("/clinic/settings")}>Upgrade</Button>
+        </Alert>
+      ));
       return;
     }
     setIsAddClientDialogOpen(true);

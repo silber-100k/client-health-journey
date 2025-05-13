@@ -21,6 +21,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
+
 const CoachReportsPage = () => {
   const { user } = useAuth();
   const [activeClients, setActiveClients] = useState(0);
@@ -29,6 +30,7 @@ const CoachReportsPage = () => {
   const [checkIns, setCheckIns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [historicalData, sethistoricalData] = useState([]);
+  
   const fetchActiveClients = async () => {
     try {
       const response = await fetch("/api/coach/reports/activeClients");

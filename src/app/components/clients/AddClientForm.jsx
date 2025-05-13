@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 
-const AddClientForm = ({ onCancel, fetchClients, clientLimit = 0, clientCount = 0 }) => {
+const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => {
   const { user } = useAuth();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -63,7 +63,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit = 0, clientCount = 
       toast.error("Failed to fetch programs");
     }
   };
-  
+
   const fetchCoaches = async () => {
     try {
       setCoachesLoading(true);
@@ -93,7 +93,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit = 0, clientCount = 
     if (isPending) {
       return;
     }
-    if (clientLimit === 0 || clientLimit <= clientCount) {
+    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clientCount)) {
       toast.error("You have reached the maximum number of clients");
       return;
     }

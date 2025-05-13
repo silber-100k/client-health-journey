@@ -105,7 +105,7 @@ const CheckInForm = () => {
         }),
       });
       const respond = await resActivity.json();
-      if (respond.success) {
+      if (respond.status) {
         toast.success("weekly check-in activity added successfully");
       } else {
         throw new Error(respond.message);

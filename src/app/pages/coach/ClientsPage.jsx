@@ -15,18 +15,33 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { motion, useAnimation } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const ClientsPage = () => {
-  
+
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const [clients, setClients] = useState([]);
   const [clientLimit, setClientLimit] = useState(0);
   const { user } = useAuth();
   const controls = useAnimation();
+  const router = useRouter();
+
   const handleAddlclientdialogue = () => {
+    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clients.length)) {
+      toast.custom(() => (
+        <Alert>
+          <AlertTitle>You have reached the maximum number of clients</AlertTitle>
+          <AlertDescription>
+            You have reached the maximum number of clients for your plan. Please upgrade to a higher plan to add more clients.
+          </AlertDescription>
+          <Button variant="outline" onClick={() => router.push("/clinic/settings")}>Upgrade</Button>
+        </Alert>
+      ));
+      return;
+    }
     setIsAddClientDialogOpen(true);
   };
-  
+
   const fetchClients = async () => {
     try {
       const response = await fetch("/api/coach/client");
@@ -39,11 +54,11 @@ const ClientsPage = () => {
       console.log(error);
     }
   };
-  
+
   useEffect(() => {
     fetchClients();
   }, []);
-  
+
   const handleRefresh = () => {
     controls
       .start({
@@ -84,15 +99,13 @@ const ClientsPage = () => {
         <AlertTitle>Coach View</AlertTitle>
         <AlertDescription>
           You are viewing all clients for {user?.name || "your clinic"}. This
-          includes clients assigned to all coaches in your clinic. Your Clinic
-          ID is: {user?.clinic._id || "unknown"} and Your Coach ID is:{" "}
-          {user?._id}
+          includes clients assigned to all coaches in your clinic.
         </AlertDescription>
       </Alert>
 
       <Card>
         <CardHeader>
-          <CardTitle>"Your Clients"</CardTitle>
+          <CardTitle>Your Clients</CardTitle>
         </CardHeader>
         <CardContent>
           <CoachClientList clients={clients} />
