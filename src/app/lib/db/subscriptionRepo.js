@@ -74,6 +74,11 @@ async function deleteSessionByClinicId(clinicId) {
     await SubscriptionTier.findOneAndDelete({ clinicId });
 }
 
+async function getSubscriptionHistory() {
+    const subscriptionHistory = await SubscriptionHistory.find();
+    return subscriptionHistory;
+}
+
 export const subscriptionRepo = {
     createSubscriptionTier,
     createSubscriptionHistory,
@@ -83,4 +88,5 @@ export const subscriptionRepo = {
     updateSubscriptionTier,
     deleteSessionByClinicId,
     getSubscriptionTierByCustomerId,
+    getSubscriptionHistory,
 };

@@ -1,5 +1,6 @@
 import db from "./index";
 import mongoose, { Schema } from "mongoose";
+import { SubscriptionPlan } from "../stack";
 
 export const clinicRepo = {
   createClinic,
@@ -302,13 +303,6 @@ async function fetchsubscriptionData(clinicId) {
     // Fetch clinics
     const clinics = await db.Clinic.find(clinicQuery).lean();
 
-    // Map subscription tier to price
-    const priceMap = {
-      'basic': '$149/month',
-      'professional': '$249/month',
-      'enterprise': '$399/month'
-    };
-
     // Process each clinic to get subscription data
     const subscriptionData = [];
 
@@ -318,26 +312,15 @@ async function fetchsubscriptionData(clinicId) {
         clinic: new mongoose.Types.ObjectId(clinic._id)
       }).then(emails => emails.length);
 
-      // Format the date
-      const startDate = clinic.createdAt
-        ? new Date(clinic.createdAt).toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        })
-        : new Date().toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        });
-
+      const subscriptionTier = await db.SubscriptionTier.findOne({ clinicId: clinic._id });
+      const price = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId).price;
       // Add to subscription data array
       subscriptionData.push({
         id: clinic._id.toString(),
         name: clinic.name,
-        plan: clinic.plan || 'basic',
-        price: priceMap[clinic.plan || 'basic'] || '$149/month',
-        startDate: startDate,
+        plan: subscriptionTier.planId || 'N/A',
+        price: price || 'N/A',
+        startDate: subscriptionTier.startDate || 'N/A',
         clients: clientCount
       });
     }
@@ -367,13 +350,13 @@ async function fetchAllsubscriptionData() {
       }).then(emails => emails.length);
 
       const subscriptionTier = await db.SubscriptionTier.findOne({ clinicId: clinic._id });
-
+      const price = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId).price;
       // Add to subscription data array
       subscriptionData.push({
         id: clinic._id.toString(),
         name: clinic.name,
         plan: subscriptionTier.planId || 'N/A',
-        price: subscriptionTier.price || 'N/A',
+        price: price || 'N/A',
         startDate: subscriptionTier.startDate || 'N/A',
         clients: clientCount
       });

@@ -29,7 +29,7 @@ import { toast } from "sonner";
 const MyProfile = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -59,6 +59,7 @@ const MyProfile = () => {
   };
 
   const handleSaveProfile = () => { };
+
   const handlePasswordChange = async () => {
     if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
       toast.error("Passwords do not match");
@@ -304,7 +305,7 @@ const MyProfile = () => {
                     {loading ? "Updating..." : "Update Password"}
                   </Button>
                 </div>
-
+{/* 
                 <div className="pt-6 border-t">
                   <h3 className="text-lg font-medium mb-4">Account Actions</h3>
 
@@ -316,7 +317,7 @@ const MyProfile = () => {
                     <LogOut size={16} />
                     <span>Log Out</span>
                   </Button>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>

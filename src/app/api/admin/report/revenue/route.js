@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import authOptions from "@/app/lib/authoption";
 import { clinicRepo } from "@/app/lib/db/clinicRepo";
+import { subscriptionRepo } from "@/app/lib/db/subscriptionRepo";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
@@ -19,8 +20,8 @@ export async function GET() {
         if (user.role !== "admin") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const revenueData = await clinicRepo.fetchAllRevenueData();
-        return NextResponse.json({ staus: true, revenueData });
+        const subscriptionHistory = await subscriptionRepo.getSubscriptionHistory();
+        return NextResponse.json({ staus: true, subscriptionHistory });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });

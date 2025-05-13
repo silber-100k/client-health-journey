@@ -21,7 +21,7 @@ const WellnessTab = ({ checkInData, setCheckInData }) => {
           step={1}
           value={[checkInData.energyLevel]}
           onValueChange={(e) =>
-            setCheckInData((prev) => ({ ...prev, ["energyLevel"]: e }))
+            setCheckInData((prev) => ({ ...prev, ["energyLevel"]: e[0] }))
           }
           className="py-4"
         />
@@ -46,7 +46,7 @@ const WellnessTab = ({ checkInData, setCheckInData }) => {
           step={1}
           value={[checkInData.moodLevel]}
           onValueChange={(e) =>
-            setCheckInData((prev) => ({ ...prev, ["moodLevel"]: e }))
+            setCheckInData((prev) => ({ ...prev, ["moodLevel"]: e[0] }))
           }
           className="py-4"
         />

@@ -25,8 +25,9 @@ const ReportsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
-  const [revenueData, setRevenueData] = useState([]);
   const [subscriptionData, setSubscriptionData] = useState([]);
+  const [subscriptionHistory, setSubscriptionHistory] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
 
   // Calculate revenue (assuming $100 per check-in)
   const fetchRevenueData = async () => {
@@ -34,7 +35,7 @@ const ReportsPage = () => {
       setIsLoading(true);
       const response = await fetch("/api/admin/report/revenue");
       const data = await response.json();
-      setRevenueData(data.revenueData);
+      setSubscriptionHistory(data.subscriptionHistory);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -48,6 +49,9 @@ const ReportsPage = () => {
       const response = await fetch("/api/admin/report/subscription");
       const data = await response.json();
       setSubscriptionData(data.subscriptionData);
+      const totalClients = data.subscriptionData.reduce((acc, curr) => acc + curr.clients, 0);
+      setRevenueData(revenueData);
+      setTotalClients(totalClients);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -59,7 +63,22 @@ const ReportsPage = () => {
     try {
       const response = await fetch("/api/admin/report/totalRevenue");
       const data = await response.json();
-      setTotalRevenue(data.totalRevenue);
+      setSubscriptionHistory(data.subscriptionHistory);
+      const totalRevenue = data.subscriptionHistory.reduce((acc, curr) => acc + curr.paymentAmount, 0);
+      const revenueData = [];
+      for (let i = 0; i < data.subscriptionHistory.length; i++) {
+        const month = data.subscriptionHistory[i].createdAt.getMonth();
+        const revenue = data.subscriptionHistory[i].paymentAmount;
+        if (revenueData.find(item => item.month === month)) {
+          revenueData.find(item => item.month === month).revenue += revenue;
+        } else {
+          revenueData.push({
+            month: month,
+            revenue: revenue
+          });
+        }
+      }
+      setTotalRevenue(totalRevenue);
     } catch (error) {
       console.log(error);
     }
@@ -68,8 +87,7 @@ const ReportsPage = () => {
   const fetchTotalClients = async () => {
     try {
       const response = await fetch("/api/admin/clientNum");
-      const data = await response.json();
-      setTotalClients(data.clients);
+      const data = await response.json(nts);
     } catch (error) {
       console.log(error);
     }
@@ -117,9 +135,11 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalRevenue.toLocaleString()}
+              ${
+                totalRevenue
+              }
             </div>
-            <p className="text-xs text-green-500">+8% from last month</p>
+            {/* <p className="text-xs text-green-500">+8% from last month</p> */}
           </CardContent>
         </Card>
 
@@ -146,9 +166,9 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {`$${Math.round(totalRevenue / 6).toLocaleString()}/mo`}
+              {`$${Math.round(totalRevenue / (revenueData.length ?? 1)).toLocaleString()}/mo`}
             </div>
-            <p className="text-xs text-green-500">+5% from last month</p>
+            {/* <p className="text-xs text-green-500">+5% from last month</p> */}
           </CardContent>
         </Card>
 
@@ -159,7 +179,7 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalClients}</div>
-            <p className="text-xs text-green-500">+1 from last month</p>
+            {/* <p className="text-xs text-green-500">+1 from last month</p> */}
           </CardContent>
         </Card>
       </div>
@@ -168,14 +188,14 @@ const ReportsPage = () => {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-[24px]">
-            Your Clinic Monthly Revenue
+            Your System Monthly Revenue
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={revenueData}
+                data={subscriptionHistory}
                 margin={{
                   top: 5,
                   right: 30,
@@ -194,12 +214,6 @@ const ReportsPage = () => {
                   dataKey="revenue"
                   name="Revenue ($)"
                   fill="#8884d8"
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="clients"
-                  name="New Clients"
-                  fill="#82ca9d"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -233,8 +247,8 @@ const ReportsPage = () => {
                         {sub.plan}
                       </span>
                     </td>
-                    <td className="py-3 px-4">{sub.price}</td>
-                    <td className="py-3 px-4">{sub.startDate}</td>
+                    <td className="py-3 px-4">{sub.price ? `$${sub.price}/month` : "N/A"}</td>
+                    <td className="py-3 px-4">{new Date(sub.startDate).toLocaleDateString()}</td>
                     <td className="py-3 px-4">{sub.clients}</td>
                   </tr>
                 ))}

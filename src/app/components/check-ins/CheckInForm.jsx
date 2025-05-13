@@ -29,7 +29,6 @@ import CheckInNavigation from "./form/CheckInNavigation";
 
 const CheckInForm = () => {
   const { user } = useAuth();
-  console.log("user", user);
   const [currentTab, setCurrentTab] = useState("measurements");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkInData, setCheckInData] = useState({

@@ -10,9 +10,10 @@ import {
 } from "../../components/ui/card";
 import ProgressChart from "../../components/progress/ProgressChart";
 const ClientProgress = () => {
-  const [progressData, setProgressData] = useState([]);
 
+  const [progressData, setProgressData] = useState([]);
   const { user } = useAuth();
+
   const fetchProgressdata = async () => {
     try {
       const response = await fetch("/api/client/progress", {
@@ -25,6 +26,7 @@ const ClientProgress = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     fetchProgressdata();
   }, []);

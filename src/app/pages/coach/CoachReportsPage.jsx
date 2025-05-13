@@ -21,16 +21,22 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import ProgressChart from "@/app/components/progress/ProgressChart";
 
 const CoachReportsPage = () => {
   const { user } = useAuth();
   const [activeClients, setActiveClients] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
+  const [clients, setClients] = useState([]);
   const [programs, setPrograms] = useState(0);
   const [checkIns, setCheckIns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [historicalData, sethistoricalData] = useState([]);
-  
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState("month");
+  const [progressData, setProgressData] = useState([]);
+
   const fetchActiveClients = async () => {
     try {
       const response = await fetch("/api/coach/reports/activeClients");
@@ -48,11 +54,12 @@ const CoachReportsPage = () => {
 
   const Totalclients = async () => {
     try {
-      const response = await fetch("/api/coach/reports/totalClients");
+      const response = await fetch("/api/coach/client");
       const data = await response.json();
       if (data.status) {
         toast.success("Fetched successfully");
-        setTotalClients(data.numclients);
+        setTotalClients(data.clients.length);
+        setClients(data.clients);
       } else {
         toast.error(data.message);
       }
@@ -116,6 +123,21 @@ const CoachReportsPage = () => {
     fetchHistoricalData();
   }, []);
 
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      const response = await fetch(`/api/coach/reports/progress?clientId=${selectedClient}&timeRange=${selectedTimeRange}`);
+      const data = await response.json();
+      if (data.status) {
+        setProgressData(data.progress);
+      } else {
+        toast.error(data.message);
+      }
+    }
+    if (selectedClient && selectedTimeRange) {
+      fetchProgressData();
+    }
+  }, [selectedClient, selectedTimeRange]);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -178,47 +200,45 @@ const CoachReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{checkIns || 0}</div>
-          </CardContent>
+          </CardContent>    
         </Card>
       </div>
 
       {/* Check-ins Chart */}
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Your Clinic Monthly Revenue</CardTitle>
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Client Progress</CardTitle>
+            <div className="flex items-center gap-4">
+              <Select onValueChange={(value) => setSelectedClient(value)} defaultValue={selectedClient}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select a client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="week">Last Week</SelectItem>
+                  <SelectItem value="month">Last Month</SelectItem>
+                  <SelectItem value="quarter">Last Quarter</SelectItem>
+                  <SelectItem value="year">Last Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={historicalData}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  yAxisId="left"
-                  dataKey="checkIns"
-                  name="checkIns ($)"
-                  fill="#8884d8"
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="avgWeight"
-                  name="avgWeight"
-                  fill="#82ca9d"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-[400px]">
+            <ProgressChart progressData={progressData} />
           </div>
         </CardContent>
       </Card>

@@ -82,6 +82,7 @@ export async function POST(request) {
     );
     return NextResponse.json({ status: true, checkin });
   } catch (error) {
+    console.log("error", error);
     return NextResponse.json({ status: false, message: "wrong" });
   }
 }

@@ -6,19 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { Banknote, Activity, TrendingUp, Users } from "lucide-react";
+import { Banknote, Activity, TrendingUp, Users, Calendar } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import ProgressChart from "@/app/components/progress/ProgressChart";
 
 const ReportsPage = () => {
   const { user } = useAuth();
@@ -27,6 +20,10 @@ const ReportsPage = () => {
   const [totalClients, setTotalClients] = useState(0);
   const [revenueData, setRevenueData] = useState([]);
   const [subscriptionData, setSubscriptionData] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [progressData, setProgressData] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState("month");
 
   // Calculate revenue (assuming $100 per check-in)
   const fetchRevenueData = async () => {
@@ -67,9 +64,10 @@ const ReportsPage = () => {
 
   const fetchTotalClients = async () => {
     try {
-      const response = await fetch("/api/clinic/clientNum");
+      const response = await fetch("/api/clinic/client");
       const data = await response.json();
-      setTotalClients(data.clients);
+      setTotalClients(data.clients.length);
+      setClients(data.clients);
     } catch (error) {
       console.log(error);
     }
@@ -81,6 +79,21 @@ const ReportsPage = () => {
     // fetchTotalRevenue();
     fetchTotalClients();
   }, []);
+
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      const response = await fetch(`/api/coach/reports/progress?clientId=${selectedClient}&timeRange=${selectedTimeRange}`);
+      const data = await response.json();
+      if (data.status) {
+        setProgressData(data.progress);
+      } else {
+        toast.error(data.message);
+      }
+    }
+    if (selectedClient && selectedTimeRange) {
+      fetchProgressData();
+    }
+  }, [selectedClient, selectedTimeRange]);
 
   if (isLoading) {
     return (
@@ -110,19 +123,6 @@ const ReportsPage = () => {
 
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <Banknote className="h-4 w-4 text-primary-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${totalRevenue.toLocaleString()}
-            </div>
-            <p className="text-xs text-green-500">+8% from last month</p>
-          </CardContent>
-        </Card> */}
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">
@@ -132,26 +132,11 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {subscriptionData[0]?.plan || "Basic"}
+              {subscriptionData[0]?.plan || "N/A"}
             </div>
             <p className="text-xs text-green-500">Active</p>
           </CardContent>
         </Card>
-
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">
-              Monthly Revenue
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {`$${Math.round(totalRevenue / 6).toLocaleString()}/mo`}
-            </div>
-            <p className="text-xs text-green-500">+5% from last month</p>
-          </CardContent>
-        </Card> */}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -160,56 +145,77 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalClients}</div>
-            <p className="text-xs text-green-500">+1 from last month</p>
+            {/* <p className="text-xs text-green-500">+1 from last month</p> */}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">Subscription Price</CardTitle>
+            <Banknote className="h-4 w-4 text-primary-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {subscriptionData[0]?.price ? `$${subscriptionData[0]?.price}/month` : "N/A"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">
+              Subscription Start Date
+            </CardTitle>
+            <Calendar className="h-4 w-4 text-primary-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {new Date(subscriptionData[0]?.startDate).toLocaleDateString() || "N/A"}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Revenue Chart */}
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-[24px]">
-            Your Clinic Monthly New checkIn clients
-          </CardTitle>
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Client Progress</CardTitle>
+            <div className="flex items-center gap-4">
+              <Select onValueChange={(value) => setSelectedClient(value)} defaultValue={selectedClient}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select a client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="week">Last Week</SelectItem>
+                  <SelectItem value="month">Last Month</SelectItem>
+                  <SelectItem value="quarter">Last Quarter</SelectItem>
+                  <SelectItem value="year">Last Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={revenueData}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                <Tooltip />
-                <Legend />
-                {/* <Bar
-                  yAxisId="left"
-                  dataKey="revenue"
-                  name="Revenue ($)"
-                  fill="#8884d8"
-                /> */}
-                <Bar
-                  yAxisId="right"
-                  dataKey="clients"
-                  name="New Clients"
-                  fill="#82ca9d"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-[400px]">
+            <ProgressChart progressData={progressData} />
           </div>
         </CardContent>
       </Card>
 
       {/* Subscriptions Table */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="text-[24px]">Your Subscription</CardTitle>
         </CardHeader>
@@ -243,7 +249,7 @@ const ReportsPage = () => {
             </table>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 };

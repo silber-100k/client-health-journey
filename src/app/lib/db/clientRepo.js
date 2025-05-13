@@ -601,6 +601,29 @@ async function getclientsbycoachId(coachId) {
   return clients;
 }
 
+async function getClientById(clientId) {
+  const client = await db.Client.findById(clientId);
+  return client;
+}
+
+async function getProgressdataByRange(email, timeRange) {
+  let progress;
+  if (timeRange === "month") {
+    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneMonthAgo } });
+  } else if (timeRange === "week") {
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneWeekAgo } });
+  } else if (timeRange === "quarter") {
+    const oneQuarterAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneQuarterAgo } });
+  } else if (timeRange === "year") {
+    const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneYearAgo } });
+  }
+  return progress;
+}
+
 export const
   clientRepo = {
     getclientsbycoachId,
@@ -623,6 +646,7 @@ export const
     getClinics,
     getClinentNum,
     updateClientNum,
-    getclientNum
-
+    getclientNum,
+    getClientById,
+    getProgressdataByRange
   }

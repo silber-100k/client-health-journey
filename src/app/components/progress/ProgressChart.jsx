@@ -7,19 +7,18 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 const ProgressChart = ({ progressData }) => {
-  // Mock weight data
-  const data = [
-    { day: "Day 1", weight: 185 },
-    { day: "Day 5", weight: 183 },
-    { day: "Day 10", weight: 180 },
-    { day: "Day 15", weight: 178 },
-    { day: "Day 20", weight: 176 },
-    { day: "Day 25", weight: 174 },
-    { day: "Day 30", weight: 172 },
-  ];
+  // Define colors for different lines
+  const lineColors = {
+    weight: "#1eaedb",
+    waist: "#2ecc71",
+    energyLevel: "#e74c3c",
+    moodLevel: "#f1c40f",
+    sleepHours: "#9b59b6"
+  };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -43,23 +42,70 @@ const ProgressChart = ({ progressData }) => {
           tick={{ fontSize: 12 }}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `${value} lbs`}
+          tickFormatter={(value) => `${value}`}
         />
         <Tooltip
-          formatter={(value) => [`${value} lbs`, "Weight"]}
           contentStyle={{
             borderRadius: "8px",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
             border: "none",
           }}
         />
+        <Legend />
+        
+        {/* Weight Line */}
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#1eaedb"
+          name="Weight"
+          stroke={lineColors.weight}
           strokeWidth={2}
-          activeDot={{ r: 6, fill: "#1eaedb", stroke: "#fff", strokeWidth: 2 }}
-          dot={{ r: 4, fill: "#1eaedb", stroke: "#fff", strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: lineColors.weight, stroke: "#fff", strokeWidth: 2 }}
+          dot={{ r: 4, fill: lineColors.weight, stroke: "#fff", strokeWidth: 2 }}
+        />
+        
+        {/* Reps Line */}
+        <Line
+          type="monotone"
+          dataKey="waist"
+          name="Waist"
+          stroke={lineColors.waist}
+          strokeWidth={2}
+          activeDot={{ r: 6, fill: lineColors.waist, stroke: "#fff", strokeWidth: 2 }}
+          dot={{ r: 4, fill: lineColors.waist, stroke: "#fff", strokeWidth: 2 }}
+        />
+        
+        {/* Sets Line */}
+        <Line
+          type="monotone"
+          dataKey="energyLevel"
+          name="Energy Level"
+          stroke={lineColors.energyLevel}
+          strokeWidth={2}
+          activeDot={{ r: 6, fill: lineColors.energyLevel, stroke: "#fff", strokeWidth: 2 }}
+          dot={{ r: 4, fill: lineColors.energyLevel, stroke: "#fff", strokeWidth: 2 }}
+        />
+        
+        {/* Duration Line */}
+        <Line
+          type="monotone"
+          dataKey="moodLevel"
+          name="Mood Level"
+          stroke={lineColors.moodLevel}
+          strokeWidth={2}
+          activeDot={{ r: 6, fill: lineColors.moodLevel, stroke: "#fff", strokeWidth: 2 }}
+          dot={{ r: 4, fill: lineColors.moodLevel, stroke: "#fff", strokeWidth: 2 }}
+        />
+        
+        {/* Intensity Line */}
+        <Line
+          type="monotone"
+          dataKey="sleepHours"
+          name="Sleep Hours"
+          stroke={lineColors.sleepHours}
+          strokeWidth={2}
+          activeDot={{ r: 6, fill: lineColors.sleepHours, stroke: "#fff", strokeWidth: 2 }}
+          dot={{ r: 4, fill: lineColors.sleepHours, stroke: "#fff", strokeWidth: 2 }}
         />
       </LineChart>
     </ResponsiveContainer>
