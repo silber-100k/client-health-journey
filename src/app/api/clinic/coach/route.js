@@ -18,10 +18,11 @@ export async function GET(request) {
         if (user.role !== "clinic_admin") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const clinicId = user.clinic._id;
+        const clinicId = user.clinic;
 
         const coaches = await userRepo.getCoachesByClinicId(clinicId);
                 return NextResponse.json({ staus: true, coaches });
+            
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -42,7 +43,7 @@ export async function POST(request) {
         if (user.role !== "clinic_admin") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const clinicId = user.clinic._id;
+        const clinicId = user.clinic;
 
         const { name, email, phoneNumber } = await request.json();
         if (!name || !email) {

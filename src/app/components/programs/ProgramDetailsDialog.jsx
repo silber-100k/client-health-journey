@@ -30,12 +30,12 @@ const ProgramDetailsDialog = ({ program, isOpen, onClose }) => {
           <DialogTitle>
             {program.name
               ? program.name
-              : `${program.tempId.type
+              : `${program.template.type
                   .replace("_", " ")
                   .replace(/\b\w/g, (l) => l.toUpperCase())} Program`}
           </DialogTitle>
           <DialogDescription>
-            {program.type ? program.type : program.tempId.type} program
+            {program.type ? program.type : program.template.type} program
           </DialogDescription>
         </DialogHeader>
 
@@ -101,7 +101,7 @@ const ProgramDetailsDialog = ({ program, isOpen, onClose }) => {
             <>
               <div className="text-sm font-semibold mb-1">Template</div>{" "}
               <div className="text-sm text-gray-600">
-                {program.tempId?.description}
+                {program.template?.description}
               </div>
             </>
           }

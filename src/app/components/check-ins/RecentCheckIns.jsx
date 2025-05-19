@@ -162,8 +162,8 @@ const RecentCheckIns = ({ limit = 5 }) => {
     <div className="space-y-4">
       {checkIns.map((checkIn) => (
         <Link
-          key={checkIn._id}
-          href={`/check-in/${checkIn._id}`}
+          key={checkIn.id}
+          href={`/check-in/${checkIn.id}`}
           className="block"
         >
           <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors">

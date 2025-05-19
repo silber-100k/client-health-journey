@@ -10,8 +10,8 @@ export async function GET(request, { params }) {
         try {
             const clinicEmail = session.customer_details?.email;
             const clinic = await clinicRepo.getClinicByEmail(clinicEmail);
-            await subscriptionRepo.subscriptionActive(clinic._id, { isActive: true, subscriptionId: session.subscription });
-            // await subscriptionRepo.createSubscriptionHistory(clinic._id, session.subscription);
+            await subscriptionRepo.subscriptionActive(clinic.id, { isActive: true, subscriptionId: session.subscription });
+            // await subscriptionRepo.createSubscriptionHistory(clinic.id, session.subscription);
         } catch (error) {
             console.error(error);
         }

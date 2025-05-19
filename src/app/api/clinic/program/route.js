@@ -18,7 +18,7 @@ export async function GET() {
     // if (user.role !== "clinic_admin") {
     //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     // }
-    const clinicId = user.clinic._id;
+    const clinicId = user.clinic;
     const programs = await programRepo.getPrograms(clinicId);
     return NextResponse.json({ status: true, programs });
   }
@@ -35,9 +35,9 @@ export async function POST(request) {
   if (!duration || !checkInFrequency || !description || !clinicId) {
     return NextResponse.json({ status: false, message: "Invalid request" });
   }
-
   try {
     const program = await programRepo.createProgram(name, type, duration, checkInFrequency, description, tempId, clinicId);
+
     return NextResponse.json({ status: true, program });
   } catch (error) {
     return NextResponse.json({ status: false, message: "error to create program" });

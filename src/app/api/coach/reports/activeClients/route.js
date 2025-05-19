@@ -19,7 +19,7 @@ export async function GET() {
         if (user.role !== "coach") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const coachId = user._id;
+        const coachId = user.id;
 
         const activeClients = await clientRepo.getActiveClients(coachId);
 

@@ -28,7 +28,7 @@ export const ResetCoachPasswordDialog = ({
     seterrorMessage(null);
 
     try {
-      const response = await fetch(`/api/clinic/coach/${selectedCoach._id}`, {
+      const response = await fetch(`/api/clinic/coach/${selectedCoach.id}`, {
         method: "PUT",
       });
       const responseData = await response.json();

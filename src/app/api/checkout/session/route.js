@@ -11,6 +11,6 @@ export async function DELETE(request) {
     if (!user) {
         return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    await subscriptionRepo.deleteSessionByClinicId(user.clinic._id);
+    await subscriptionRepo.deleteSessionByClinicId(user.clinic);
     return NextResponse.json({ message: "Session deleted" }, { status: 200 });
 }

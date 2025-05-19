@@ -1,6 +1,361 @@
-import db from "./index";
-import mongoose, { Schema } from "mongoose";
+import postgres from 'postgres';
 import { SubscriptionPlan } from "../stack";
+const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
+
+async function createClinic(
+  email,
+  name,
+  phoneNumber,
+  primaryContact,
+  streetAddress,
+  city,
+  state,
+  zipCode,
+  addOns,
+  hipaaAcknowledgment,
+  legalAcknowledgment,
+  customerId,
+  options = {}
+) {
+  const existingClinic = await sql`
+    SELECT * FROM "Clinic" WHERE "email" = ${email} LIMIT 1
+  `;
+  if (existingClinic.length > 0) {
+    return existingClinic[0];
+  }
+
+  const [newClinic] = await sql`
+    INSERT INTO "Clinic" (
+      "email", "name", "phoneNumber", "primaryContact", "streetAddress",
+      "city", "state", "zipCode", "addOns", "hipaaAcknowledgment",
+      "legalAcknowledgment", "customerId"
+    ) VALUES (
+      ${email}, ${name}, ${phoneNumber}, ${primaryContact}, ${streetAddress},
+      ${city}, ${state}, ${zipCode}, ${addOns}, ${hipaaAcknowledgment},
+      ${legalAcknowledgment}, ${customerId}
+    )
+    RETURNING *
+  `;
+
+  return newClinic;
+}
+
+async function getCheckIns() {
+  return await sql`SELECT * FROM "CheckIn"`;
+}
+
+async function getClinicById(id) {
+  const clinic = await sql`SELECT * FROM "Clinic" WHERE "id" = ${id} LIMIT 1`;
+  return clinic[0] || null;
+}
+
+async function getCheckInsbyId(id) {
+  return await sql`SELECT * FROM "CheckIn" WHERE "clinic" = ${id}`;
+}
+
+async function deleteClinic(id) {
+  await sql`DELETE FROM "Clinic" WHERE "id" = ${id}`;
+}
+
+async function getnumcoachesbyId(coachId) {
+  const clients = await sql`SELECT * FROM "Client" WHERE "coachId" = ${coachId}`;
+  return clients;
+}
+
+async function getNumWactiveCount(clinicId) {
+  try {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const result = await sql`
+      SELECT COUNT(*)::int AS "pastWeekCount"
+      FROM "Activity"
+      WHERE "clinicId" = ${clinicId} AND "timeStamp" >= ${oneWeekAgo}
+    `;
+    return result[0]?.pastWeekCount || 0;
+  } catch (error) {
+    console.error('[ActivityStats] Error fetching past week activity count:', error);
+    return 0;
+  }
+}
+
+async function getNumWeeklyActivities() {
+  try {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const result = await sql`
+      SELECT COUNT(*)::int AS "pastWeekCount"
+      FROM "Activity"
+      WHERE "timeStamp" >= ${oneWeekAgo}
+    `;
+
+    return result[0]?.pastWeekCount || 0;
+  } catch (error) {
+    console.error('[ActivityStats] Error fetching past week activity count:', error);
+    return 0;
+  }
+}
+
+async function getRecentactivity(clinicId) {
+  return await sql`
+    SELECT * FROM "Activity"
+    WHERE "clinicId" = ${clinicId}
+    ORDER BY "timeStamp" DESC
+  `;
+}
+
+async function getAllRecentactivity() {
+  return await sql`
+    SELECT * FROM "Activity"
+    ORDER BY "timeStamp" DESC
+  `;
+}
+
+async function fetchRevenueData(clinicId) {
+  try {
+    const revenueData = [];
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleString('default', { month: 'short' });
+
+      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      let query;
+      if (clinicId) {
+        query = sql`
+          SELECT COUNT(*) AS checkInCount, COUNT(DISTINCT "email") AS uniqueClientCount
+          FROM "CheckIn"
+          WHERE "selectedDate" >= ${startDate} AND "selectedDate" <= ${endDate} AND "clinic" = ${clinicId}
+        `;
+      } else {
+        query = sql`
+          SELECT COUNT(*) AS checkInCount, COUNT(DISTINCT "email") AS uniqueClientCount
+          FROM "CheckIn"
+          WHERE "selectedDate" >= ${startDate} AND "selectedDate" <= ${endDate}
+        `;
+      }
+
+      const [result] = await query;
+
+      const revenue = (result?.checkInCount || 0) * 100;
+
+      revenueData.push({
+        month: monthName,
+        revenue,
+        clients: Number(result?.uniqueClientCount || 0),
+      });
+    }
+
+    return revenueData;
+  } catch (error) {
+    console.error('Error fetching revenue data:', error);
+    throw error;
+  }
+}
+
+async function fetchAllRevenueData() {
+  try {
+    const revenueData = [];
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleString('default', { month: 'short' });
+
+      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      const result = await sql`
+        SELECT
+          COUNT(*) AS checkInCount,
+          COUNT(DISTINCT "email") AS uniqueClientCount
+        FROM "CheckIn"
+        WHERE "selectedDate" >= ${startDate} AND "selectedDate" <= ${endDate}
+      `;
+
+      const row = result[0];
+      const revenue = (row?.checkInCount || 0) * 100;
+
+      revenueData.push({
+        month: monthName,
+        revenue,
+        clients: Number(row?.uniqueClientCount || 0),
+      });
+    }
+
+    console.log("revenueData", revenueData);
+    return revenueData;
+  } catch (error) {
+    console.error('Error fetching revenue data:', error);
+    throw error;
+  }
+}
+
+async function fetchsubscriptionData(clinicId) {
+  try {
+    // Fetch clinic
+    const clinics = await sql`SELECT * FROM "Clinic" WHERE "id" = ${clinicId}`;
+    if (clinics.length === 0) return [];
+
+    const clinic = clinics[0];
+
+    // Count unique clients for this clinic
+    const clientCountResult = await sql`
+      SELECT COUNT(DISTINCT "email") AS clientCount
+      FROM "CheckIn"
+      WHERE "clinic" = ${clinicId}
+    `;
+    const clientCount = Number(clientCountResult[0]?.clientCount || 0);
+
+    // Fetch subscription tier for this clinic
+    const subscriptionTiers = await sql`
+      SELECT * FROM "SubscriptionTier" WHERE "clinicId" = ${clinicId} LIMIT 1
+    `;
+    const subscriptionTier = subscriptionTiers[0] || {};
+    const plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);
+    const price = plan?.price || 'N/A';
+
+    return [{
+      id: clinic.id,
+      name: clinic.name,
+      plan: subscriptionTier.planId || 'N/A',
+      price,
+      startDate: subscriptionTier.startDate || 'N/A',
+      clients: clientCount
+    }];
+  } catch (error) {
+    console.error('Error fetching subscription data:', error);
+    throw error;
+  }
+}
+
+async function fetchAllsubscriptionData() {
+  try {
+    const clinics = await sql`SELECT * FROM "Clinic"`;
+
+    const subscriptionData = [];
+
+    for (const clinic of clinics) {
+      const clientCountResult = await sql`
+        SELECT COUNT(DISTINCT "email") AS "clientCount"
+        FROM "CheckIn"
+        WHERE "clinic" = ${clinic.id}
+      `;
+      const clientCount = Number(clientCountResult[0]?.clientCount || 0);
+
+      const subscriptionTiers = await sql`
+        SELECT * FROM "SubscriptionTier" WHERE "clinicId" = ${clinic.id} LIMIT 1
+      `;
+      const subscriptionTier = subscriptionTiers[0] || {};
+      const plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);
+      const price = plan?.price || 'N/A';
+
+      subscriptionData.push({
+        id: clinic.id,
+        name: clinic.name,
+        plan: subscriptionTier.planId || 'N/A',
+        price,
+        startDate: subscriptionTier.startDate || 'N/A',
+        clients: clientCount
+      });
+    }
+
+    return subscriptionData;
+  } catch (error) {
+    console.error('Error fetching subscription data:', error);
+    throw error;
+  }
+}
+
+async function fetchTotalRevenue(clinicId) {
+  try {
+    let result;
+    if (clinicId) {
+      result = await sql`
+        SELECT COUNT(*) AS count FROM "CheckIn" WHERE "clinic" = ${clinicId}
+      `;
+    } else {
+      result = await sql`
+        SELECT COUNT(*) AS count FROM "CheckIn"
+      `;
+    }
+    const count = Number(result[0]?.count || 0);
+    return count * 100;
+  } catch (error) {
+    console.error('Error fetching total revenue:', error);
+    throw error;
+  }
+}
+
+async function fetchAllTotalRevenue() {
+  try {
+    const result = await sql`
+      SELECT COUNT(*) AS count FROM "CheckIn"
+    `;
+    const count = Number(result[0]?.count || 0);
+    return count * 100;
+  } catch (error) {
+    console.error('Error fetching total revenue:', error);
+    throw error;
+  }
+}
+
+async function updateClinic(id, clinic) {
+  const fields = {
+    email: clinic.clinicEmail,
+    name: clinic.clinicName,
+    phoneNumber: clinic.clinicPhone,
+    primaryContact: clinic.primaryContact,
+    streetAddress: clinic.streetAddress,
+    city: clinic.city,
+    state: clinic.state,
+    zipCode: clinic.zipCode,
+    addOns: clinic.addOns,
+    hipaaAcknowledgment: clinic.hipaaAcknowledgment,
+    legalAcknowledgment: clinic.legalAcknowledgment,
+  };
+  const updated = await sql`
+    UPDATE "Clinic"
+    SET
+    "email" = ${fields.email},
+    "name" = ${fields.name},
+    "phoneNumber" = ${fields.phoneNumber},
+    "primaryContact" = ${fields.primaryContact},
+    "streetAddress" = ${fields.streetAddress},
+    "city" = ${fields.city},
+    "state" = ${fields.state},
+    "zipCode" = ${fields.zipCode},
+    "addOns" = ${fields.addOns},
+    "hipaaAcknowledgment" = ${fields.hipaaAcknowledgment},
+    "legalAcknowledgment" = ${fields.legalAcknowledgment}
+    WHERE "id" = ${id}
+    RETURNING *
+  `;
+
+  return updated[0] || null;
+}
+
+async function updateClinicSubscription(id, subscriptionTier) {
+  const updated = await sql`
+    UPDATE "Clinic"
+    SET "subscriptionTier" = ${subscriptionTier}
+    WHERE "id" = ${id}
+    RETURNING *
+  `;
+  return updated[0] || null;
+}
+
+async function getClinicByEmail(email) {
+  const clinic = await sql`
+    SELECT * FROM "Clinic" WHERE "email" = ${email} LIMIT 1
+  `;
+  return clinic[0] || null;
+}
+
 
 export const clinicRepo = {
   createClinic,
@@ -23,415 +378,3 @@ export const clinicRepo = {
   getClinicByEmail,
   updateClinicSubscription
 };
-
-async function createClinic(
-  email,
-  name,
-  phoneNumber,
-  primaryContact,
-  streetAddress,
-  city,
-  state,
-  zipCode,
-  addOns,
-  hipaaAcknowledgment,
-  legalAcknowledgment,
-  customerId,
-  options = {}
-) {
-  const existingClinic = await db.Clinic.findOne({ email });
-  if (existingClinic) {
-    return existingClinic;
-  }
-  console.log("customerId", customerId);
-  const newClinic = await db.Clinic.create([{
-    email,
-    name,
-    phoneNumber,
-    primaryContact,
-    streetAddress,
-    city,
-    state,
-    zipCode,
-    addOns,
-    hipaaAcknowledgment,
-    legalAcknowledgment,
-    customerId
-  }], options);
-  return newClinic[0];
-}
-
-async function getCheckIns() {
-  const checkIns = await db.CheckIn.find();
-  return checkIns;
-}
-
-async function getClinicById(id) {
-  const clinic = await db.Clinic.findById(id);
-  return clinic;
-}
-async function getCheckInsbyId(id) {
-  const checkIns = await db.CheckIn.find({ clinic: id });
-  return checkIns;
-}
-async function deleteClinic(id) {
-  await db.Clinic.findByIdAndDelete(id);
-}
-
-async function getnumcoachesbyId(coachId) {
-  const clients = await db.Client.find({ coachId: coachId });
-  return clients;
-}
-
-async function getNumWactiveCount(clinicId) {
-  try {
-    // Calculate the date for 7 days ago
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-    const result = await db.Activity.aggregate([
-      // Match activities for this clinic within the past week
-      {
-        $match: {
-          clinicId: new mongoose.Types.ObjectId(clinicId),
-          timeStamp: { $gte: oneWeekAgo }
-        }
-      },
-      // Count the activities
-      {
-        $count: "pastWeekCount"
-      }
-    ]);
-    console.log("result", result);
-    // Return the count or 0 if no results
-    return result.length > 0 ? result[0].pastWeekCount : 0;
-  } catch (error) {
-    console.error('[ActivityStats] Error fetching past week activity count:', error);
-    return 0;
-  }
-}
-
-async function getNumWeeklyActivities() {
-  try {
-    // Calculate the date for 7 days ago
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-    const result = await db.Activity.aggregate([
-      // Match activities for this clinic within the past week
-      {
-        $match: {
-          timeStamp: { $gte: oneWeekAgo }
-        }
-      },
-      // Count the activities
-      {
-        $count: "pastWeekCount"
-      }
-    ]);
-    console.log("result", result);
-    // Return the count or 0 if no results
-    return result.length > 0 ? result[0].pastWeekCount : 0;
-  } catch (error) {
-    console.error('[ActivityStats] Error fetching past week activity count:', error);
-    return 0;
-  }
-}
-async function getRecentactivity(clinicId) {
-  const recentActivity = await db.Activity.find({ clinicId: clinicId }).sort({ timeStamp: -1 });;
-  return recentActivity;
-}
-
-async function getAllRecentactivity() {
-  const recentActivity = await db.Activity.find().sort({ timeStamp: -1 });;
-  return recentActivity;
-}
-
-async function fetchRevenueData(clinicId) {
-  try {
-
-    // Calculate date ranges for the last 6 months
-    const months = [];
-    const revenueData = [];
-
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-
-      const monthName = date.toLocaleString('default', { month: 'short' });
-      months.push(monthName);
-
-      // Calculate start and end dates for the month
-      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-
-      // Build the query
-      const query = {
-        selectedDate: {
-          $gte: startDate,
-          $lte: endDate
-        }
-      };
-
-      // Add clinic filter if provided
-      if (clinicId) {
-        query.clinic = new mongoose.Types.ObjectId(clinicId);
-      }
-
-      // Execute aggregation to get check-in count and unique clients
-      const result = await db.CheckIn.aggregate([
-        // Match check-ins for the current month
-        { $match: query },
-
-        // Group by month to calculate metrics
-        {
-          $group: {
-            _id: null,
-            checkInCount: { $sum: 1 },
-            uniqueClients: { $addToSet: "$email" }
-          }
-        },
-
-        // Project the final format
-        {
-          $project: {
-            _id: 0,
-            checkInCount: 1,
-            uniqueClientCount: { $size: "$uniqueClients" }
-          }
-        }
-      ]);
-
-
-
-      // Calculate revenue (assuming $100 per check-in)
-      const monthData = result.length > 0 ? result[0] : { checkInCount: 0, uniqueClientCount: 0 };
-      const revenue = monthData.checkInCount * 100;
-
-      revenueData.push({
-        month: monthName,
-        revenue: revenue,
-        clients: monthData.uniqueClientCount
-      });
-    }
-
-    return revenueData;
-  } catch (error) {
-    console.error('Error fetching revenue data:', error);
-    throw error;
-  }
-}
-
-
-async function fetchAllRevenueData() {
-  try {
-
-    // Calculate date ranges for the last 6 months
-    const months = [];
-    const revenueData = [];
-
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-
-      const monthName = date.toLocaleString('default', { month: 'short' });
-      months.push(monthName);
-
-      // Calculate start and end dates for the month
-      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
-
-      // Build the query
-      const query = {
-        selectedDate: {
-          $gte: startDate,
-          $lte: endDate
-        }
-      };
-
-
-      // Execute aggregation to get check-in count and unique clients
-      const result = await db.CheckIn.aggregate([
-        // Match check-ins for the current month
-        { $match: query },
-
-        // Group by month to calculate metrics
-        {
-          $group: {
-            _id: null,
-            checkInCount: { $sum: 1 },
-            uniqueClients: { $addToSet: "$email" }
-          }
-        },
-
-        // Project the final format
-        {
-          $project: {
-            _id: 0,
-            checkInCount: 1,
-            uniqueClientCount: { $size: "$uniqueClients" }
-          }
-        }
-      ]);
-
-      // Calculate revenue (assuming $100 per check-in)
-      const monthData = result.length > 0 ? result[0] : { checkInCount: 0, uniqueClientCount: 0 };
-      const revenue = monthData.checkInCount * 100;
-
-      revenueData.push({
-        month: monthName,
-        revenue: revenue,
-        clients: monthData.uniqueClientCount
-      });
-    }
-    console.log("revenueData", revenueData);
-    return revenueData;
-  } catch (error) {
-    console.error('Error fetching revenue data:', error);
-    throw error;
-  }
-}
-
-async function fetchsubscriptionData(clinicId) {
-  try {
-    // Build the query for clinics
-    const clinicQuery = {};
-    if (clinicId) {
-      clinicQuery._id = new mongoose.Types.ObjectId(clinicId);
-    }
-
-    // Fetch clinics
-    const clinics = await db.Clinic.find(clinicQuery).lean();
-
-    // Process each clinic to get subscription data
-    const subscriptionData = [];
-
-    for (const clinic of clinics) {
-      // Count unique clients for this clinic
-      const clientCount = await db.CheckIn.distinct('email', {
-        clinic: new mongoose.Types.ObjectId(clinic._id)
-      }).then(emails => emails.length);
-
-      const subscriptionTier = await db.SubscriptionTier.findOne({ clinicId: clinic._id });
-      const price = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId).price;
-      // Add to subscription data array
-      subscriptionData.push({
-        id: clinic._id.toString(),
-        name: clinic.name,
-        plan: subscriptionTier.planId || 'N/A',
-        price: price || 'N/A',
-        startDate: subscriptionTier.startDate || 'N/A',
-        clients: clientCount
-      });
-    }
-
-    return subscriptionData;
-  } catch (error) {
-    console.error('Error fetching subscription data:', error);
-    throw error;
-  }
-}
-
-async function fetchAllsubscriptionData() {
-  try {
-    // Build the query for clinics
-    const clinicQuery = {};
-
-    // Fetch clinics
-    const clinics = await db.Clinic.find(clinicQuery).lean();
-
-    // Process each clinic to get subscription data
-    const subscriptionData = [];
-
-    for (const clinic of clinics) {
-      // Count unique clients for this clinic
-      const clientCount = await db.CheckIn.distinct('email', {
-        clinic: new mongoose.Types.ObjectId(clinic._id)
-      }).then(emails => emails.length);
-
-      const subscriptionTier = await db.SubscriptionTier.findOne({ clinicId: clinic._id });
-      const price = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId).price;
-      // Add to subscription data array
-      subscriptionData.push({
-        id: clinic._id.toString(),
-        name: clinic.name,
-        plan: subscriptionTier.planId || 'N/A',
-        price: price || 'N/A',
-        startDate: subscriptionTier.startDate || 'N/A',
-        clients: clientCount
-      });
-    }
-
-    return subscriptionData;
-  } catch (error) {
-    console.error('Error fetching subscription data:', error);
-    throw error;
-  }
-}
-
-async function fetchTotalRevenue(clinicId) {
-  try {
-    // Build the query
-    const query = {};
-
-    // Add clinic filter if provided
-    if (clinicId) {
-      query.clinic = new mongoose.Types.ObjectId(clinicId);
-    }
-
-    // Count check-ins
-    const count = await db.CheckIn.countDocuments(query);
-
-    // Calculate revenue (assuming $100 per check-in)
-    return count * 100;
-  } catch (error) {
-    console.error('Error fetching total revenue:', error);
-    throw error;
-  }
-}
-
-async function fetchAllTotalRevenue() {
-  try {
-    const count = await db.CheckIn.find();
-    return count.length * 100;
-  } catch (error) {
-    console.error('Error fetching total revenue:', error);
-    throw error;
-  }
-}
-
-async function updateClinic(id, clinic) {
-  const updatedClinic = await db.Clinic.findByIdAndUpdate(
-    id,
-    {
-      email: clinic.clinicEmail,
-      name: clinic.clinicName,
-      phoneNumber: clinic.clinicPhone,
-      primaryContact: clinic.primaryContact,
-      streetAddress: clinic.streetAddress,
-      city: clinic.city,
-      state: clinic.state,
-      zipCode: clinic.zipCode,
-      addOns: clinic.addOns,
-      hipaaAcknowledgment: clinic.hipaaAcknowledgment,
-      legalAcknowledgment: clinic.legalAcknowledgment,
-      subscriptionTier: clinic.subscriptionTier
-    },
-    { new: true }
-  );
-  return updatedClinic;
-}
-
-async function updateClinicSubscription(id, subscriptionTier) {
-  const updatedClinic = await db.Clinic.findByIdAndUpdate(
-    id,
-    { subscriptionTier: subscriptionTier },
-    { new: true }
-  );
-  return updatedClinic;
-}
-
-async function getClinicByEmail(email) {
-  const clinic = await db.Clinic.findOne({ email: email });
-  return clinic;
-}

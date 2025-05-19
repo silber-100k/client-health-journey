@@ -15,6 +15,6 @@ export async function POST(request) {
         return Response.json({ success: false, message: "Invalid current password" });
     }
 
-    await userRepo.resetPassword(user._id, newPassword);
+    await userRepo.resetPassword(user.id, newPassword);
     return NextResponse.json({ success: true, message: "Password updated successfully" });
 }

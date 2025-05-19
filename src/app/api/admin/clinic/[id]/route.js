@@ -5,11 +5,13 @@ import { userRepo } from "@/app/lib/db/userRepo";
 export async function PUT(request, { params }) {
     const { id } = params;
     const clinic = await request.json();
+            console.log(id,clinic)
     try {
         const updatedClinic = await clinicRepo.updateClinic(id, clinic);
+
         const clinicAdmin = await userRepo.getClinicAdmin(id);
         await userRepo.updateAdminUser(
-            clinicAdmin._id,
+            clinicAdmin.id,
             clinic.primaryContact,
             clinic.email,
             clinic.clinicPhone,
@@ -26,10 +28,10 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
     const { id } = params;
     const clinic = await request.json();
-    console.log("clinic", clinic);
-    try {
-        await clinicRepo.deleteClinic(id);
+    try {        
         await userRepo.deleteClinicMembers(id);
+        await clinicRepo.deleteClinic(id);
+
         return NextResponse.json({ success: true, message: "Clinic deleted successfully"});
     } catch (error) {
         console.error(error);
@@ -41,7 +43,7 @@ export async function PATCH(request, { params }) {
     const { id } = params;
     try {
         const clinicAdmin = await userRepo.getClinicAdmin(id);
-        await userRepo.resetPassword(clinicAdmin._id, "password123");
+        await userRepo.resetPassword(clinicAdmin.id, "password123");
         return NextResponse.json({ success: true, message: "Clinic password reset successfully" });
     } catch (error) {
         console.error(error);

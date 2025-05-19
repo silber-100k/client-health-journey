@@ -31,6 +31,7 @@ const ClientFormFields = ({
 }) => {
   const { user } = useAuth();
   const isCoach = user?.role == "coach";
+
   return (
     <div className="space-y-3">
       <FormField
@@ -186,12 +187,12 @@ const ClientFormFields = ({
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="none">No coach</SelectItem>
-                  <SelectItem value={user?._id}>
+                  <SelectItem value={user?.id}>
                     {user.name}({user.email})
                   </SelectItem>
                   {coaches && coaches.length > 0 ? (
                     coaches.map((coach) => (
-                      <SelectItem key={coach._id} value={coach._id}>
+                      <SelectItem key={coach.id} value={coach.id}>
                         {coach.name} ({coach.email})
                       </SelectItem>
                     ))
@@ -241,7 +242,7 @@ const ClientFormFields = ({
                 <SelectItem value="no-program">No program</SelectItem>
                 {programs && programs.length > 0 ? (
                   programs.map((program) => (
-                    <SelectItem key={program._id} value={program._id}>
+                    <SelectItem key={program.id} value={program.id}>
                       {program.name} ({program.type}) - {program.duration} days
                       {program.isGlobal && (
                         <span className="ml-2 inline-flex items-center">

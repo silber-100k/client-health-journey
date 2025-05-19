@@ -20,7 +20,7 @@ export async function GET() {
     if (user.role !== "clinic_admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const clinicId = user.clinic._id;
+    const clinicId = user.clinic;
     const clients = await clientRepo.getclientsbyclinicId(clinicId);
     return NextResponse.json({ status: true, clients });
   } catch (error) {
@@ -43,7 +43,7 @@ export async function POST(request) {
     if (user.role !== "clinic_admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    let clinic = user.clinic._id;
+    let clinic = user.clinic;
 
     let { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals } = await request.json();
     // programId = new mongoose.Types.ObjectId(programId);

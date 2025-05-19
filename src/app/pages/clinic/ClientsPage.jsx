@@ -15,7 +15,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Label } from "../../components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { useClinic } from "@/app/context/ClinicContext";
 import { useRouter } from "next/navigation";
 
@@ -28,25 +34,36 @@ const ClientsPage = () => {
   const isCoach = false;
   const [currentCoach, setCurrentCoach] = useState("");
   const { user } = useAuth();
+  console.log(clientLimit)
   const { clientLimit } = useClinic();
   const router = useRouter();
 
   const handleAddlclientdialogue = () => {
-    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clients.length)) {
+    if (
+      clientLimit !== false &&
+      (clientLimit === 0 || clientLimit <= clients.length)
+    ) {
       toast.custom(() => (
         <Alert>
-          <AlertTitle>You have reached the maximum number of clients</AlertTitle>
+          <AlertTitle>
+            You have reached the maximum number of clients
+          </AlertTitle>
           <AlertDescription>
-            You have reached the maximum number of clients for your plan. Please upgrade to a higher plan to add more clients.
+            You have reached the maximum number of clients for your plan. Please
+            upgrade to a higher plan to add more clients.
           </AlertDescription>
-          <Button variant="outline" onClick={() => router.push("/clinic/settings")}>Upgrade</Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/clinic/settings")}
+          >
+            Upgrade
+          </Button>
         </Alert>
       ));
       return;
     }
     setIsAddClientDialogOpen(true);
   };
-
   const handlechange = (e) => {
     setCurrentCoach(e);
     if (e === "all") {
@@ -129,7 +146,7 @@ const ClientsPage = () => {
         <AlertDescription>
           You are viewing all clients for {user?.name || "your clinic"}. This
           includes clients assigned to all coaches in your clinic.
-          {/* Your clinic ID is: {user?.clinic._id || "unknown"} */}
+          {/* Your clinic ID is: {user?.clinic.id || "unknown"} */}
         </AlertDescription>
       </Alert>
 
@@ -139,8 +156,8 @@ const ClientsPage = () => {
             {isCoach
               ? "Your Clients"
               : isClinicAdmin
-                ? `${user?.name || "Clinic"} Clients`
-                : "All Clients"}
+              ? `${user?.name || "Clinic"} Clients`
+              : "All Clients"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -159,9 +176,9 @@ const ClientsPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
-                <SelectItem value={user?._id}>{user?.name}</SelectItem>
+                <SelectItem value={user?.id}>{user?.name}</SelectItem>
                 {coaches?.map((coach, index) => (
-                  <SelectItem value={coach._id} key={index}>
+                  <SelectItem value={coach.id} key={index}>
                     {coach.name}
                   </SelectItem>
                 ))}

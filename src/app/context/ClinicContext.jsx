@@ -24,7 +24,7 @@ export const ClinicProvider = ({ children }) => {
     }
 
     if (user?.clinic) {
-      fetchClinic(user.clinic._id);
+      fetchClinic(user.clinic);
     }
   }, [user]);
 

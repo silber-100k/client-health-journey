@@ -100,7 +100,7 @@ const ProgramsPage = () => {
         <EditTemplateDialogue
           open={showEditDialogue}
           setOpen={setEditDialogue}
-          tempId={selectedTemplate?._id}
+          tempId={selectedTemplate?.id}
           fetchTemplates={fetchTemplates}
         />
 

@@ -117,8 +117,7 @@ const AdminDashboard = () => {
     fetchweeklyActivitiesCount();
     fetchrecentActivities();
   }, []);
-
-
+  
   const handleRefresh = () => {
     fetchClinics();
     fetchTotalClinics();

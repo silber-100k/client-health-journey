@@ -19,6 +19,7 @@ import {
 import { Banknote, Activity, TrendingUp, Users } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
 
 const ReportsPage = () => {
   const { user } = useAuth();
@@ -152,7 +153,7 @@ const ReportsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {subscriptionData.length}
+              {subscriptionData?.length}
             </div>
           </CardContent>
         </Card>
@@ -239,7 +240,7 @@ const ReportsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {subscriptionData.map((sub) => (
+                {subscriptionData?.map((sub) => (
                   <tr key={sub.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">{sub.name}</td>
                     <td className="py-3 px-4">

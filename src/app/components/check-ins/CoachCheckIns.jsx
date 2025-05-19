@@ -28,7 +28,7 @@ const CoachCheckIns = () => {
       try {
         const response = await fetch("/api/coach/checkIn", {
           method: "POST",
-          body: JSON.stringify({ id: user._id }),
+          body: JSON.stringify({ id: user.id }),
         });
         const data = await response.json();
         if (data.status) {

@@ -37,6 +37,8 @@ const formSchema = z.object({
   full_name: z
     .string()
     .min(3, { message: "Full name must be at least 3 characters" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  phone: z.string().min(1, { message: "Invalid phone number" }),
   role: z.string(),
   is_active: z.boolean(),
 });
@@ -50,11 +52,12 @@ export function EditAdminUserDialog({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       full_name: "",
+      email: "",
+      phone: "",
       role: "admin",
       is_active: true,
     },
@@ -71,6 +74,8 @@ export function EditAdminUserDialog({
             form.reset({
               full_name: data.user.name,
               role: data.user.role,
+              email: data.user.email,
+              phone: data.user.phone,
               is_active: data.user.isActive,
             });
             setErrorMessage(null);
@@ -144,6 +149,32 @@ export function EditAdminUserDialog({
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>PhoneNumber</FormLabel>
+                    <FormControl>
+                      <Input placeholder="phone number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

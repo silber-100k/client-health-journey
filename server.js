@@ -56,24 +56,36 @@ app.prepare().then(() => {
     })
 
     socket.on('messages_viewed', async ({ messageIds, viewerEmail }) => {
-      // Update all messages to 'delivered' where _id in messageIds and receiver = viewerId
-      await db.Message.updateMany(
-        { id: { $in: messageIds }, receiver: viewerEmail, status: 'sent' },
-        { $set: { status: 'delivered' } }
-      );
+      try {
+        // 1. Update messages status to 'delivered'
+        await sql`
+          UPDATE "Message"
+          SET status = 'delivered'
+          WHERE id = ANY(${messageIds}) 
+            AND receiver = ${viewerEmail}
+            AND status = 'sent'
+        `;
 
-      // Notify senders about delivery update
-      const updatedMessages = await db.Message.find({ id: { $in: messageIds } });
-      updatedMessages.forEach(msg => {
-        const receiver = onlineUsers.find(user => user.email === msg.sender)
-        if (receiver) {
-          socket.to(receiver.socketId).emit('message-status', {
-            messageId: msg.id,
-            status: 'delivered',
-          });
-        }
-      });
+        // 2. Fetch updated messages
+        const updatedMessages = await sql`
+          SELECT id, sender FROM "Message" WHERE id = ANY(${messageIds})
+        `;
+
+        // 3. Notify senders about delivery update
+        updatedMessages.forEach(msg => {
+          const receiver = onlineUsers.find(user => user.email === msg.sender);
+          if (receiver) {
+            socket.to(receiver.socketId).emit('message-status', {
+              messageId: msg.id,
+              status: 'delivered',
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Error updating message status:', error);
+      }
     });
+
 
     socket.on('disconnect', () => {
 

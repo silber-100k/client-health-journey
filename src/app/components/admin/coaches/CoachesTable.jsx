@@ -30,7 +30,6 @@ const CoachesTable = ({
     ...coachWithClinic,
     clinic_id: coachWithClinic.clinicId,
   });
-
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -47,7 +46,7 @@ const CoachesTable = ({
         <TableBody>
           {coaches && coaches.length > 0 ? (
             coaches.map((coach, index) => (
-              <TableRow key={coach._id || index} className="hover:bg-gray-50">
+              <TableRow key={coach.id || index} className="hover:bg-gray-50">
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-8 w-8 rounded-full flex items-center justify-center">

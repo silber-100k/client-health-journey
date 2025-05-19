@@ -11,7 +11,8 @@ import { toast } from "sonner";
 const ClinicsPage = () => {
   const [isAddClinicDialogOpen, setIsAddClinicDialogOpen] = useState(false);
   const [isEditClinicDialogOpen, setIsEditClinicDialogOpen] = useState(false);
-  const [isDeleteClinicDialogOpen, setIsDeleteClinicDialogOpen] = useState(false);
+  const [isDeleteClinicDialogOpen, setIsDeleteClinicDialogOpen] =
+    useState(false);
   const [isResetPwdDialogOpen, setIsResetPwdDialogOpen] = useState(false);
   const { user } = useAuth();
   const [clinics, setClinics] = useState([]);
@@ -33,7 +34,7 @@ const ClinicsPage = () => {
   useEffect(() => {
     fetchClinics();
   }, []);
-  
+  console.log(selectedClinic);
   const handleAddlclinicdialogue = () => {
     setIsAddClinicDialogOpen(true);
   };

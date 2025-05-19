@@ -40,6 +40,7 @@ const formSchema = z.object({
   fullName: z
     .string()
     .min(3, { message: "Full name must be at least 3 characters" }),
+  phone: z.string().min(1, { message: "Invalid phone number" }),
   role: z.string().default("admin"),
   clinicId: z.string().optional(),
 });
@@ -58,16 +59,19 @@ export function AddAdminUserDialog({
       email: "",
       password: "",
       fullName: "",
+      phone: "",
       role: "admin",
-      clinicId: undefined,
+      clinicId: "111",
     },
   });
   const onSubmit = async () => {
+    let submitData = form.getValues();
+    submitData = { ...submitData, clinicId: null };
     setIsLoading(true);
     try {
       const response = await fetch("/api/admin", {
         method: "POST",
-        body: JSON.stringify(form.getValues()),
+        body: JSON.stringify(submitData),
       });
       const data = await response.json();
       if (data.status) {
@@ -86,37 +90,6 @@ export function AddAdminUserDialog({
       setIsLoading(false);
     }
   };
-
-  const clinics = [
-    {
-      id: "1",
-      name: "a",
-      coaches: 4,
-      clients: 2,
-      city: "asdfasdf",
-      state: "new york",
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "awe",
-      coaches: 3,
-      clients: 6,
-      city: "asdfasddf",
-      state: "neork",
-      status: "pending",
-    },
-    {
-      id: "3",
-      name: "ag",
-      coaches: 24,
-      clients: 22,
-      city: "asasdfdfasdf",
-      state: "new dsfyork",
-      status: "inactive",
-    },
-  ];
-
   return (
     <Dialog
       open={open}
@@ -183,6 +156,19 @@ export function AddAdminUserDialog({
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>PhoneNumber</FormLabel>
+                  <FormControl>
+                    <Input placeholder="phone number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

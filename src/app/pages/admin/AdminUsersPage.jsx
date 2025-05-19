@@ -28,6 +28,7 @@ import { AddAdminUserDialog } from "../../components/admin/AddAdminUserDialog";
 import { EditAdminUserDialog } from "../../components/admin/EditAdminUserDialog";
 import ConfirmationDialog from "../../components/admin/ConfirmationDialog";
 import { Badge } from "../../components/ui/badge";
+import { useAuth } from "@/app/context/AuthContext";
 
 const AdminUsersPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -35,13 +36,7 @@ const AdminUsersPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromoteDialogOpen, setIsPromoteDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(undefined);
-  const user = {
-    _id: "",
-    name: "okay",
-    email: "steven@gmail.com",
-    role: "admin",
-    phone: "123-123-123",
-  };
+  const {user} = useAuth();
   const isSuperAdmin = user?.role === "super_admin";
   const [isError, setIsError] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -51,12 +46,12 @@ const AdminUsersPage = () => {
     setIsAddDialogOpen(true);
   };
   const handleEdit = (user) => {
-    setSelectedUserId(user._id);
+    setSelectedUserId(user.id);
     setIsEditDialogOpen(true);
   };
 
   const handleDelete = (user) => {
-    setSelectedUserId(user._id);
+    setSelectedUserId(user.id);
     setIsDeleteDialogOpen(true);
   };
 
@@ -162,7 +157,7 @@ const AdminUsersPage = () => {
                 </TableRow>
               ) : (
                 adminUsers?.map((user) => (
-                  <TableRow key={user._id}>
+                  <TableRow key={user.id}>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>

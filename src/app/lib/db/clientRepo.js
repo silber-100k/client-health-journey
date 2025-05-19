@@ -1,82 +1,88 @@
-import db from "./index";
-import mongoose, { Schema } from "mongoose";
+import postgres from 'postgres';
+
+const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 async function getClients() {
-  const clients = await db.Client.find();
+  const clients = await sql`SELECT * FROM "Client"`;
   return clients;
 }
+
 async function getclientsbyclinicId(clinicId) {
-  const clients = await db.Client.find({ clinic: clinicId });
+  const clients = await sql`
+    SELECT * FROM "Client" WHERE "clinic" = ${clinicId}
+  `;
   return clients;
 }
 
 async function getnumclientsbyId(coachId) {
-  const getNum = await db.Client.find({ coachId: coachId });
-  return getNum.length;
+  const result = await sql`
+    SELECT COUNT(*)::int AS count FROM "Client" WHERE "coachId" = ${coachId}
+  `;
+  return result[0]?.count || 0;
 }
 
 async function getnumclientsbyClinicId(clinicId) {
-  const getNum = await db.Client.find({ clinic: clinicId });
-  return getNum.length;
+  const result = await sql`
+    SELECT COUNT(*)::int AS count FROM "Client" WHERE "clinic" = ${clinicId}
+  `;
+  return result[0]?.count || 0;
 }
 
 async function getnumprojectsbyId(coachId) {
-  const result = await db.Client.aggregate([
-    {
-      $match: { coachId: new mongoose.Types.ObjectId(coachId) }
-    },
-    {
-      $group: {
-        _id: "$programId"
-      }
-    },
-    {
-      $count: "uniquePrograms"
-    }
-  ]);
-
-  return result.length > 0 ? result[0].uniquePrograms : 0;
+  const result = await sql`
+    SELECT COUNT(DISTINCT "programId")::int AS "uniquePrograms"
+    FROM "Client"
+    WHERE "coachId" = ${coachId}
+  `;
+  return result[0]?.uniquePrograms || 0;
 }
 
-async function createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals) {
-  const existingClient = await db.Client.findOne({ email });
-  if (existingClient) {
-    return existingClient;
+async function createClient(
+  name,
+  email,
+  phone,
+  programId,
+  programCategory,
+  startDate,
+  notes,
+  coachId,
+  clinic,
+  weightDate,
+  initialWeight,
+  goals
+) {
+  // Check if client exists
+  const existingClient = await sql`
+    SELECT * FROM "Client" WHERE "email" = ${email} LIMIT 1
+  `;
+
+  if (existingClient.length > 0) {
+    return existingClient[0];
   }
 
-  const client = await db.Client.create([{
-    name,
-    email,
-    phone,
-    programId,
-    programCategory,
-    startDate,
-    notes,
-    coachId,
-    clinic,
-    weightDate,
-    initialWeight,
-    goals
-  }]);
+  // Insert new client
+  const [client] = await sql`
+    INSERT INTO "Client" (
+      "name", "email", "phone", "programId", "programCategory", "startDate", "notes",
+      "coachId", "clinic", "weightDate", "initialWeight", "goals"
+    ) VALUES (
+      ${name}, ${email}, ${phone}, ${programId}, ${programCategory}, ${startDate}, ${notes},
+      ${coachId}, ${clinic}, ${weightDate}, ${initialWeight}, ${goals}
+    )
+    RETURNING *
+  `;
 
-  return client[0];
+  return client;
 }
 
 async function getProgressdata(email) {
-
-  const process = await db.CheckIn.find(
-    { email: email }, // filter by email
-    {
-      selectedDate: 1,
-      weight: 1,
-      waist: 1,
-      energyLevel: 1,
-      moodLevel: 1,
-      sleepHours: 1,
-      _id: 0 // exclude _id if you want
-    }
-  )
-  return process;
+  const progress = await sql`
+    SELECT 
+      "selectedDate", "weight", "waist", "energyLevel", "moodLevel", "sleepHours"
+    FROM "CheckIn"
+    WHERE "email" = ${email}
+  `;
+  return progress;
 }
 
 async function createCheckIn(
@@ -117,164 +123,92 @@ async function createCheckIn(
   supplements,
   notes
 ) {
-  console.log("oaky", weight)
-  const checkin = await db.CheckIn.create([{
-    name,
-    email,
-    coachId,
-    clinic,
-    selectedDate,
-    weight,
-    waist,
-    waterIntake,
-    energyLevel,
-    moodLevel,
-    exerciseType,
-    exercise,
-    exerciseTime,
-    sleepHours,
-    breakfastProtein,
-    breakfastProteinPortion,
-    breakfastFruit,
-    breakfastFruitPortion,
-    breakfastVegetable,
-    breakfastVegetablePortion,
-    lunchProtein,
-    lunchProteinPortion,
-    lunchFruit,
-    lunchFruitPortion,
-    lunchVegetable,
-    lunchVegetablePortion,
-    dinnerProtein,
-    dinnerProteinPortion,
-    dinnerFruit,
-    dinnerFruitPortion,
-    dinnerVegetable,
-    dinnerVegetablePortion,
-    snacks,
-    snackPortion,
-    supplements,
-    notes
-  }]);
-  return checkin[0];
+  const [checkin] = await sql`
+    INSERT INTO "CheckIn" (
+      "name", "email", "coachId", "clinic", "selectedDate", "weight", "waist", "waterIntake",
+      "energyLevel", "moodLevel", "exerciseType", "exercise", "exerciseTime", "sleepHours",
+      "breakfastProtein", "breakfastProteinPortion", "breakfastFruit", "breakfastFruitPortion",
+      "breakfastVegetable", "breakfastVegetablePortion", "lunchProtein", "lunchProteinPortion",
+      "lunchFruit", "lunchFruitPortion", "lunchVegetable", "lunchVegetablePortion",
+      "dinnerProtein", "dinnerProteinPortion", "dinnerFruit", "dinnerFruitPortion",
+      "dinnerVegetable", "dinnerVegetablePortion", "snacks", "snackPortion", "supplements", "notes"
+    ) VALUES (
+      ${name}, ${email}, ${coachId}, ${clinic}, ${selectedDate}, ${weight}, ${waist}, ${waterIntake},
+      ${energyLevel}, ${moodLevel}, ${exerciseType}, ${exercise}, ${exerciseTime}, ${sleepHours},
+      ${breakfastProtein}, ${breakfastProteinPortion}, ${breakfastFruit}, ${breakfastFruitPortion},
+      ${breakfastVegetable}, ${breakfastVegetablePortion}, ${lunchProtein}, ${lunchProteinPortion},
+      ${lunchFruit}, ${lunchFruitPortion}, ${lunchVegetable}, ${lunchVegetablePortion},
+      ${dinnerProtein}, ${dinnerProteinPortion}, ${dinnerFruit}, ${dinnerFruitPortion},
+      ${dinnerVegetable}, ${dinnerVegetablePortion}, ${snacks}, ${snackPortion}, ${supplements}, ${notes}
+    )
+    RETURNING *
+  `;
+  return checkin;
 }
 
 async function getCheckInsbyId(id) {
-  const chechIns = await db.CheckIn.find({ coachId: id });
-  return chechIns;
+  const checkIns = await sql`
+    SELECT * FROM "CheckIn" WHERE "coachId" = ${id}
+  `;
+  return checkIns;
 }
 
 async function getnumCheckInbyId(id) {
-  const checkIns = await db.CheckIn.find({ coachId: id });
-  return checkIns.length;
+  const result = await sql`
+    SELECT COUNT(*)::int AS count FROM "CheckIn" WHERE "coachId" = ${id}
+  `;
+  return result[0]?.count || 0;
 }
 
 async function getActiveClients(id) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const result = await db.CheckIn.aggregate([
-    {
-      $match: {
-        "coachId": new mongoose.Types.ObjectId(id),
-        "selectedDate": { $gte: thirtyDaysAgo }
-      }
-    },
-    {
-      $group: {
-        _id: "$email" // Group by email to get unique clients
-      }
-    },
-    {
-      $count: "activeClients" // Count the unique emails
-    }
-  ]);
-  console.log("result", result);
-  return result.length > 0 ? result[0].activeClients : 0;
+  const result = await sql`
+    SELECT COUNT(DISTINCT "email")::int AS "activeClients"
+    FROM "CheckIn"
+    WHERE "coachId" = ${id} AND "selectedDate" >= ${thirtyDaysAgo}
+  `;
+  return result[0]?.activeClients || 0;
 }
 
 async function getCheckIns(id) {
-  const checkIns = await db.CheckIn.find({ coachId: id });
-  console.log("checkIns", checkIns.length);
-  return checkIns.length;
+  const result = await sql`
+    SELECT COUNT(*)::int AS count FROM "CheckIn" WHERE "coachId" = ${id}
+  `;
+  return result[0]?.count || 0;
 }
 
-async function gethistoricalData(id) {
+async function gethistoricalData(coachId) {
   try {
+    // Calculate date 6 months ago
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const clients = await db.Client.find(
-      { coachId: id },
-      { email: 1, _id: 0 }
-    );
 
-    // Extract just the email addresses
-    const emails = clients.map(client => client.email);
+    // Step 1: Get emails of clients for this coach
+    const clients = await sql`
+      SELECT "email" FROM "Client" WHERE "coachId" = ${coachId}
+    `;
+    const emails = clients.map(c => c.email);
 
-    // Use aggregation pipeline to process data on the server
-    // Remove the .toArray() call since Mongoose aggregate() already returns an array
-    const result = await db.CheckIn.aggregate([
-      // Match check-ins for this coach's clients in the last 6 months
-      {
-        $match: {
-          email: { $in: emails },
-          selectedDate: { $gte: sixMonthsAgo }
-        }
-      },
-      // Add month fields for grouping and sorting
-      {
-        $addFields: {
-          month: { $dateToString: { format: "%b", date: "$selectedDate" } },
-          monthNum: { $month: "$selectedDate" }
-        }
-      },
-      // Group by month
-      {
-        $group: {
-          _id: {
-            month: "$month",
-            monthNum: "$monthNum"
-          },
-          checkIns: { $sum: 1 },
-          totalWeight: {
-            $sum: {
-              $cond: [{ $ne: ["$weight", null] }, "$weight", 0]
-            }
-          },
-          weightCount: {
-            $sum: {
-              $cond: [{ $ne: ["$weight", null] }, 1, 0]
-            }
-          }
-        }
-      },
-      // Calculate average weight
-      {
-        $project: {
-          _id: 0,
-          month: "$_id.month",
-          monthNum: "$_id.monthNum",
-          checkIns: 1,
-          avgWeight: {
-            $cond: [
-              { $gt: ["$weightCount", 0] },
-              { $round: [{ $divide: ["$totalWeight", "$weightCount"] }] },
-              0
-            ]
-          }
-        }
-      },
-      // Sort by month number for chronological order
-      { $sort: { monthNum: 1 } },
-      // Remove the monthNum field from final results
-      {
-        $project: {
-          month: 1,
-          checkIns: 1,
-          avgWeight: 1
-        }
-      }
-    ]);
-    console.log("result", result);
+    if (emails.length === 0) {
+      return []; // No clients, return empty array early
+    }
+
+    // Step 2: Aggregate check-ins by month for those emails
+    // We use TO_CHAR for month abbreviation and EXTRACT for month number
+    const result = await sql`
+      SELECT
+        TO_CHAR("selectedDate", 'Mon') AS month,
+        EXTRACT(MONTH FROM "selectedDate")::int AS monthNum,
+        COUNT(*) AS "checkIns",
+        ROUND(AVG(NULLIF("weight", 0)))::int AS "avgWeight"
+      FROM "CheckIn"
+      WHERE "email" = ANY(${emails})
+        AND "selectedDate" >= ${sixMonthsAgo}
+      GROUP BY month, monthNum
+      ORDER BY monthNum
+    `;
+
     return result;
   } catch (error) {
     console.error('[CoachDashboard] Error fetching historical data:', error);
@@ -282,240 +216,148 @@ async function gethistoricalData(id) {
   }
 }
 
-async function getPendingCheckIns(id) {
+async function getPendingCheckIns(coachId) {
   try {
-    // Calculate date from 7 days ago
+    // Date 7 days ago
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    // Find clients with no check-ins or last check-in older than 7 days
-    const pendingCheckIns = await db.CheckIn.aggregate([
-      // Match check-ins for the specific coach
-      { $match: { coachId: new mongoose.Types.ObjectId(id) } },
-      // Group by client (email used as identifier)
-      {
-        $group: {
-          _id: "$email",
-          lastCheckIn: { $max: "$selectedDate" },
-          clientName: { $first: "$name" }
-        }
-      },
-      // Filter for clients with no check-ins or old check-ins
-      {
-        $match: {
-          $or: [
-            { lastCheckIn: { $lt: oneWeekAgo } },
-            { lastCheckIn: { $exists: false } }
-          ]
-        }
-      },
-      // Project the fields we want to return
-      {
-        $project: {
-          _id: 0,
-          email: "$_id",
-          name: "$clientName",
-          lastCheckIn: 1
-        }
-      }
-    ]);
-    console.log("pendingCheckIns", pendingCheckIns);
+    // This query finds all clients of the coach and their last check-in date,
+    // then filters those with no check-in or last check-in older than 7 days.
+
+    // Step 1: Get all clients for the coach (email and name)
+    const clients = await sql`
+      SELECT "email", "name" FROM "Client" WHERE "coachId" = ${coachId}
+    `;
+
+    if (clients.length === 0) {
+      return [];
+    }
+
+    // Step 2: Get last check-in date per client email
+    const emails = clients.map(c => c.email);
+
+    const lastCheckIns = await sql`
+      SELECT "email", MAX("selectedDate") AS "lastCheckIn"
+      FROM "CheckIn"
+      WHERE "email" = ANY(${emails})
+      GROUP BY "email"
+    `;
+
+    // Map last check-in dates by email for quick lookup
+    const lastCheckInMap = new Map(
+      lastCheckIns.map(row => [row.email, row.lastCheckIn])
+    );
+
+    // Step 3: Filter clients who have no check-in or last check-in older than 7 days
+    const pendingCheckIns = clients
+      .filter(client => {
+        const lastCheckIn = lastCheckInMap.get(client.email);
+        return !lastCheckIn || lastCheckIn < oneWeekAgo;
+      })
+      .map(client => ({
+        email: client.email,
+        name: client.name,
+        lastCheckIn: lastCheckInMap.get(client.email) || null,
+      }));
+
     return pendingCheckIns;
   } catch (error) {
-    console.error("Error fetching pending check-ins:", error);
+    console.error('Error fetching pending check-ins:', error);
     throw error;
   }
 }
 
-async function getCompletedProgramsCount(id) {
+async function getCompletedProgramsCount(coachId) {
   try {
     const currentDate = new Date();
 
-    const result = await db.Client.aggregate([
-      // Match clients for this coach
-      {
-        $match: {
-          coachId: new mongoose.Types.ObjectId(id),
-          startDate: { $ne: null }, // Ensure startDate exists
-          programId: { $ne: null }  // Ensure programId exists
-        }
-      },
-      // Lookup program details
-      {
-        $lookup: {
-          from: "programs", // Collection name (usually lowercase plural of model name)
-          localField: "programId",
-          foreignField: "_id",
-          as: "program"
-        }
-      },
-      // Unwind the program array (converts it to an object)
-      {
-        $unwind: "$program"
-      },
-      // Add calculated fields
-      {
-        $addFields: {
-          // Extract the duration unit (weeks, days, months)
-          durationUnit: {
-            $cond: [
-              { $regexMatch: { input: "$program.duration", regex: /weeks$/ } },
-              "weeks",
-              {
-                $cond: [
-                  { $regexMatch: { input: "$program.duration", regex: /days$/ } },
-                  "days",
-                  {
-                    $cond: [
-                      { $regexMatch: { input: "$program.duration", regex: /months$/ } },
-                      "months",
-                      "unknown"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          // Extract the numeric part of the duration using regex
-          durationValueRegex: {
-            $regexFind: {
-              input: "$program.duration",
-              regex: /^\d+/
-            }
-          }
-        }
-      },
-      // Extract the actual matched string from the regex result
-      {
-        $addFields: {
-          durationValue: {
-            $toInt: {
-              $cond: [
-                { $ifNull: ["$durationValueRegex", false] },
-                "$durationValueRegex.match",
-                "0"
-              ]
-            }
-          }
-        }
-      },
-      // Calculate duration in days and end date
-      {
-        $addFields: {
-          // Convert duration to days based on unit
-          durationInDays: {
-            $switch: {
-              branches: [
-                {
-                  case: { $eq: ["$durationUnit", "weeks"] },
-                  then: { $multiply: ["$durationValue", 7] }
-                },
-                {
-                  case: { $eq: ["$durationUnit", "days"] },
-                  then: "$durationValue"
-                },
-                {
-                  case: { $eq: ["$durationUnit", "months"] },
-                  then: { $multiply: ["$durationValue", 30] }
-                }
-              ],
-              default: 0
-            }
-          }
-        }
-      },
-      // Calculate end date
-      {
-        $addFields: {
-          endDate: {
-            $dateAdd: {
-              startDate: "$startDate",
-              unit: "day",
-              amount: "$durationInDays"
-            }
-          }
-        }
-      },
-      // Filter for completed programs (end date is in the past)
-      {
-        $match: {
-          endDate: { $lt: currentDate }
-        }
-      },
-      // Count the completed programs
-      {
-        $count: "completedPrograms"
+    // Step 1: Get clients with non-null startDate and programId
+    const clients = await sql`
+      SELECT c."startDate", c."programId", p."duration"
+      FROM "Client" c
+      JOIN "Program" p ON c."programId" = p."id"
+      WHERE c."coachId" = ${coachId}
+        AND c."startDate" IS NOT NULL
+        AND c."programId" IS NOT NULL
+    `;
+
+    // Helper to parse duration string (e.g. "12 weeks", "30 days", "3 months")
+    function parseDuration(durationStr) {
+      if (!durationStr) return { value: 0, unit: 'unknown' };
+      const match = durationStr.match(/^(\d+)\s*(weeks|days|months)$/i);
+      if (!match) return { value: 0, unit: 'unknown' };
+      return { value: parseInt(match[1], 10), unit: match[2].toLowerCase() };
+    }
+
+    // Convert duration to days
+    function durationToDays(value, unit) {
+      switch (unit) {
+        case 'weeks': return value * 7;
+        case 'days': return value;
+        case 'months': return value * 30;
+        default: return 0;
       }
-    ]);
-    console.log("completed program", result);
-    return result.length > 0 ? result[0].completedPrograms : 0;
+    }
+
+    // Step 2: Calculate endDate and count completed programs
+    let completedCount = 0;
+    for (const row of clients) {
+      const { startDate, duration } = row;
+      const { value, unit } = parseDuration(duration);
+      const durationInDays = durationToDays(value, unit);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + durationInDays);
+
+      if (endDate < currentDate) {
+        completedCount++;
+      }
+    }
+
+    return completedCount;
   } catch (error) {
     console.error('[CompletedPrograms] Error counting completed programs:', error);
     return 0;
   }
 }
 
-async function getCoachRecentActivities(id, limit = 5) {
+async function getCoachRecentActivities(coachId, limit = 5) {
   try {
-    // Create an array to store activities from multiple sources
-    const activities = [];
-
-
-    // First get unique clients for this coach
-    const clientsData = await db.CheckIn.aggregate([
-      { $match: { coachId: new mongoose.Types.ObjectId(id) } },
-      {
-        $group: {
-          _id: "$email",
-          name: { $first: "$name" },
-          id: { $first: "$_id" }
-        }
-      }
-    ]);
+    // Step 1: Get unique clients (email, name) for this coach from CheckIn table
+    const clientsData = await sql`
+      SELECT DISTINCT ON ("email") "email", "name"
+      FROM "CheckIn"
+      WHERE "coachId" = ${coachId}
+      ORDER BY "email", "selectedDate" DESC
+    `;
 
     if (!clientsData || clientsData.length === 0) {
       return [];
     }
 
-    // Get client emails for querying check-ins
-    const clientEmails = clientsData.map(client => client._id); // _id contains email from the aggregation
+    const clientEmails = clientsData.map(c => c.email);
+    const clientNameMap = Object.fromEntries(clientsData.map(c => [c.email, c.name]));
 
-    // Create a map of client emails to names for lookup
-    const clientNameMap = Object.fromEntries(
-      clientsData.map(client => [client._id, client.name])
-    );
+    // Step 2: Get recent check-ins for these clients
+    const checkInsData = await sql`
+      SELECT "id", "selectedDate", "email"
+      FROM "CheckIn"
+      WHERE "email" = ANY(${clientEmails})
+        AND "coachId" = ${coachId}
+      ORDER BY "selectedDate" DESC
+      LIMIT ${limit}
+    `;
 
-    // Get recent check-ins for coach's clients
-    const checkInsData = await db.CheckIn.find({
-      email: { $in: clientEmails },
-      coachId: new mongoose.Types.ObjectId(id)
-    })
-      .select('_id selectedDate email')
-      .sort({ selectedDate: -1 }) // descending order (newest first)
-      .limit(limit)
-      .lean();
+    // Step 3: Format activities
+    const activities = checkInsData.map(checkIn => ({
+      id: checkIn.id.toString(),
+      type: 'check_in',
+      description: `${clientNameMap[checkIn.email] || 'A client'} submitted a check-in`,
+      timestamp: new Date(checkIn.selectedDate).toISOString(),
+      email: checkIn.email,
+    }));
 
-    // Process check-ins into activity items
-    for (const checkIn of checkInsData) {
-      activities.push({
-        id: checkIn._id.toString(),
-        type: 'check_in',
-        description: `${clientNameMap[checkIn.email] || 'A client'} submitted a check-in`,
-        timestamp: new Date(checkIn.selectedDate).toISOString(),
-        email: checkIn.email // Using email as clientId since that's our unique identifier
-      });
-    }
-
-    // Sort activities by timestamp (newest first)
-    activities.sort((a, b) => {
-      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-    });
-
-    // Return activities (limited to requested amount)
-
-    console.log('Activitiellllllllllls:', clientNameMap);
-    return activities.slice(0, limit);
-
+    return activities;
   } catch (error) {
     console.error('[CoachDashboard] Error fetching recent activities:', error);
     throw error;
@@ -523,130 +365,130 @@ async function getCoachRecentActivities(id, limit = 5) {
 }
 
 async function getClinics() {
-  const clinics = await db.Clinic.aggregate([
-    {
-      $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "clinic",
-        as: "coaches",
-        pipeline: [
-          {
-            $match: {
-              role: "coach"
-            }
-          },
-          {
-            $count: "count"
-          }
-        ]
-      }
-    },
-    {
-      $lookup: {
-        from: "clients",
-        localField: "_id",
-        foreignField: "clinic",
-        as: "clients",
-        pipeline: [
-          {
-            $count: "count"
-          }
-        ]
-      }
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "clinic",
-        as: "clinicAdmin",
-        pipeline: [
-          {
-            $match: {
-              role: "clinic_admin"
-            }
-          },
-          {
-            $project: {
-              _id: 1,
-              name: 1,
-              email: 1
-            }
-          }
-        ]
-      }
-    }
-  ]);
+  // We will do LEFT JOINs and aggregate counts accordingly.
+  const clinics = await sql`
+    SELECT
+      c.*,
+      COALESCE(coach_counts.count, 0) AS "coachesCount",
+      COALESCE(client_counts.count, 0) AS "clientsCount",
+      ca."id" AS "clinicAdminId",
+      ca."name" AS "clinicAdminName",
+      ca."email" AS "clinicAdminEmail"
+    FROM "Clinic" c
+    LEFT JOIN (
+      SELECT "clinic", COUNT(*) AS count
+      FROM "User"
+      WHERE "role" = 'coach'
+      GROUP BY "clinic"
+    ) AS coach_counts ON coach_counts."clinic" = c."id"
+    LEFT JOIN (
+      SELECT "clinic", COUNT(*) AS count
+      FROM "Client"
+      GROUP BY "clinic"
+    ) AS client_counts ON client_counts."clinic" = c."id"
+    LEFT JOIN LATERAL (
+      SELECT "id", "name", "email"
+      FROM "User"
+      WHERE "clinic" = c."id" AND "role" = 'clinic_admin'
+      LIMIT 1
+    ) AS ca ON true
+  `;
+
   return clinics;
 }
 
 async function getclientNum() {
-  const num = await db.Client.find();
-  return num.length;
+  const result = await sql`SELECT COUNT(*)::int AS count FROM "Client"`;
+  return result[0]?.count || 0;
 }
 
-async function getClinentNum(id) {
-  const num = await db.Client.find({ clinic: id });
-  return num;
+async function getClinentNum(clinicId) {
+  const clients = await sql`
+    SELECT * FROM "Client" WHERE "clinic" = ${clinicId}
+  `;
+  return clients;
 }
 
-async function updateClientNum(id) {
-  const num = await db.Clinic.findByIdAndUpdate(id, { $inc: { clients: 1 } });
-  return num;
+async function updateClientNum(clinicId) {
+  // Assuming you have a "clients" numeric column in Clinic table to track client count
+  const updatedClinic = await sql`
+    UPDATE "Clinic"
+    SET "clients" = COALESCE("clients", 0) + 1
+    WHERE "id" = ${clinicId}
+    RETURNING *
+  `;
+  return updatedClinic[0];
 }
 
 async function getclientsbycoachId(coachId) {
-  const clients = await db.Client.find({ coachId: coachId });
+  const clients = await sql`
+    SELECT * FROM "Client" WHERE "coachId" = ${coachId}
+  `;
   return clients;
 }
 
 async function getClientById(clientId) {
-  const client = await db.Client.findById(clientId);
-  return client;
+  const client = await sql`
+    SELECT * FROM "Client" WHERE "id" = ${clientId} LIMIT 1
+  `;
+  return client[0] || null;
 }
 
 async function getProgressdataByRange(email, timeRange) {
-  let progress;
-  if (timeRange === "month") {
-    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneMonthAgo } });
-  } else if (timeRange === "week") {
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneWeekAgo } });
-  } else if (timeRange === "quarter") {
-    const oneQuarterAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneQuarterAgo } });
-  } else if (timeRange === "year") {
-    const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-    progress = await db.CheckIn.find({ email: email, selectedDate: { $gte: oneYearAgo } });
+  let fromDate;
+  const now = new Date();
+
+  switch (timeRange) {
+    case 'month':
+      fromDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case 'week':
+      fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case 'quarter':
+      fromDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case 'year':
+      fromDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      break;
+    default:
+      fromDate = null;
   }
+
+  if (!fromDate) {
+    return [];
+  }
+
+  const progress = await sql`
+    SELECT * FROM "CheckIn"
+    WHERE "email" = ${email} AND "selectedDate" >= ${fromDate}
+  `;
+
   return progress;
 }
 
-export const
-  clientRepo = {
-    getclientsbycoachId,
-    getClients,
-    createClient,
-    getclientsbyclinicId,
-    getnumclientsbyClinicId,
-    createCheckIn,
-    getProgressdata,
-    getCheckInsbyId,
-    getActiveClients,
-    getCheckIns,
-    getnumclientsbyId,
-    getnumprojectsbyId,
-    getnumCheckInbyId,
-    gethistoricalData,
-    getPendingCheckIns,
-    getCompletedProgramsCount,
-    getCoachRecentActivities,
-    getClinics,
-    getClinentNum,
-    updateClientNum,
-    getclientNum,
-    getClientById,
-    getProgressdataByRange
-  }
+export const clientRepo = {
+  getClients,
+  getclientsbyclinicId,
+  getnumclientsbyId,
+  getnumclientsbyClinicId,
+  getnumprojectsbyId,
+  createClient,
+  getProgressdata,
+  createCheckIn,
+  getCheckInsbyId,
+  getnumCheckInbyId,
+  getActiveClients,
+  getCheckIns,
+  getclientsbycoachId,
+  getClinics,
+  getClinentNum,
+  updateClientNum,
+  getclientNum,
+  getClientById,
+  getProgressdataByRange,
+  gethistoricalData,
+  getPendingCheckIns,
+  getCompletedProgramsCount, 
+  getCoachRecentActivities
+};

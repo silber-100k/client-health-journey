@@ -78,14 +78,14 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
     if (value == "custom") {
       setProgramType("custom");
     } else {
-      setProgramType(Templates.find((template) => template._id === value).type);
+      setProgramType(Templates.find((template) => template.id === value).type);
       settempId(value);
     }
     setvalue(value);
   };
   const handleSubmit = async () => {
     // Use the clinicId prop or fall back to the user's clinicId
-    const effectiveClinicId = user?.clinic?._id || "";
+    const effectiveClinicId = user?.clinic || "";
 
     console.log("Submitting program with clinicId:", effectiveClinicId);
     const data = {
@@ -130,7 +130,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                 </SelectTrigger>
                 <SelectContent>
                   {Templates.map((template, index) => (
-                    <SelectItem key={index} value={template._id}>
+                    <SelectItem key={index} value={template.id}>
                       {template.type}
                     </SelectItem>
                   ))}

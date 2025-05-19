@@ -18,7 +18,13 @@ import {
 } from "../../components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 
-const ClinicsTable = ({ clinics, getStatusColor, onEdit, onDelete, onResetPassword }) => {
+const ClinicsTable = ({
+  clinics,
+  getStatusColor,
+  onEdit,
+  onDelete,
+  onResetPassword,
+}) => {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -35,7 +41,7 @@ const ClinicsTable = ({ clinics, getStatusColor, onEdit, onDelete, onResetPasswo
         <TableBody>
           {clinics && clinics.length > 0 ? (
             clinics.map((clinic) => (
-              <TableRow key={clinic._id} className="hover:bg-gray-50">
+              <TableRow key={clinic.id} className="hover:bg-gray-50">
                 <TableCell>
                   <div className="flex items-center space-x-3">
                     <div className="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center">
@@ -44,8 +50,8 @@ const ClinicsTable = ({ clinics, getStatusColor, onEdit, onDelete, onResetPasswo
                     <div className="font-medium">{clinic.name}</div>
                   </div>
                 </TableCell>
-                <TableCell>{clinic.coaches[0]?.count}</TableCell>
-                <TableCell>{clinic.clients[0]?.count}</TableCell>
+                <TableCell>{clinic.coach_counts || clinic.coachesCount}</TableCell>
+                <TableCell>{clinic.client_counts || clinic.clientsCount}</TableCell>
                 <TableCell>
                   {clinic.city && clinic.state
                     ? `${clinic.city}, ${clinic.state}`

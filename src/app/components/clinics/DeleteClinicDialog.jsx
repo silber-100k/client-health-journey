@@ -30,7 +30,7 @@ const DeleteClinicDialog = ({
         setError(null);
 
         try {
-            const response = await fetch(`/api/admin/clinic/${selectedClinic._id}`, {
+            const response = await fetch(`/api/admin/clinic/${selectedClinic.id}`, {
                 method: "DELETE",
                 body: JSON.stringify(clinic),
             });

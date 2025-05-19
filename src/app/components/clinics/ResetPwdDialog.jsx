@@ -30,7 +30,7 @@ const ResetPwdDialog = ({
         setError(null);
 
         try {
-            const response = await fetch(`/api/admin/clinic/${selectedClinic._id}`, {
+            const response = await fetch(`/api/admin/clinic/${selectedClinic.id}`, {
                 method: "PATCH"
             });
             const responseData = await response.json();

@@ -23,7 +23,7 @@ export const EditCoachDialog = ({
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/clinic/coach/${selectedCoach._id}`, {
+      const response = await fetch(`/api/clinic/coach/${selectedCoach.id}`, {
         method: "POST",
         body: JSON.stringify(data),
       });

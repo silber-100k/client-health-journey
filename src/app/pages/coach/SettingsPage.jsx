@@ -23,7 +23,7 @@ import { toast } from "sonner";
 
 const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
-    coachName: "",
+    name: "",
     email: "",
     phone: "",
   });
@@ -40,27 +40,43 @@ const SettingsPage = () => {
     clientUpdates: true,
   });
 
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
     setProfileForm({
-      coachName: user?.name || "",
+      name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "", // Safe to use now that we've added it to the UserData type
     });
   }, [user]);
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    // toast({
-    //   title: "Profile Updated",
-    //   description: "Your profile information has been saved.",
-    // });
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        body: JSON.stringify(profileForm),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Profile updated successfully");
+        setUser(data.user);
+      } else {
+        console.log(error);
+        toast.error("Profile update failed");
+      }
+    } catch (error) {
+      console.log("Error updating profile:", error);
+      toast.error("Profile update failed");
+    }
   };
 
   const handleSecuritySubmit = async (e) => {
     e.preventDefault();
-    if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+    if (
+      securityForm.newPassword &&
+      securityForm.newPassword !== securityForm.confirmPassword
+    ) {
       toast.error("Passwords do not match");
       return;
     }
@@ -80,7 +96,7 @@ const SettingsPage = () => {
         method: "POST",
         body: JSON.stringify({
           currentPassword: securityForm.currentPassword,
-          newPassword: securityForm.newPassword
+          newPassword: securityForm.newPassword,
         }),
       });
       const data = await response.json();
@@ -136,11 +152,11 @@ const SettingsPage = () => {
                   <Label htmlFor="coachName">coach Name</Label>
                   <Input
                     id="coachName"
-                    value={profileForm.coachName}
+                    value={profileForm.name}
                     onChange={(e) =>
                       setProfileForm({
                         ...profileForm,
-                        coachName: e.target.value,
+                        name: e.target.value,
                       })
                     }
                   />

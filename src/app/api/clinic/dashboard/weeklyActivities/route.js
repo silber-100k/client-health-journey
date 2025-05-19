@@ -19,10 +19,10 @@ export async function GET() {
         if (user.role !== "clinic_admin") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const clinicId = user.clinic._id;
+        const clinicId = user.clinic;
 
         const numActivity = await clinicRepo.getNumWactiveCount(clinicId);
-        console.log(numActivity);
+        console.log("activity",numActivity,clinicId);
         return NextResponse.json({ status: true, numActivity });
     } catch (error) {
         console.error(error);

@@ -1,91 +1,142 @@
-import db from "./index";
-import mongoose from "mongoose";
+import postgres from 'postgres';
 
+const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
+
+/**
+ * Get all programs for a given clinic with client counts
+ * Includes joining with Template table for template details
+ */
 async function getPrograms(clinicId) {
-    // Get all programs for the clinic
-    const programs = await db.Program.find({clinicId: clinicId}).populate("tempId");
-    
-    // Get all client counts in a single query
-    const clientCounts = await db.Client.aggregate([
-        { $match: { clinic: new mongoose.Types.ObjectId(clinicId) } },
-        { $group: { _id: "$programId", count: { $sum: 1 } } }
-    ]);
-    
-    // Convert to a map for easy lookup
-    const countMap = {};
-    clientCounts.forEach(item => {
-        countMap[item._id] = item.count;
-    });
-    
-    // Add client count to each program
-    const result = programs.map(program => {
-        const programObj = program.toObject();
-        programObj.clientCount = countMap[program._id] || 0;
-        return programObj;
-    });
-    
-    return result;
+  // Get all programs for the clinic with template info
+  const programs = await sql`
+  SELECT 
+    p.*,
+    row_to_json(t) AS template
+  FROM "Program" p
+  LEFT JOIN "Template" t ON p."tempId" = t."id"
+  WHERE p."clinicId" = ${clinicId}
+`;
+
+  // Get client counts grouped by programId
+  const clientCounts = await sql`
+    SELECT "programId", COUNT(*) AS count
+    FROM "Client"
+    WHERE "clinic" = ${clinicId}
+    GROUP BY "programId"
+  `;
+
+  // Convert clientCounts to a map for quick lookup
+  const countMap = new Map(clientCounts.map(row => [row.programId, Number(row.count)]));
+
+  // Add clientCount to each program
+  const result = programs.map(program => ({
+    ...program,
+    clientCount: countMap.get(program.id) || 0,
+  }));
+
+  return result;
 }
 
+/**
+ * Get all programs (admin view) with client counts and template info
+ */
 async function getAllProgramsAdmin() {
-    // Get all programs for the clinic
-    const programs = await db.Program.find().populate("tempId");
-    
-    // Get all client counts in a single query
-    const clientCounts = await db.Client.aggregate([
-        { $group: { _id: "$programId", count: { $sum: 1 } } }
-    ]);
-    
-    // Convert to a map for easy lookup
-    const countMap = {};
-    clientCounts.forEach(item => {
-        countMap[item._id] = item.count;
-    });
-    
-    // Add client count to each program
-    const result = programs.map(program => {
-        const programObj = program.toObject();
-        programObj.clientCount = countMap[program._id] || 0;
-        return programObj;
-    });
-    
-    return result;
+const programs = await sql`
+  SELECT 
+    p.*,
+    row_to_json(t) AS template
+  FROM "Program" p
+  LEFT JOIN "Template" t ON p."tempId" = t."id"
+`;
+
+  const clientCounts = await sql`
+    SELECT "programId", COUNT(*) AS count
+    FROM "Client"
+    GROUP BY "programId"
+  `;
+
+  const countMap = new Map(clientCounts.map(row => [row.programId, Number(row.count)]));
+
+  const result = programs.map(program => ({
+    ...program,
+    clientCount: countMap.get(program.id) || 0,
+  }));
+
+  return result;
 }
 
-async function createProgram(name, type, duration, checkInFrequency, description,tempId, clinicId) {
-    const program = await db.Program.create([{ name, type, duration, checkInFrequency, description,tempId, clinicId }]);
-    return program[0];
+/**
+ * Create a new program
+ */
+async function createProgram(name, type, duration, checkInFrequency, description, tempId, clinicId) {
+  const [program] = await sql`
+    INSERT INTO "Program" ("name", "type", "duration", "checkInFrequency", "description", "tempId", "clinicId")
+    VALUES (${name}, ${type}, ${duration}, ${checkInFrequency}, ${description}, ${tempId}, ${clinicId})
+    RETURNING *
+  `;
+  return program;
 }
+
+/**
+ * Get all templates
+ */
 async function getTemplates() {
-    const templates = await db.Template.find();
-    return templates;
+  return await sql`SELECT * FROM "Template"`;
 }
 
+/**
+ * Get template by ID
+ */
 async function getTemplateDescription(id) {
-    const template = await db.Template.findById(id);
-    return template;
-}
-async function createTemplate(type,description){
-    const template = await db.Template.create([{type,description}]);
-    return template[0];
+  const template = await sql`SELECT * FROM "Template" WHERE "id" = ${id} LIMIT 1`;
+  return template[0] || null;
 }
 
+/**
+ * Create a new template
+ */
+async function createTemplate(type, description) {
+  const [template] = await sql`
+    INSERT INTO "Template" ("type", "description")
+    VALUES (${type}, ${description})
+    RETURNING *
+  `;
+  return template;
+}
+
+/**
+ * Update a template by ID (upsert behavior)
+ */
 async function updateTemplate(id, description, type) {
-    const template = await db.Template.findByIdAndUpdate(id, {description, type}, { new: true, upsert: true });
-    return template;
+  // PostgreSQL UPSERT using ON CONFLICT requires a unique constraint on id
+  const [updated] = await sql`
+    INSERT INTO "Template" ("id", "description", "type")
+    VALUES (${id}, ${description}, ${type})
+    ON CONFLICT ("id") DO UPDATE SET
+      "description" = EXCLUDED."description",
+      "type" = EXCLUDED."type"
+    RETURNING *
+  `;
+  return updated;
 }
+
+/**
+ * Delete a template by ID
+ */
 async function deleteTemplate(id) {
-    const template = await db.Template.findByIdAndDelete(id);
-    return template;
-    
+  const [deleted] = await sql`
+    DELETE FROM "Template" WHERE "id" = ${id} RETURNING *
+  `;
+  return deleted || null;
 }
+
 export const programRepo = {
-    getTemplates,
-    getPrograms,
-    createProgram,
-    createTemplate,
-    updateTemplate,
-    getTemplateDescription,
-    deleteTemplate,
-    getAllProgramsAdmin,
-}
+  getTemplates,
+  getPrograms,
+  createProgram,
+  createTemplate,
+  updateTemplate,
+  getTemplateDescription,
+  deleteTemplate,
+  getAllProgramsAdmin,
+};

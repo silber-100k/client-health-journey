@@ -1,92 +1,103 @@
-import db from "./index";
+import postgres from 'postgres';
 
-const SubscriptionTier = db.SubscriptionTier;
-const SubscriptionHistory = db.SubscriptionHistory;
+const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 async function createSubscriptionTier(clinicId, planId, customerId) {
-    const existingSubscriptionTier = await SubscriptionTier.findOne({ clinicId });
-    if (existingSubscriptionTier) {
-        return existingSubscriptionTier;
-    }
-    const subscriptionTier = await SubscriptionTier.create({
-        clinicId,
-        planId,
-        customerId,
-        isActive: false
-    });
-    return subscriptionTier;
-};
+  const existing = await sql`
+    SELECT * FROM "SubscriptionTier" WHERE "clinicId" = ${clinicId} LIMIT 1
+  `;
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  const [subscriptionTier] = await sql`
+    INSERT INTO "SubscriptionTier" ("clinicId", "planId", "customerId", "isActive")
+    VALUES (${clinicId}, ${planId}, ${customerId}, false)
+    RETURNING *
+  `;
+  return subscriptionTier;
+}
 
 async function createSubscriptionHistory(clinicId, subscriptionId, paymentAmount) {
-    const existingSubscriptionHistory = await SubscriptionHistory.findOne({ subscriptionId });
-    if (existingSubscriptionHistory) {
-        return existingSubscriptionHistory;
-    }
-    const subscriptionHistory = await SubscriptionHistory.create({
-        clinicId,
-        subscriptionId,
-        paymentAmount,
-    });
-    return subscriptionHistory;
-};
+  const existing = await sql`
+    SELECT * FROM "SubscriptionHistory" WHERE "subscriptionId" = ${subscriptionId} LIMIT 1
+  `;
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  const [subscriptionHistory] = await sql`
+    INSERT INTO "SubscriptionHistory" ("clinicId", "subscriptionId", "paymentAmount")
+    VALUES (${clinicId}, ${subscriptionId}, ${paymentAmount})
+    RETURNING *
+  `;
+  return subscriptionHistory;
+}
 
 async function subscriptionActive(clinicId, { isActive, subscriptionId }) {
-    const subscriptionTier = await SubscriptionTier.findOneAndUpdate(
-        { clinicId },
-        { 
-            isActive,
-            subscriptionId,
-            startDate: new Date(),
-            endDate: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
-        },
-        { new: true }
-    );
-    return subscriptionTier;
-};
+  const startDate = new Date();
+  const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days later
+  const [updated] = await sql`
+    UPDATE "SubscriptionTier"
+    SET "isActive" = ${isActive},
+        "subscriptionId" = ${subscriptionId},
+        "startDate" = ${startDate},
+        "endDate" = ${endDate}
+    WHERE "clinicId" = ${clinicId}
+    RETURNING *
+  `;
+  return updated || null;
+}
 
 async function getSubscriptionTier(clinicId) {
-    const subscriptionTier = await SubscriptionTier.findOne({ clinicId });
-    return subscriptionTier;
-};
+  const result = await sql`
+    SELECT * FROM "SubscriptionTier" WHERE "clinicId" = ${clinicId} LIMIT 1
+  `;
+  return result[0] || null;
+}
 
 async function deleteSubscriptionTier(id) {
-    await SubscriptionTier.findByIdAndDelete(id);
+  await sql`
+    DELETE FROM "SubscriptionTier" WHERE "id" = ${id}
+  `;
 }
 
 async function updateSubscriptionTier(clinicId, planId) {
-    const subscriptionTier = await SubscriptionTier.findOneAndUpdate(
-        { clinicId },
-        { 
-            planId,
-            isActive: false,
-        },
-        { new: true }
-    );
-    return subscriptionTier;
+  const [updated] = await sql`
+    UPDATE "SubscriptionTier"
+    SET "planId" = ${planId},
+        "isActive" = false
+    WHERE "clinicId" = ${clinicId}
+    RETURNING *
+  `;
+  return updated || null;
 }
 
 async function getSubscriptionTierByCustomerId(customerId) {
-    const subscriptionTier = await SubscriptionTier.findOne({ customerId });
-    return subscriptionTier;
+  const result = await sql`
+    SELECT * FROM "SubscriptionTier" WHERE "customerId" = ${customerId} LIMIT 1
+  `;
+  return result[0] || null;
 }
 
 async function deleteSessionByClinicId(clinicId) {
-    await SubscriptionTier.findOneAndDelete({ clinicId });
+  await sql`
+    DELETE FROM "SubscriptionTier" WHERE "clinicId" = ${clinicId}
+  `;
 }
 
 async function getSubscriptionHistory() {
-    const subscriptionHistory = await SubscriptionHistory.find();
-    return subscriptionHistory;
+  return await sql`SELECT * FROM "SubscriptionHistory"`;
 }
 
 export const subscriptionRepo = {
-    createSubscriptionTier,
-    createSubscriptionHistory,
-    subscriptionActive,
-    getSubscriptionTier,
-    deleteSubscriptionTier,
-    updateSubscriptionTier,
-    deleteSessionByClinicId,
-    getSubscriptionTierByCustomerId,
-    getSubscriptionHistory,
+  createSubscriptionTier,
+  createSubscriptionHistory,
+  subscriptionActive,
+  getSubscriptionTier,
+  deleteSubscriptionTier,
+  updateSubscriptionTier,
+  deleteSessionByClinicId,
+  getSubscriptionTierByCustomerId,
+  getSubscriptionHistory,
 };

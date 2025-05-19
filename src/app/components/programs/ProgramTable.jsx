@@ -32,7 +32,7 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
         return <FileText className="h-5 w-5 text-primary-700" />;
     }
   };
-
+  console.log(programs);
   const formatDuration = (days) => {
     if (days === 30) return "30 days";
     if (days === 60) return "60 days";
@@ -97,13 +97,13 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
                 <div className="flex items-center space-x-3">
                   <div className="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center">
                     {getProgramIcon(
-                      program?.type ? program.type : program.tempId?.type
+                      program?.type ? program.type : program.template?.type
                     )}
                   </div>
                   <div className="font-medium">
                     {program.name
                       ? program.name
-                      : `${program.tempId?.type
+                      : `${program.template?.type
                           .replace("_", " ")
                           .replace(/\b\w/g, (l) => l.toUpperCase())} Program`}
                   </div>
@@ -111,7 +111,7 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="capitalize">
-                  {program.tempId?.type ?? "custom"}
+                  {program.template? program.template.type : "custom"}
                 </Badge>
               </TableCell>
               <TableCell>{formatDuration(program.duration)}</TableCell>

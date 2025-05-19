@@ -12,7 +12,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 
-const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => {
+const AddClientForm = ({
+  onCancel,
+  fetchClients,
+  clientLimit,
+  clientCount,
+}) => {
   const { user } = useAuth();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -38,7 +43,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => 
   const [isPending, setIsPending] = useState(false);
   const [programs, setPrograms] = useState([]);
   const [coaches, setCoaches] = useState([]);
-  const effectiveClinicId = user?.clinic._id;
+  const effectiveClinicId = user?.clinic;
   const isCoach = user?.role === "coach";
   const isClinicAdmin = user?.role === "clinic_admin";
   let apiRole = "";
@@ -88,12 +93,15 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => 
 
   const onSubmit = async (data) => {
     if (isCoach) {
-      data = { ...data, ["coachId"]: user._id };
+      data = { ...data, ["coachId"]: user.id };
     }
     if (isPending) {
       return;
     }
-    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clientCount)) {
+    if (
+      clientLimit !== false &&
+      (clientLimit === 0 || clientLimit <= clientCount)
+    ) {
       toast.error("You have reached the maximum number of clients");
       return;
     }
@@ -119,7 +127,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => 
         body: JSON.stringify({
           type: "client_added",
           description: `New client added to ${user.name}`,
-          clinicId: user.clinic._id,
+          clinicId: user.clinic,
         }),
       });
       const respond = await resActivity.json();
@@ -182,7 +190,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => 
             </Alert>
           )}
 
-          {!isProgramsLoading && programs.length === 0 && (
+          {!isProgramsLoading && programs?.length === 0 && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -202,7 +210,7 @@ const AddClientForm = ({ onCancel, fetchClients, clientLimit, clientCount }) => 
             </Alert>
           )} */}
 
-          {!isProgramsLoading && programs.length > 0 && (
+          {!isProgramsLoading && programs?.length > 0 && (
             <Alert variant="default" className="bg-blue-50 border-blue-200">
               <Info className="h-4 w-4 text-blue-500" />
               <AlertTitle>Program Templates Available</AlertTitle>

@@ -132,7 +132,7 @@ export async function POST(request) {
 
                 await subscriptionRepo.createSubscriptionHistory(
                     subscriptionTier.clinicId,
-                    subscriptionTier._id,
+                    subscriptionTier.id,
                     invoice.amount_paid
                 );
 

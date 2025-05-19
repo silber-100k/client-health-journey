@@ -29,7 +29,7 @@ export const DeleteCoachDialog = ({
     setError(null);
 
     try {
-      const response = await fetch(`/api/clinic/coach/${selectedCoach._id}`, {
+      const response = await fetch(`/api/clinic/coach/${selectedCoach.id}`, {
         method: "DELETE",
         body: JSON.stringify(coach),
       });

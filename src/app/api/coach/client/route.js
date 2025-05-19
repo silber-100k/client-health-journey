@@ -21,9 +21,9 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let coachId = user._id;
+    let coachId = user.id;
     let clientLimit = 0;
-    const subscriptionTier = await subscriptionRepo.getSubscriptionTier(user.clinic._id);
+    const subscriptionTier = await subscriptionRepo.getSubscriptionTier(user.clinic);
     if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate >= new Date()) {
       clientLimit = subscriptionTier.clientLimit;
     }
@@ -50,7 +50,7 @@ export async function POST(request) {
     if (user.role !== "coach") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const clinic = user.clinic._id;
+    const clinic = user.clinic;
 
     const { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals } = await request.json();
 

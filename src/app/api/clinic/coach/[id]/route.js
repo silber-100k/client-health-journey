@@ -3,9 +3,9 @@ import { userRepo } from "@/app/lib/db/userRepo";
 
 export async function POST(request, { params }) {
   const { id } = await params;
-  const { name, email, phone} = await request.json();
+  const { name, email, phoneNumber} = await request.json();
   try {
-    const user = await userRepo.updateCoach(id, name,email, phone);
+    const user = await userRepo.updateCoach(id, name,email, phoneNumber);
     return NextResponse.json({ status: true, user });
   } catch (error) {
     return NextResponse.json({ status: false, message: error.message });

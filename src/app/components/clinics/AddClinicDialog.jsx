@@ -48,7 +48,6 @@ const addClinicSchema = z.object({
   billingCity: z.string().optional(),
   billingState: z.string().optional(),
   billingZip: z.string().optional(),
-  paymentMethod: z.string().optional(),
   selectedPlan: z.string().optional(),
   hipaaAcknowledgment: z.boolean().optional(),
   legalAcknowledgment: z.boolean().optional(),
@@ -80,7 +79,6 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
       billingCity: "",
       billingState: "",
       billingZip: "",
-      paymentMethod: "",
       selectedPlan: "",
     },
   });
@@ -427,36 +425,6 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="paymentMethod"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-4 items-center gap-4">
-                        <FormLabel className="text-right whitespace-nowrap">
-                          Payment Method
-                        </FormLabel>
-                        <div className="col-span-3">
-                          <FormControl>
-                            <select
-                              {...field}
-                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-10"
-                            >
-                              <option value="">Select Payment Method</option>
-                              <option value="Credit Card">Credit Card</option>
-                              <option value="Bank Transfer">
-                                Bank Transfer
-                              </option>
-                              <option value="PayPal">PayPal</option>
-                              <option value="Check">Check</option>
-                            </select>
-                          </FormControl>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
                   <FormField
                     control={form.control}
                     name="selectedPlan"
@@ -472,10 +440,8 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
                               className="w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-10"
                             >
                               <option value="">Select Subscription</option>
-                              <option value="">plan</option>
-                              <option value="Basic">Basic</option>
-                              <option value="Professional">Professional</option>
-                              <option value="Enterprise">Enterprise</option>
+                              <option value="starter">starter</option>
+                              <option value="pro">Professional</option>
                             </select>
                           </FormControl>
                           <FormMessage />

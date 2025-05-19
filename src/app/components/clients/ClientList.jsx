@@ -21,7 +21,7 @@ const ClientList = ({ clients }) => {
       </TableHeader>
       <TableBody>
         {clients?.map((client) => (
-          <TableRow key={client._id} className="hover:bg-gray-50">
+          <TableRow key={client.id} className="hover:bg-gray-50">
             <TableCell className="font-medium">{client.name}</TableCell>
             <TableCell>{client.email}</TableCell>
             <TableCell>

@@ -20,7 +20,7 @@ export async function POST(request) {
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
     const user = await userRepo.getUserByEmail(email);
-    const clinic = await clinicRepo.getClinicById(user.clinic._id);
+    const clinic = await clinicRepo.getClinicById(user.clinic);
     if(!clinic) {
         return NextResponse.json({ success: false, error: "Clinic not found" }, { status: 400 });
     }
@@ -31,10 +31,10 @@ export async function POST(request) {
 
     if(!currentPlan) {
         const session = await createCheckoutSession(customerId, priceId, clinicEmail);
-        await subscriptionRepo.createSubscriptionTier(clinic._id, newPlan, customerId);
+        await subscriptionRepo.createSubscriptionTier(clinic.id, newPlan, customerId);
         return NextResponse.json({ success: true, url: session.url });
     } else {
-        await subscriptionRepo.updateSubscriptionTier(clinic._id, newPlan);
+        await subscriptionRepo.updateSubscriptionTier(clinic.id, newPlan);
         return NextResponse.json({ success: true });
     }
 }

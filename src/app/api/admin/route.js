@@ -15,11 +15,11 @@ export async function POST(request) {
   if (role === "clinic_admin" && !clinicId) {
     return NextResponse.json({ status: false, message: "Clinic ID is required" });
   }
-
   try {
     const user = await userRepo.createAdminUser(fullName, email, phone, role, password, clinicId);
     return NextResponse.json({ status: true, user });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ status: false, message: error.message });
   }
 }

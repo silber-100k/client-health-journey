@@ -19,7 +19,7 @@ export async function GET() {
         if (user.role !== "clinic_admin") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const clinicId = user.clinic._id;
+        const clinicId = user.clinic;
 
         const revenueData = await clinicRepo.fetchRevenueData(clinicId);
         return NextResponse.json({ staus: true, revenueData });

@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 
 const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
-    companyName: "",
+    name: "",
     email: "",
     phone: "",
   });
@@ -52,7 +52,7 @@ const SettingsPage = () => {
 
   useEffect(() => {
     setProfileForm({
-      companyName: user?.name || "HealthTracker Admin",
+      name: user?.name || "HealthTracker Admin",
       email: user?.email || "",
       phone: user?.phoneNumber || "", // Safe to use now that we've added it to the UserData type
     });
@@ -191,14 +191,14 @@ const SettingsPage = () => {
             <CardContent>
               <form onSubmit={handleProfileSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name</Label>
+                  <Label htmlFor="name">Company Name</Label>
                   <Input
-                    id="companyName"
-                    value={profileForm.companyName}
+                    id="name"
+                    value={profileForm.name}
                     onChange={(e) =>
                       setProfileForm({
                         ...profileForm,
-                        companyName: e.target.value,
+                        name: e.target.value,
                       })
                     }
                   />

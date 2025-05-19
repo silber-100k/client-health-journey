@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import CoachesFilter from "../../components/admin/coaches/CoachesFilter";
 import { Skeleton } from "../../components/ui/skeleton";
-
+import {toast} from "sonner";
 const CoachesPage = () => {
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);

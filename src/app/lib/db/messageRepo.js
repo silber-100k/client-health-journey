@@ -1,4 +1,6 @@
-import db from "./index";
+import postgres from 'postgres';
+
+const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 export const messageRepo = {
   saveMessage,
@@ -9,101 +11,111 @@ export const messageRepo = {
   markNotification
 };
 
-async function saveMessage(id,message,sender,receiver,status) {
-  const newMessage = await db.Message.create([{id,
-    message,sender,receiver,status}]);
-  return newMessage[0];
+async function saveMessage(id, message, sender, receiver, status) {
+  const [newMessage] = await sql`
+    INSERT INTO "Message" ("id", "message", "sender", "receiver", "status")
+    VALUES (${id}, ${message}, ${sender}, ${receiver}, ${status})
+    RETURNING *
+  `;
+  return newMessage;
 }
 
 async function updateMessage(id, status) {
   try {
-    console.log("Updating message status to:", status);
+    const updatedMessage = await sql`
+      UPDATE "Message"
+      SET "status" = ${status}
+      WHERE "id" = ${id}
+      RETURNING *
+    `;
 
-    const updatedMessage = await db.Message.findOneAndUpdate(
-      { id },                // filter by your custom id field
-      { $set: { status } },  // update only the status field
-      { new: true }          // return the updated document
-    );
-
-    if (!updatedMessage) {
+    if (updatedMessage.length === 0) {
       console.warn(`Message with id ${id} not found.`);
       return null;
     }
 
-    return updatedMessage;
+    return updatedMessage[0];
   } catch (error) {
     console.error("Error updating message:", error);
-    throw error; // or handle error as needed
+    throw error;
   }
 }
 
-async function updateNotification(receiver) {
+async function updateNotification(receiverEmail) {
   try {
-    console.log("Updating notification", receiver);
+    // Try to update unreadCount
+    const updated = await sql`
+      UPDATE "Notification"
+      SET "unreadCount" = "unreadCount" + 1
+      WHERE "email" = ${receiverEmail}
+      RETURNING *
+    `;
 
-    const updatedNotification = await db.Notification.findOneAndUpdate(
-      { email: receiver },
-      { $inc: { unreadCount: 1 } },
-      { upsert: true, new: true }
-    );
-    return updatedNotification;
+    if (updated.length > 0) {
+      return updated[0];
+    }
+
+    // If no row updated, insert new notification with unreadCount = 1
+    const inserted = await sql`
+      INSERT INTO "Notification" ("email", "unreadCount")
+      VALUES (${receiverEmail}, 1)
+      RETURNING *
+    `;
+    return inserted[0];
   } catch (error) {
-    console.error("Error updated Notification", error);
-    throw error; // or handle error as needed
+    console.error("Error updating notification:", error);
+    throw error;
   }
 }
 
 async function markNotification(email) {
   try {
- 
-    const update = await db.Notification.findOneAndUpdate(
-      { email: email },
-      { $set: { unreadCount: 0 } }
-    );
-    return update;
+    const updated = await sql`
+      UPDATE "Notification"
+      SET "unreadCount" = 0
+      WHERE "email" = ${email}
+      RETURNING *
+    `;
+    return updated[0] || null;
   } catch (error) {
-    console.error("Error updated Notification", error);
-    throw error; // or handle error as needed
+    console.error("Error marking notification:", error);
+    throw error;
   }
 }
 
 async function getNumber(email) {
   try {
-
-    const getNumber = await db.Notification.findOne({email:email});
-    return getNumber;
+    const notification = await sql`
+      SELECT * FROM "Notification" WHERE "email" = ${email} LIMIT 1
+    `;
+    return notification[0] || null;
   } catch (error) {
-    console.error("Error updated Notification", error);
-    throw error; // or handle error as needed
+    console.error("Error fetching notification:", error);
+    throw error;
   }
 }
 
-
-async function readMessageHistory(sender,receiver) {
-
+async function readMessageHistory(sender, receiver) {
   try {
-    // Fetch messages between sender and receiver, sorted oldest first
-    const messages = await db.Message.find({
-      $or: [
-        { sender: sender, receiver: receiver },
-        { sender: receiver, receiver: sender },
-      ],
-    }).sort({ timeStamp: 1 });
+    const messages = await sql`
+      SELECT "id", "sender", "receiver", "message", "timeStamp", "status"
+      FROM "Message"
+      WHERE ("sender" = ${sender} AND "receiver" = ${receiver})
+         OR ("sender" = ${receiver} AND "receiver" = ${sender})
+      ORDER BY "timeStamp" ASC
+    `;
 
-    // Map messages to a simplified format
-    const projectedMessages = messages.map((msg) => ({
-      id:msg.id,
+    // Map to simplified format
+    return messages.map(msg => ({
+      id: msg.id,
       from: msg.sender,
-      to:msg.receiver,
+      to: msg.receiver,
       message: msg.message,
-      timestamp:msg.timeStamp,
-      status:msg.status
+      timestamp: msg.timeStamp,
+      status: msg.status
     }));
-
-    return projectedMessages;
   } catch (error) {
     console.error("Error fetching message history:", error);
-    throw error; // or return an empty array or custom error response
+    throw error;
   }
-
 }

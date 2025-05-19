@@ -36,7 +36,7 @@ const CoachesPage = () => {
     setIsAddCoachDialogOpen(true);
   };
 
-  const filteredCoaches = coaches.filter((coach) => {
+  const filteredCoaches = coaches?.filter((coach) => {
     const searchText = filterText.toLowerCase();
     return (
       coach.name.toLowerCase().includes(searchText) ||

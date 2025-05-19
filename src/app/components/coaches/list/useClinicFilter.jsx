@@ -20,14 +20,14 @@ export function useClinicFilter() {
   const isClinicAdmin = user?.role === "clinic_admin";
 
   // Get the user's clinic ID (if any)
-  const userClinicId = user?.clinicId;
+  const userClinicId = user?.clinic;
 
   // Enhanced logging for clinic admins
   useEffect(() => {
     if (isClinicAdmin && userClinicId) {
       console.log("Clinic admin detected in useClinicFilter:", {
         name: user?.name,
-        clinicId: userClinicId,
+        clinic: userClinicId,
         role: user?.role,
       });
     }
@@ -38,7 +38,7 @@ export function useClinicFilter() {
    * Will return:
    * - All data for system admins
    * - Only clinic-specific data for clinic admins
-   * - Data for coaches based on their coach_id
+   * - Data for coaches based on their coachId
    * - Empty array for unauthorized users
    */
   const filterByClinic = (data) => {
@@ -70,13 +70,13 @@ export function useClinicFilter() {
     }
 
     // Coaches can see their assigned clients
-    if (user?.role === "coach" && user?.coach_id) {
+    if (user?.role === "coach" && user?.coachId) {
       console.log(
-        `Coach detected, filtering data to coach_id ${user.coach_id}`
+        `Coach detected, filtering data to coachId ${user.coachId}`
       );
       const filteredData = data.filter((item) => {
-        const itemCoachId = item.coach_id;
-        return itemCoachId === user.coach_id;
+        const itemCoachId = item.coachId;
+        return itemCoachId === user.coachId;
       });
       console.log(
         `Filtered from ${data.length} items to ${filteredData.length} items`

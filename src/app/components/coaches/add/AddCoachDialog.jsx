@@ -65,7 +65,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches, clinics }) => {
         body: JSON.stringify({
           type: "coach_added",
           description: `New coach added to ${user.name}`,
-          clinicId: isSystemAdmin ? selectedClinicId : user.clinic._id,
+          clinicId: isSystemAdmin ? selectedClinicId : user.clinic,
         }),
       });
       const respond = await resActivity.json();
@@ -116,7 +116,7 @@ export const AddCoachDialog = ({ open, setOpen, fetchCoaches, clinics }) => {
                   </SelectItem>
                 ) : clinics?.length > 0 ? (
                   clinics.map((clinic) => (
-                    <SelectItem key={clinic._id} value={clinic._id}>
+                    <SelectItem key={clinic.id} value={clinic.id}>
                       {clinic.name}
                     </SelectItem>
                   ))

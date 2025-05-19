@@ -22,7 +22,7 @@ export async function GET() {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
         const clinics = await clientRepo.getClinics();
-        console.log("clinics", clinics[0].coaches);
+        console.log("clinics", clinics[0].coachesCount);
         return NextResponse.json({ status: true, clinics });
     } catch (error) {
         console.error(error);
@@ -47,7 +47,6 @@ export async function POST(request) {
         legalAcknowledgment,
         selectedPlan,
         addOns,
-        additionalCoaches,
     } = await request.json();
 
     if (!clinicName || !clinicEmail || !clinicPhone || !streetAddress || !city || !state || !zipCode || !primaryContact || !email || !hipaaAcknowledgment || !legalAcknowledgment || !selectedPlan) {
@@ -56,7 +55,6 @@ export async function POST(request) {
 
     let clinic = null;
     let adminUser = null;
-    const createdCoachUsers = [];
     const password = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const customer = await createCustomer(clinicEmail, clinicName);
     try {
@@ -75,6 +73,7 @@ export async function POST(request) {
             legalAcknowledgment,
             customer.id
         );
+        
 
         // Create admin user
         adminUser = await userRepo.createAdminUser(
@@ -83,7 +82,7 @@ export async function POST(request) {
             clinicPhone,
             "clinic_admin",
             password,
-            clinic._id
+            clinic.id
         );
         await sendClinicRegistrationEmail(clinicEmail, clinicName, clinicPhone, email, password);
         return NextResponse.json({ success: true, message: "Clinic created successfully" }, { status: 200 });
@@ -94,12 +93,12 @@ export async function POST(request) {
 
             // Delete admin user if created
             if (adminUser) {
-                await userRepo.deleteAdminUser(adminUser._id);
+                await userRepo.deleteAdminUser(adminUser.id);
             }
 
             // Delete clinic if created
             if (clinic) {
-                await clinicRepo.deleteClinic(clinic._id);
+                await clinicRepo.deleteClinic(clinic.id);
             }
         } catch (rollbackError) {
             console.error("Error during rollback:", rollbackError);

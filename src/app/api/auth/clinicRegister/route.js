@@ -55,11 +55,11 @@ export async function POST(request) {
             legalAcknowledgment,
             customer.id
         );
-
-        const subscriptionTier = await subscriptionRepo.createSubscriptionTier(clinic._id, selectedPlan, customer.id);
+        
+        const subscriptionTier = await subscriptionRepo.createSubscriptionTier(clinic.id, selectedPlan, customer.id);
         console.log("Created subscription tier:", subscriptionTier);
         
-        if (!subscriptionTier || !subscriptionTier._id) {
+        if (!subscriptionTier || !subscriptionTier.id) {
             throw new Error("Failed to create subscription tier");
         }
                 
@@ -73,7 +73,7 @@ export async function POST(request) {
             clinicPhone, 
             "clinic_admin", 
             password, 
-            clinic._id
+            clinic.id
         );
 
         // Create coach users if any
@@ -91,7 +91,7 @@ export async function POST(request) {
                         coach.phone,
                         "coach",
                         randomPassword,
-                        clinic._id
+                        clinic.id
                     );
                     createdCoachUsers.push(coachUser);
                 } catch (error) {
@@ -107,17 +107,17 @@ export async function POST(request) {
         try {
             // Delete all created coach users
             for (const coachUser of createdCoachUsers) {
-                await userRepo.deleteAdminUser(coachUser._id);
+                await userRepo.deleteAdminUser(coachUser.id);
             }
             
             // Delete admin user if created
             if (adminUser) {
-                await userRepo.deleteAdminUser(adminUser._id);
+                await userRepo.deleteAdminUser(adminUser.id);
             }
             
             // Delete clinic if created
             if (clinic) {
-                await clinicRepo.deleteClinic(clinic._id);
+                await clinicRepo.deleteClinic(clinic.id);
             }
         } catch (rollbackError) {
             console.error("Error during rollback:", rollbackError);
