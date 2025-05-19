@@ -21,7 +21,6 @@ export async function GET() {
         }
         const clinicId = user.clinic;
         const clients = await clientRepo.getnumclientsbyClinicId(clinicId);
-        console.log("clients", clients);
         return NextResponse.json({ status: true, clients });
     } catch (error) {
         console.error(error);

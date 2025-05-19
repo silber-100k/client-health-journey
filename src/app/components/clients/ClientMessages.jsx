@@ -46,14 +46,14 @@ const ClientMessages = () => {
   const [isSending, setIsSending] = useState(false);
   const [, setUnread] = useAtom(unreadCount);
 
-  const fetchMessageHistory = async ({ sender, receiver }) => {
-    if (!sender || !receiver) return;
+  const fetchMessageHistory = async (receiver) => {
+    if (!receiver) return;
 
     setIsLoading(true);
     try {
       const response = await fetch("/api/message/history", {
         method: "POST",
-        body: JSON.stringify({ sender, receiver }),
+        body: JSON.stringify({ receiver }),
       });
       const data = await response.json();
       if (data.status) {
@@ -70,6 +70,7 @@ const ClientMessages = () => {
   };
 
   const fetchClients = async () => {
+    if (user?.role !== "coach" && user?.role !== "clinic_admin") return;
     setIsLoading(true);
     try {
       const response = await fetch("/api/coach/client");
@@ -117,7 +118,7 @@ const ClientMessages = () => {
       onConnect();
     }
 
-    fetchMessageHistory({ sender: user?.email, receiver: currentClient });
+    fetchMessageHistory(currentClient);
 
     const handleMessageRecieve = (data) => {
       //update state in database
@@ -194,7 +195,7 @@ const ClientMessages = () => {
   useEffect(() => {
     if (coach) {
       fetchClients();
-      fetchMessageHistory({ sender: user?.email, receiver: coach.email });
+      fetchMessageHistory(coach.email);
     }
   }, [coach]);
 

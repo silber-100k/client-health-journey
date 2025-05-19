@@ -24,10 +24,7 @@ const LatestStats = () => {
   
   const fetchLatestStatus = async () => {
     try {
-      const response = await fetch("/api/client/progress", {
-        method: "POST",
-        body: JSON.stringify({ email: user.email }),
-      });
+      const response = await fetch("/api/client/progress");
       const data = await response.json();
       setCheckIns(data.progress);
     } catch (error) {

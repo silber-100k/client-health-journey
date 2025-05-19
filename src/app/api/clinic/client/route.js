@@ -4,7 +4,6 @@ import authOptions from "@/app/lib/authoption";
 import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import { sendClientRegistrationEmail } from "@/app/lib/api/email";
-import mongoose from "mongoose";
 
 export async function GET() {
   try {

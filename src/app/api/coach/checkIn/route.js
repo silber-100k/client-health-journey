@@ -6,7 +6,6 @@ export async function POST(request) {
 
   try {
       const checkIns = await clientRepo.getCheckInsbyId(id);
-
       return NextResponse.json({ status: true, checkIns });
     } catch (error) {
       return NextResponse.json({ status: false, message: error.message });

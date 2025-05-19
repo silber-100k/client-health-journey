@@ -138,8 +138,8 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                 </SelectContent>
               </Select>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                No Templates found. Click "Add Template" to create one.
+              <div className="text-center text-gray-500">
+                No Templates found.
               </div>
             )}
           </div>

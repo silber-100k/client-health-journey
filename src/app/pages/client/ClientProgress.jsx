@@ -16,10 +16,7 @@ const ClientProgress = () => {
 
   const fetchProgressdata = async () => {
     try {
-      const response = await fetch("/api/client/progress", {
-        method: "POST",
-        body: JSON.stringify({ email: user.email }),
-      });
+      const response = await fetch("/api/client/progress");
       const data = await response.json();
       setProgressData(data.progress);
     } catch (error) {

@@ -34,7 +34,6 @@ const ClientsPage = () => {
   const isCoach = false;
   const [currentCoach, setCurrentCoach] = useState("");
   const { user } = useAuth();
-  console.log(clientLimit)
   const { clientLimit } = useClinic();
   const router = useRouter();
 
