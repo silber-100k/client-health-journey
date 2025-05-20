@@ -45,10 +45,9 @@ const ClientMessages = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [, setUnread] = useAtom(unreadCount);
-
+  const [toggle, setToggle] = useState(false);
   const fetchMessageHistory = async (receiver) => {
     if (!receiver) return;
-
     setIsLoading(true);
     try {
       const response = await fetch("/api/message/history", {
@@ -66,9 +65,9 @@ const ClientMessages = () => {
     } finally {
       setIsLoading(false);
       setUnread(0);
+      setToggle((prev) => !prev);
     }
   };
-
   const fetchClients = async () => {
     if (user?.role !== "coach" && user?.role !== "clinic_admin") return;
     setIsLoading(true);
@@ -122,11 +121,52 @@ const ClientMessages = () => {
 
     const handleMessageRecieve = (data) => {
       //update state in database
-      const updateMessage = async (data) => {
+
+      if (
+        currentClient == data.from &&
+        (user?.role === "coach" || user?.role === "clinic_admin")
+      ) {
+        console.log("message_delivered", data);
+        socket.emit("message_delivered", {
+          messageId: data.id,
+          from: data.from,
+        });
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { ...data, status: "delivered" },
+        ]);
+
+        setUnread(0);
+      } else if (user.email == data.to && user?.role === "client") {
+        console.log("message_delivered", data);
+        socket.emit("message_delivered", {
+          messageId: data.id,
+          from: data.from,
+        });
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { ...data, status: "delivered" },
+        ]);
+
+        setUnread(0);
+      }
+    };
+
+    socket.on("msg-recieve", handleMessageRecieve);
+    socket.on("message-status", ({ messageId, status }) => {
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === messageId ? { ...msg, status } : msg))
+      );
+      const updateMessage = async () => {
         try {
           const response = await fetch("/api/message/update", {
             method: "POST",
-            body: JSON.stringify({ id: data.id, status: "delivered", email: user.email }),
+            body: JSON.stringify({
+              id: messageId,
+              status: status,
+              email: user.email,
+            }),
           });
           const jsondata = await response.json();
           if (jsondata.status) {
@@ -139,32 +179,9 @@ const ClientMessages = () => {
           toast.error("Unable to update message");
         }
       };
-
-      if (currentClient == data.from && (user?.role === "coach" || user?.role === "clinic_admin")) {
-        console.log("message_delivered", data);
-        socket.emit("message_delivered", { messageId: data.id, from: data.from });
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { ...data, status: "delivered" },
-        ]);
-        updateMessage(data);
-        setUnread(0);
-      } else if (user.email == data.to && user?.role === "client") {
-        console.log("message_delivered", data);
-        socket.emit("message_delivered", { messageId: data.id, from: data.from });
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { ...data, status: "delivered" },
-        ]);
-        setUnread(0);
+      if (status === "delivered") {
+        updateMessage();
       }
-    };
-
-    socket.on("msg-recieve", handleMessageRecieve);
-    socket.on("message-status", ({ messageId, status }) => {
-      setMessages((prev) =>
-        prev.map((msg) => (msg.id === messageId ? { ...msg, status } : msg))
-      );
     });
     socket.emit("get_user_list");
 
@@ -202,13 +219,12 @@ const ClientMessages = () => {
   const firstUnreadIndex = messages.findIndex(
     (msg) => msg.status === "sent" && msg.to === user.email
   );
-
+  console.log("firstUnreadIndex", firstUnreadIndex);
   const sendMessage = async () => {
     if (!newMessage.trim() || !isConnected) {
       toast.error("Cannot send message. Please check your connection.");
       return;
     }
-
     setIsSending(true);
     const messageId = uuidv4();
     let receiverMail = currentClient;
@@ -234,6 +250,7 @@ const ClientMessages = () => {
 
     try {
       socket.emit("send-message", messageToSend);
+
       setMessages((prev) => [...prev, messageToSend]);
       setNewMessage("");
 
@@ -283,11 +300,31 @@ const ClientMessages = () => {
       .filter((msg) => msg.to === user?.email && msg.status === "sent")
       .map((msg) => msg.id);
     if (unseenMessageIds.length > 0) {
-      socket.emit("messages_viewed", {
-        messageIds: unseenMessageIds,
-        viewerEmail: user?.email,
-      });
+      console.log("unseenMessageIds");
+      async function updateMessageStatus() {
+        const response = await fetch("/api/message/viewed", {
+          method: "POST",
+          body: JSON.stringify({
+            messageIds: unseenMessageIds,
+            viewerEmail: user?.email,
+          }),
+        });
+        const data = await response.json();
+        const updatedMessages = data.updateMessage;
+        if (data.status) {
+          socket.emit("messages_viewed", updatedMessages);
+          toast.success("Message status updated successfully");
+        } else {
+          toast.error(data.message);
+        }
+      }
+      updateMessageStatus();
     }
+
+    console.log(toggle);
+  }, [toggle]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -295,7 +332,11 @@ const ClientMessages = () => {
     <>
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <div
+            className={`w-2 h-2 rounded-full ${
+              isConnected ? "bg-green-500" : "bg-red-500"
+            }`}
+          />
           <p className="text-sm text-muted-foreground">
             {isConnected ? "Connected" : "Disconnected"}
           </p>
@@ -359,15 +400,23 @@ const ClientMessages = () => {
                     </div>
                   )}
                   <div
-                    className={`flex ${msg.from === user.email ? "justify-end" : "justify-start"}`}
+                    className={`flex ${
+                      msg.from === user.email ? "justify-end" : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`flex items-start gap-2 max-w-[80%] ${msg.from === user.email ? "flex-row-reverse" : "flex-row"
-                        }`}
+                      className={`flex items-start gap-2 max-w-[80%] ${
+                        msg.from === user.email
+                          ? "flex-row-reverse"
+                          : "flex-row"
+                      }`}
                     >
                       <Avatar className="h-8 w-8">
                         {msg.senderAvatar ? (
-                          <AvatarImage src={msg.senderAvatar} alt={msg.senderName} />
+                          <AvatarImage
+                            src={msg.senderAvatar}
+                            alt={msg.senderName}
+                          />
                         ) : (
                           <AvatarFallback>
                             <User size={16} />
@@ -377,10 +426,11 @@ const ClientMessages = () => {
 
                       <div>
                         <div
-                          className={`px-4 py-2 rounded-lg text-sm flex justify-between ${msg.from === user.email
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                            }`}
+                          className={`px-4 py-2 rounded-lg text-sm flex justify-between ${
+                            msg.from === user.email
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted"
+                          }`}
                         >
                           {msg.message}
                           <div className="ml-2 flex items-center">
@@ -389,7 +439,9 @@ const ClientMessages = () => {
                                 {msg.status === "sent" && tickIcon}
                                 {msg.status === "delivered" && (
                                   <>
-                                    <span className="mr-[-10px]">{tickIcon}</span>
+                                    <span className="mr-[-10px]">
+                                      {tickIcon}
+                                    </span>
                                     {tickIcon}
                                   </>
                                 )}

@@ -6,10 +6,7 @@ import { socket } from "@/socket";
 import { toast } from "sonner";
 import { unreadCount } from "@/app/store";
 
-export default function NotificationBadge({
-  isMessage,
-  email,
-}) {
+export default function NotificationBadge({ isMessage, email }) {
   const [unread, setUnread] = useAtom(unreadCount);
 
   useEffect(() => {
@@ -26,19 +23,22 @@ export default function NotificationBadge({
       }
     };
     number(email);
+    console.log("unread", unread);
     socket.on("msg-recieve", (data) => {
-      console.log("msg-recieve", data, isMessage);
       if (!isMessage) {
-        console.log("msg-recieve", data, isMessage);
         setUnread((prev) => prev + 1);
+        toast.success("new message");
       }
     });
-
     return () => {
       socket.off("msg-recieve");
     };
   }, [email]);
-
+  useEffect(() => {
+    if (unread > 0) {
+      toast.success(`You have ${unread} new messages.`);
+    }
+  }, [unread]);
   return unread > 0 ? (
     <div className="w-[20px] h-[20px] rounded-full bg-red-500 text-white text-center">
       {unread}

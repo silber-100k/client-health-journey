@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientRepo } from "@/app/lib/db/clientRepo";
 import { getServerSession } from "next-auth";
+import { userRepo } from "@/app/lib/db/userRepo";
 import authOptions from "@/app/lib/authoption";
 
 export async function GET() {

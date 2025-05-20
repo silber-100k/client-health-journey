@@ -3,6 +3,7 @@ import postgres from 'postgres';
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 export const messageRepo = {
+  viewedMessage,
   saveMessage,
   readMessageHistory,
   updateMessage,
@@ -10,6 +11,23 @@ export const messageRepo = {
   getNumber,
   markNotification
 };
+
+async function viewedMessage(messageIds,viewerEmail) {
+   // 1. Update messages status to 'delivered'
+        await sql`
+          UPDATE "Message"
+          SET status = 'delivered'
+          WHERE id = ANY(${messageIds}) 
+            AND receiver = ${viewerEmail}
+            AND status = 'sent'
+        `;
+
+        // 2. Fetch updated messages
+        const updatedMessages = await sql`
+          SELECT id, sender FROM "Message" WHERE id = ANY(${messageIds})
+        `;
+        return updatedMessages
+}
 
 async function saveMessage(id, message, sender, receiver, status) {
   const [newMessage] = await sql`
@@ -88,7 +106,7 @@ async function getNumber(email) {
     const notification = await sql`
       SELECT * FROM "Notification" WHERE "email" = ${email} LIMIT 1
     `;
-    return notification[0] || null;
+    return notification[0].unreadCount || null;
   } catch (error) {
     console.error("Error fetching notification:", error);
     throw error;

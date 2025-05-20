@@ -1,7 +1,6 @@
-const http = require("node:http");
-const next = require("next");
-const { Server } = require("socket.io");
-const db = require("./db");
+const http = require('node:http');
+const next = require('next');
+const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -55,23 +54,8 @@ app.prepare().then(() => {
       socket.to(receiver.socketId).emit("message-status", { messageId, status: "delivered" })
     })
 
-    socket.on('messages_viewed', async ({ messageIds, viewerEmail }) => {
+    socket.on('messages_viewed', async (updatedMessages) => {
       try {
-        // 1. Update messages status to 'delivered'
-        await sql`
-          UPDATE "Message"
-          SET status = 'delivered'
-          WHERE id = ANY(${messageIds}) 
-            AND receiver = ${viewerEmail}
-            AND status = 'sent'
-        `;
-
-        // 2. Fetch updated messages
-        const updatedMessages = await sql`
-          SELECT id, sender FROM "Message" WHERE id = ANY(${messageIds})
-        `;
-
-        // 3. Notify senders about delivery update
         updatedMessages.forEach(msg => {
           const receiver = onlineUsers.find(user => user.email === msg.sender);
           if (receiver) {

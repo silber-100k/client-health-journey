@@ -6,7 +6,6 @@ export async function POST(request) {
   try {
     const newMessage = await messageRepo.saveMessage(id,message,sender,receiver,status);
     const updateNotification = await messageRepo.updateNotification(receiver);
-    console.log("saved message", updateNotification)
     return NextResponse.json({ status: true, newMessage });
   } catch (error) {
     return NextResponse.json({ status: false, message: error.message });
