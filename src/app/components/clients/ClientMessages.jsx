@@ -327,7 +327,7 @@ const ClientMessages = () => {
         const updatedMessages = data.updateMessage;
         if (data.status) {
           socket.emit("messages_viewed", updatedMessages);
-          toast.success("Message status updated successfully");
+          // toast.success("Message status updated successfully");
         } else {
           toast.error(data.message);
         }
