@@ -5,11 +5,27 @@ import { useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { toast } from "sonner";
 import { unreadCount } from "@/app/store";
+// import { useNotifications } from "@/app/notification";
 
 export default function NotificationBadge({ isMessage, email }) {
   const [unread, setUnread] = useAtom(unreadCount);
-
   useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    function showNotification(title, body) {
+      if (Notification.permission === "granted" && !document.hasFocus()) {
+        const notification = new Notification(title, {
+          body,
+          icon: "/chat-icon.png",
+        });
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
     const number = async (email) => {
       try {
         const response = await fetch("/api/message/notification", {
@@ -28,6 +44,7 @@ export default function NotificationBadge({ isMessage, email }) {
       if (!isMessage) {
         setUnread((prev) => prev + 1);
         toast.success("new message");
+        showNotification("New Message", "You have a new message");
       }
     });
     return () => {
@@ -35,8 +52,25 @@ export default function NotificationBadge({ isMessage, email }) {
     };
   }, [email]);
   useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    function showNotification(title, body) {
+      if (Notification.permission === "granted" && !document.hasFocus()) {
+        const notification = new Notification(title, {
+          body,
+          icon: "/chat-icon.png",
+        });
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
     if (unread > 0) {
       toast.success(`You have ${unread} new messages.`);
+      showNotification("New Message", `You have ${unread} new messages.`);
     }
   }, [unread]);
   return unread > 0 ? (

@@ -116,12 +116,26 @@ const ClientMessages = () => {
     if (socket.connected) {
       onConnect();
     }
-
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
     fetchMessageHistory(currentClient);
+    function showNotification(title, body) {
+      if (Notification.permission === "granted" && !document.hasFocus()) {
+        const notification = new Notification(title, {
+          body,
+          icon: "/chat-icon.png", // Replace with your icon path in /public
+        });
 
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
     const handleMessageRecieve = (data) => {
       //update state in database
-
+      showNotification("New message", data.message);
       if (
         currentClient == data.from &&
         (user?.role === "coach" || user?.role === "clinic_admin")
