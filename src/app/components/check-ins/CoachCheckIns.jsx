@@ -73,6 +73,7 @@ const CoachReportsPage = () => {
   useEffect(() => {
     Totalclients();
   }, []);
+  
   useEffect(() => {
     const fetchCoachCheckIns = async () => {
       setLoading(true);
