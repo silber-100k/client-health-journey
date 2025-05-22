@@ -138,7 +138,7 @@ const AddClientForm = ({
       }
     } catch (error) {
       setCreateError(error);
-      console.error(error);
+      console.log(error);
       toast.error("Failed to add client");
     } finally {
       setIsPending(false);

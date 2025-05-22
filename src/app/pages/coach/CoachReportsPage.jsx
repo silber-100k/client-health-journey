@@ -7,16 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+
 import { Skeleton } from "../../components/ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
