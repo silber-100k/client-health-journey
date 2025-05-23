@@ -96,7 +96,7 @@ async function markNotification(email) {
     `;
     return updated[0] || null;
   } catch (error) {
-    console.error("Error marking notification:", error);
+    console.log("Error marking notification:", error);
     throw error;
   }
 }
@@ -106,9 +106,9 @@ async function getNumber(email) {
     const notification = await sql`
       SELECT * FROM "Notification" WHERE "email" = ${email} LIMIT 1
     `;
-    return notification[0].unreadCount || null;
+    return notification[0]?.unreadCount || null;
   } catch (error) {
-    console.error("Error fetching notification:", error);
+    console.log("Error fetching notification:", error);
     throw error;
   }
 }
@@ -133,7 +133,7 @@ async function readMessageHistory(sender, receiver) {
       status: msg.status
     }));
   } catch (error) {
-    console.error("Error fetching message history:", error);
+    console.log("Error fetching message history:", error);
     throw error;
   }
 }

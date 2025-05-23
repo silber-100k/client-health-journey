@@ -40,9 +40,11 @@ import ExerciseTab from "./form/checkInProgressTabs/ExerciseTab";
 import SleepTab from "./form/checkInProgressTabs/SleepTab";
 import MoodTab from "./form/checkInProgressTabs/MoodTab";
 
-const CoachReportsPage = () => {
+const ClinicCheckIns = () => {
   const { user } = useAuth();
   const [clients, setClients] = useState([]);
+  const [coaches, setCoaches] = useState([]);
+  const [currentCoach, setCurrentCoach] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState("");
   const [startDate, setStartDate] = useState(null);
@@ -51,29 +53,46 @@ const CoachReportsPage = () => {
   const [checkIns, setCheckIns] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const Totalclients = async () => {
+  const fetchCoaches = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const response = await fetch("/api/coach/client");
+      const response = await fetch("/api/clinic/coach");
       const data = await response.json();
-      if (data.status) {
-        toast.success("Fetched successfully");
-        setClients(data.clients);
-        setIsLoading(false);
+      if (data.coaches) {
+        setCoaches(data.coaches);
       } else {
-        toast.error(data.message);
-        setIsLoading(false);
+        toast.error("Failed to fetch coaches");
       }
     } catch (error) {
-      toast.error("Unable to get data");
+      toast.error("Failed to fetch coaches");
+    } finally {
       setIsLoading(false);
     }
   };
+  const fetchClientsByCoach = async (coachId) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/client/bycoachId", {
+        method: "POST",
+        body: JSON.stringify({ coachId }),
+      });
+      const data = await response.json();
+      setClients(data.clients);
+    } catch (error) {
+      toast.error("Failed to fetch clients");
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
+
+  const handlechange = (e) => {
+    setCurrentCoach(e);
+    setCheckIns([]);
+  };
 
   useEffect(() => {
-    Totalclients();
+    fetchCoaches();
   }, []);
-  
   useEffect(() => {
     const fetchCoachCheckIns = async () => {
       setLoading(true);
@@ -97,6 +116,11 @@ const CoachReportsPage = () => {
       fetchCoachCheckIns();
     }
   }, [selectedClient, startDate, endDate]);
+
+  useEffect(() => {
+    fetchClientsByCoach(currentCoach);
+    setSelectedClient("");
+  }, [currentCoach]);
 
   useEffect(() => {
     const now = new Date();
@@ -126,11 +150,27 @@ const CoachReportsPage = () => {
   const handlechange2 = (date) => {
     setEndDate(date);
   };
-
-  console.log("asdfasdf", isLoading);
   return (
     <div>
       <div className="flex items-center gap-4">
+        <Select
+          name="userList"
+          value={currentCoach}
+          onValueChange={handlechange}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select a coach" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={user?.id}>{user?.name}</SelectItem>
+            {coaches?.map((coach, index) => (
+              <SelectItem value={coach.id} key={index}>
+                {coach.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select
           value={selectedClient}
           onValueChange={(value) => setSelectedClient(value)}
@@ -141,7 +181,7 @@ const CoachReportsPage = () => {
             <SelectValue placeholder="Select a client" />
           </SelectTrigger>
           <SelectContent>
-            {clients.map((client) => (
+            {clients?.map((client) => (
               <SelectItem key={client.id} value={client.id}>
                 {client.name}
               </SelectItem>
@@ -263,4 +303,4 @@ const CoachReportsPage = () => {
   );
 };
 
-export default CoachReportsPage;
+export default ClinicCheckIns;

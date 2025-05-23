@@ -146,11 +146,32 @@ async function createCheckIn(
   return checkin;
 }
 
-async function getCheckInsbyId(id) {
-  const checkIns = await sql`
-    SELECT * FROM "CheckIn" WHERE "coachId" = ${id}
-  `;
+async function getCheckInsbyRange(email,startDate,endDate) {
+ const checkIns = await sql`
+  SELECT * FROM "CheckIn"
+  WHERE "email" = ${email}
+    AND "selectedDate" >= ${startDate}
+    AND "selectedDate" <= ${endDate}
+`;
+
   return checkIns;
+}
+
+async function getWeightByClientId(clientId,email) {
+  const initialWeight = await sql`
+    SELECT "initialWeight" FROM "Client" WHERE "id" = ${clientId}
+  `;
+  const currentWeight = await sql`
+  SELECT "weight" FROM "CheckIn"
+  WHERE "email" = ${email}
+  ORDER BY "selectedDate" DESC
+  LIMIT 1
+  `;
+  return {
+    initialWeight: initialWeight[0]?.initialWeight || 0,
+    currentWeight: currentWeight[0]?.weight || 0
+  }
+  
 }
 
 async function getnumCheckInbyId(id) {
@@ -476,7 +497,7 @@ export const clientRepo = {
   createClient,
   getProgressdata,
   createCheckIn,
-  getCheckInsbyId,
+  getCheckInsbyRange,
   getnumCheckInbyId,
   getActiveClients,
   getCheckIns,
@@ -490,5 +511,6 @@ export const clientRepo = {
   gethistoricalData,
   getPendingCheckIns,
   getCompletedProgramsCount, 
-  getCoachRecentActivities
+  getCoachRecentActivities,
+  getWeightByClientId
 };
