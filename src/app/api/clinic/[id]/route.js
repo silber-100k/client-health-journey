@@ -33,7 +33,17 @@ export async function GET(req, { params }) {
             plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);
             clientLimit = plan.clientLimit;
         }
-        return NextResponse.json({ success: true, clinic, clientLimit, planId: plan?.id, currentPlan: subscriptionTier.planId});
+        return NextResponse.json({ 
+            success: true, 
+            clinic: {
+                id: clinic.id,
+                name: clinic.name,
+                email: clinic.email
+            },
+            clientLimit, 
+            planId: plan?.id, 
+            currentPlan: subscriptionTier.planId
+        });
     } catch (error) {
         console.error("Error fetching clinic data:", error);
         return NextResponse.json({ success: false, error: "Failed to fetch clinic data" }, { status: 500 });
