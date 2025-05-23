@@ -90,6 +90,17 @@ async function getSubscriptionHistory() {
   return await sql`SELECT * FROM "SubscriptionHistory"`;
 }
 
+async function activeSubscriptionTier(id, planId, isActive) {
+  const [updated] = await sql`
+    UPDATE "SubscriptionTier"
+    SET "planId" = ${planId},
+        "isActive" = ${isActive}
+    WHERE "id" = ${id}
+    RETURNING *
+  `;
+  return updated || null;
+}
+
 export const subscriptionRepo = {
   createSubscriptionTier,
   createSubscriptionHistory,
@@ -100,4 +111,5 @@ export const subscriptionRepo = {
   deleteSessionByClinicId,
   getSubscriptionTierByCustomerId,
   getSubscriptionHistory,
+  activeSubscriptionTier,
 };

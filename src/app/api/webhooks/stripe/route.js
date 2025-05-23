@@ -54,9 +54,7 @@ export async function POST(request) {
 
                 const subscriptionTier = await subscriptionRepo.getSubscriptionTierByCustomerId(customerId);
                 if (subscriptionTier) {
-                    subscriptionTier.planId = plan.id;
-                    subscriptionTier.isActive = true;
-                    await subscriptionTier.save();
+                    await subscriptionRepo.activeSubscriptionTier(subscriptionTier.id, plan.id, true);
                 }
                 break;
             }
@@ -85,9 +83,7 @@ export async function POST(request) {
 
                     const subscriptionTier = await subscriptionRepo.getSubscriptionTierByCustomerId(customerId);
                     if (subscriptionTier) {
-                        subscriptionTier.planId = plan.id;
-                        subscriptionTier.isActive = true;
-                        await subscriptionTier.save();
+                        await subscriptionRepo.activeSubscriptionTier(subscriptionTier.id, plan.id, true);
                     }
                 }
                 break;
@@ -98,8 +94,7 @@ export async function POST(request) {
                 const customerId = subscription.customer;
                 const subscriptionTier = await subscriptionRepo.getSubscriptionTierByCustomerId(customerId);
                 if (subscriptionTier) {
-                    subscriptionTier.isActive = false;
-                    await subscriptionTier.save();
+                    await subscriptionRepo.activeSubscriptionTier(subscriptionTier.id, null, false);
                 }
                 break;
             }
@@ -133,7 +128,7 @@ export async function POST(request) {
                 await subscriptionRepo.createSubscriptionHistory(
                     subscriptionTier.clinicId,
                     subscriptionTier.id,
-                    invoice.amount_paid
+                    invoice.amount_paid / 100
                 );
 
                 console.log(`Subscription renewed for clinic: ${subscriptionTier.clinicId}`);

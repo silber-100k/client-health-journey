@@ -25,6 +25,4 @@ export async function GET() {
         return NextResponse.json({ status: true, numclients });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-    }
-}
+        return NextResponse.json({ message: "Internal server error" }, { status:
