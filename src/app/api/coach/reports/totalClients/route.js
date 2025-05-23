@@ -19,10 +19,11 @@ export async function GET() {
         if (user.role !== "coach") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const coachId = user.id;
-        console.log(coachId)
-        const numclients = await clientRepo.getnumclientsbyId(coachId);
+        
+        const numclients = await clientRepo.getnumclientsbyId(user.id);
         return NextResponse.json({ status: true, numclients });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Internal server error" }, { status:
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
+}
