@@ -16,6 +16,7 @@ import { Skeleton } from "../ui/skeleton";
 import { format } from "date-fns";
 import GoogleDocViewer from "@/app/components/check-ins/form/resourceTabs/GoogleDocViewer";
 import TextComponent from "../check-ins/form/resourceTabs/TextComponent";
+
 const ClientResources = () => {
   const [resources, setResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
