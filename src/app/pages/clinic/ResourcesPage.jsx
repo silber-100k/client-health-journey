@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Card,
@@ -6,29 +7,14 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { FileText, Video, BookOpen } from "lucide-react";
+import { useState } from "react";
+import VideoTab from "@/app/components/check-ins/form/resourceTabs/VideoTab"
+import TutorialTab from "@/app/components/check-ins/form/resourceTabs/TutorialTab"
+import DocumentTab from "@/app/components/check-ins/form/resourceTabs/DocumentTab"
+import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/app/components/ui/tabs";
 
 const ResourcesPage = () => {
-  const resourceCategories = [
-    {
-      id: 1,
-      title: "Training Videos",
-      description: "Educational videos for clinics and coaches",
-      icon: <Video size={20} className="text-blue-500" />,
-    },
-    {
-      id: 2,
-      title: "Documents & Forms",
-      description: "Downloadable templates and forms",
-      icon: <FileText size={20} className="text-green-500" />,
-    },
-    {
-      id: 3,
-      title: "Tutorials & Guides",
-      description: "Step-by-step instructions and best practices",
-      icon: <BookOpen size={20} className="text-amber-500" />,
-    },
-  ];
-
+ 
   return (
     <div>
       <div className="mb-6">
@@ -38,25 +24,29 @@ const ResourcesPage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {resourceCategories.map((category) => (
-          <Card
-            key={category.id}
-            className="hover:shadow-md transition-shadow cursor-pointer"
-          >
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-md font-medium">
-                {category.title}
-              </CardTitle>
-              {category.icon}
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">{category.description}</p>
-              <div className="mt-4 text-sm text-primary-500">Coming soon</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+ <Tabs defaultValue="video">
+          <TabsList className="mt-6 mb-6 w-full flex">
+            <TabsTrigger value="video" className="flex-1">
+              Training Videos &nbsp; <Video size={20} className="text-blue-500" />
+            </TabsTrigger>
+            <TabsTrigger value="document" className="flex-1">
+              Documents & Forms &nbsp; <FileText size={20} className="text-green-500" />
+            </TabsTrigger>
+            <TabsTrigger value="tutorial" className="flex-1">
+              Tutorials & Guides &nbsp; <BookOpen size={20} className="text-amber-500" />
+            </TabsTrigger>
+          </TabsList>
+              <TabsContent value="video">
+                <VideoTab/>
+              </TabsContent>
+              <TabsContent value="document">
+                <DocumentTab/>
+              </TabsContent>
+              <TabsContent value="tutorial">
+                <TutorialTab/>
+              </TabsContent>
+            </Tabs>
+
 
       <Card className="mt-6">
         <CardHeader>

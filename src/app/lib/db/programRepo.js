@@ -2,10 +2,6 @@ import postgres from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
-/**
- * Get all programs for a given clinic with client counts
- * Includes joining with Template table for template details
- */
 async function getPrograms(clinicId) {
   // Get all programs for the clinic with template info
   const programs = await sql`

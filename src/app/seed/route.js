@@ -102,6 +102,24 @@ async function seedProgram() {
   `;
 }
 
+async function seedResource() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS "Resource" (
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "title" VARCHAR(255),
+      "description" VARCHAR(255),
+      "role" VARCHAR(255),
+      "type" VARCHAR(255),
+      "category" VARCHAR(255),
+      "url" TEXT,          
+      "isNew" BOOLEAN DEFAULT FALSE, 
+      "content" TEXT,
+      "uploadDate" TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+  `;
+}
+
+
 async function seedClient() {
   await sql`
     CREATE TABLE "Client" (
@@ -246,6 +264,7 @@ export async function GET() {
       await seedActivity();
       await seedSubscriptionTier();
       await SubscriptionHistory();
+      await seedResource();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {
