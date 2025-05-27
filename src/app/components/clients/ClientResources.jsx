@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { FileText, Download, Eye, FolderOpen } from "lucide-react";
+import { FileText, Eye, FolderOpen } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
