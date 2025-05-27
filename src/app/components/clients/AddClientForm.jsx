@@ -145,7 +145,6 @@ const AddClientForm = ({
     }
   };
 
-  console.log("coaceh", coaches);
   return (
     <FormProvider {...form}>
       <Form {...form}>
