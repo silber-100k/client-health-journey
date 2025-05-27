@@ -118,12 +118,18 @@ const DocEditComponent = ({ text, getAllTexts }) => {
         </CardContent>
       </Card>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{text.title}</DialogTitle>
-            <DialogDescription>{text.description}</DialogDescription>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="w-full">
+            <DialogTitle className="break-words whitespace-pre-line">
+              {text.title}
+            </DialogTitle>
+            <DialogDescription className="break-words break-all whitespace-pre-line">
+              {text.description}
+            </DialogDescription>
           </DialogHeader>
-          <div>{text.content}</div>
+          <div className="w-full break-all whitespace-pre-line">
+            {text.content}
+          </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" className="mr-2" onClick={handleEdit}>
               <a href={text.content} target="_blank" rel="noopener noreferrer">

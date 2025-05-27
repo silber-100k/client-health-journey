@@ -111,7 +111,6 @@ async function seedResource() {
       "role" VARCHAR(255),
       "type" VARCHAR(255),
       "category" VARCHAR(255),
-      "url" TEXT,          
       "isNew" BOOLEAN DEFAULT FALSE, 
       "content" TEXT,
       "uploadDate" TIMESTAMP WITH TIME ZONE DEFAULT now()

@@ -23,9 +23,9 @@ import DocEditComponent from "./DocEditComponent";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
-import DocComponent from "./DocComponent"
+import DocComponent from "./DocComponent";
 const DocumentTab = () => {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [open, onOpenChange] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [data, submittedData] = useState({
@@ -39,6 +39,11 @@ const DocumentTab = () => {
   const [texts, setAlltexts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const handleAddlclientdialogue = () => {
+    window.open(
+      "https://docs.google.com/document/create",
+      "_blank",
+      "noopener,noreferrer"
+    );
     onOpenChange(true);
   };
   const isAdmin = user?.role === "admin";
@@ -90,9 +95,7 @@ const DocumentTab = () => {
         <div className="flex justify-center items-center h-[400px]">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>
-      ) : (
-        isAdmin?
-        (
+      ) : isAdmin ? (
         <>
           <Button onClick={handleAddlclientdialogue} className="mb-[20px]">
             <UserPlus className="mr-2 h-4 w-4" />
@@ -207,19 +210,12 @@ const DocumentTab = () => {
               : ""}
           </div>
         </>
-        ):(
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {texts
-              ? texts.map((value, key) => (
-                  <DocComponent
-                    text={value}
-                    key={key}
-                  />
-                ))
-              : ""}
-          </div>   
-        )
-
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {texts
+            ? texts.map((value, key) => <DocComponent text={value} key={key} />)
+            : ""}
+        </div>
       )}
     </div>
   );
