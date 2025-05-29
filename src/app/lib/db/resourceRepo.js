@@ -10,6 +10,14 @@ async function createformattedtext(title, description, role, category, type, con
   `;
   return text;
 }
+async function saveVideo(title, role, type, content) {
+  const [video] = await sql`
+    INSERT INTO "Resource" ("title", "role", "type", "content")
+    VALUES (${title}, ${role}, ${type}, ${content})
+    RETURNING *
+  `;
+  return video;
+}
 
 async function getAllTexts() {
   const texts = await sql`
@@ -88,6 +96,30 @@ async function getAllDocsForClient() {
   return texts;
 }
 
+async function getAllVideos() {
+  const videos = await sql`
+  SELECT * FROM "Resource"
+  WHERE "type" = 'Video';
+  `;
+  return videos;
+}
+
+async function getAllVideosForClinic() {
+  const videos = await sql`
+  SELECT * FROM "Resource"
+  WHERE "role" IN ('clinic', 'all') AND "type" = 'Video';
+  `;
+  return videos;
+}
+
+async function getAllVideosForCoach() {
+  const videos = await sql`
+  SELECT * FROM "Resource"
+  WHERE "role" IN ('coach', 'all') AND "type" = 'Video';
+  `;
+  return videos;
+}
+
 export const resourceRepo = {
   createformattedtext,
   getAllTexts,
@@ -100,4 +132,8 @@ export const resourceRepo = {
   getAllDocsForClinic,
   getAllDocsForCoach,
   getAllDocsForClient,
+  getAllVideos,
+  getAllVideosForClinic,
+  getAllVideosForCoach,
+  saveVideo,
 }

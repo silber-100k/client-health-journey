@@ -42,7 +42,7 @@ export default function NotificationBadge({ isMessage, email }) {
     console.log("unread", unread);
     socket.on("msg-recieve", (data) => {
       if (!isMessage) {
-        setUnread((prev) => prev + 1);
+        setUnread((prev) => Number(prev) + 1);
         toast.success("new message");
         showNotification("New Message", "You have a new message");
       }

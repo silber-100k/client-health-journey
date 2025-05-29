@@ -46,6 +46,7 @@ const ClientMessages = () => {
   const [isSending, setIsSending] = useState(false);
   const [, setUnread] = useAtom(unreadCount);
   const [toggle, setToggle] = useState(false);
+
   const fetchMessageHistory = async (receiver) => {
     if (!receiver) return;
     setIsLoading(true);
@@ -233,7 +234,7 @@ const ClientMessages = () => {
   const firstUnreadIndex = messages.findIndex(
     (msg) => msg.status === "sent" && msg.to === user.email
   );
-  console.log("firstUnreadIndex", firstUnreadIndex);
+
   const sendMessage = async () => {
     if (!newMessage.trim() || !isConnected) {
       toast.error("Cannot send message. Please check your connection.");
@@ -314,7 +315,6 @@ const ClientMessages = () => {
       .filter((msg) => msg.to === user?.email && msg.status === "sent")
       .map((msg) => msg.id);
     if (unseenMessageIds.length > 0) {
-      console.log("unseenMessageIds");
       async function updateMessageStatus() {
         const response = await fetch("/api/message/viewed", {
           method: "POST",

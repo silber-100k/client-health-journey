@@ -74,3 +74,22 @@ export const sendClinicRegistrationEmail = async (clinicEmail, clinicName, clini
         console.log(error);
     }
 }
+
+export const sendNewMessageEmail = async (senderName,time,receiver) => {
+    try {
+        const templateParams = {
+            name: senderName,
+            time: time,
+            email: receiver,
+        }
+
+        await emailjs.send(
+            process.env.EMAIL_SERVICE_ID,
+            process.env.EMAIL_NEW_MESSAGE_TEMPLATE_ID,
+            templateParams,
+            emailUserId
+        );
+    } catch (error) {
+        console.log(error);
+    }
+}
