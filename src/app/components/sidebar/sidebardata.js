@@ -44,11 +44,6 @@ export const adminNavItems = [
     href: "/admin/clients",
     icon: Users,
   },
-  // {
-  //   title: "Programs",
-  //   href: "/admin/programs",
-  //   icon: ClipboardList,
-  // },
   {
     title: "Check-ins",
     href: "/admin/check-ins",
@@ -73,6 +68,11 @@ export const adminNavItems = [
     title: "Admin Users",
     href: "/admin/adminUsers",
     icon: UserCog,
+  },
+  {
+    title: "Programs",
+    href: "/admin/programs",
+    icon: ClipboardList,
   },
   {
     title: "Templates",
@@ -134,7 +134,7 @@ export const clinicAdminNavItems = [
   //   href: "/admin/clinic-customization",
   //   icon: Palette,
   // },
-  
+
   {
     title: "Messages",
     href: "/clinic/messages",

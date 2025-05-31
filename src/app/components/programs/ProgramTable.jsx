@@ -16,8 +16,11 @@ import {
   Loader2,
   Users,
 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
+  const {user} = useAuth();
+  const isAdmin = user?.role === "admin";
   const getProgramIcon = (type) => {
     switch (type?.toLowerCase()) {
       case "nutrition":
@@ -75,6 +78,9 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
         <TableHeader>
           <TableRow>
             <TableHead>Program</TableHead>
+            {isAdmin?(
+              <TableHead>Clinic</TableHead>
+            ):("")}
             <TableHead>Type</TableHead>
             <TableHead>Duration</TableHead>
             <TableHead>Check-in</TableHead>
@@ -109,6 +115,13 @@ const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
                   </div>
                 </div>
               </TableCell>
+              {
+                isAdmin?(
+                  <TableCell>
+                 {program.clinicEmail}
+                  </TableCell>
+                ):("")
+              }
               <TableCell>
                 <Badge variant="outline" className="capitalize">
                   {program.template? program.template.type : "custom"}

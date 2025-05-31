@@ -1,26 +1,23 @@
-
 import { z } from 'zod';
 
-// Form schema with validation
 export const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   phone: z.string().optional(),
-  programId: z.string().optional(),
+  programId: z.string().min(1, { message: 'Please select a program.' }),
   programCategory: z.string().optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { 
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   notes: z.string().optional(),
-  // Add coachId field
-  coachId: z.string().optional(),
-  // Add new fields for measurements and goals
+  coachId: z.string().min(1, { message: 'Please select a coach.' }),
   initialWeight: z.number().optional(),
   weightDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   goals: z.array(z.enum(['weight_loss', 'skin_tightening', 'build_muscle', 'improve_health'])).default([]),
 });
+
 
 
 export const clientGoals = [

@@ -10,7 +10,7 @@ async function getPrograms(clinicId) {
     row_to_json(t) AS template
   FROM "Program" p
   LEFT JOIN "Template" t ON p."tempId" = t."id"
-  WHERE p."clinicId" = ${clinicId}
+  WHERE p."clinicId" = ${clinicId} OR p."all" = 'all'
 `;
 
   // Get client counts grouped by programId
@@ -33,37 +33,43 @@ async function getPrograms(clinicId) {
   return result;
 }
 
-/**
- * Get all programs (admin view) with client counts and template info
- */
 async function getAllProgramsAdmin() {
-const programs = await sql`
-  SELECT 
-    p.*,
-    row_to_json(t) AS template
-  FROM "Program" p
-  LEFT JOIN "Template" t ON p."tempId" = t."id"
-`;
+  // 1. Get programs with template info
+  const programs = await sql`
+    SELECT 
+      p.*,
+      row_to_json(t) AS template
+    FROM "Program" p
+    LEFT JOIN "Template" t ON p."tempId" = t."id"
+  `;
 
+  // 2. Get client counts grouped by programId
   const clientCounts = await sql`
     SELECT "programId", COUNT(*) AS count
     FROM "Client"
     GROUP BY "programId"
   `;
-
   const countMap = new Map(clientCounts.map(row => [row.programId, Number(row.count)]));
 
+  // 3. Get all clinic emails
+  const clinics = await sql`
+    SELECT "id", "email"
+    FROM "Clinic"
+  `;
+  const clinicEmailMap = new Map(clinics.map(row => [row.id, row.email]));
+
+  // 4. Merge everything
   const result = programs.map(program => ({
     ...program,
     clientCount: countMap.get(program.id) || 0,
+    clinicEmail: program.clinicId ? (clinicEmailMap.get(program.clinicId) || "all") : "all"
   }));
 
   return result;
 }
 
-/**
- * Create a new program
- */
+
+
 async function createProgram(name, type, duration, checkInFrequency, description, tempId, clinicId) {
   const [program] = await sql`
     INSERT INTO "Program" ("name", "type", "duration", "checkInFrequency", "description", "tempId", "clinicId")
@@ -73,6 +79,14 @@ async function createProgram(name, type, duration, checkInFrequency, description
   return program;
 }
 
+async function createProgramAdmin(name, type, duration, checkInFrequency, description, tempId, all) {
+  const [program] = await sql`
+    INSERT INTO "Program" ("name", "type", "duration", "checkInFrequency", "description", "tempId", "all")
+    VALUES (${name}, ${type}, ${duration}, ${checkInFrequency}, ${description}, ${tempId}, ${all})
+    RETURNING *
+  `;
+  return program;
+}
 /**
  * Get all templates
  */
@@ -135,4 +149,5 @@ export const programRepo = {
   getTemplateDescription,
   deleteTemplate,
   getAllProgramsAdmin,
+  createProgramAdmin
 };

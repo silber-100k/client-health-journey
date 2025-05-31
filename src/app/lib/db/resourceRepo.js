@@ -120,6 +120,14 @@ async function getAllVideosForCoach() {
   return videos;
 }
 
+async function getResourceById(id) {
+  const [resource] = await sql`
+    SELECT * FROM "Resource"
+    WHERE "id" = ${id}
+  `;
+  return resource;
+}
+
 export const resourceRepo = {
   createformattedtext,
   getAllTexts,
@@ -136,4 +144,5 @@ export const resourceRepo = {
   getAllVideosForClinic,
   getAllVideosForCoach,
   saveVideo,
+  getResourceById,
 }

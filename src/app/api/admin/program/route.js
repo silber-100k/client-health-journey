@@ -21,3 +21,18 @@ export async function GET() {
   const programs = await programRepo.getAllProgramsAdmin();
   return NextResponse.json({ status: true, programs });
 }
+
+export async function POST(request) {
+  const { name, type, duration, checkInFrequency, description, tempId } = await request.json();
+  const all = "all";
+  if (!duration || !checkInFrequency || !description) {
+    return NextResponse.json({ status: false, message: "Invalid request" });
+  }
+  try {
+    const program = await programRepo.createProgramAdmin(name, type, duration, checkInFrequency, description, tempId, all);
+
+    return NextResponse.json({ status: true, program });
+  } catch (error) {
+    return NextResponse.json({ status: false, message: "error to create program" });
+  }
+}

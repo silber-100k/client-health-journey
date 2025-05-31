@@ -48,7 +48,7 @@ const ProgramsPage = () => {
     console.log(data);
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/clinic/program", {
+      const response = await fetch("/api/admin/program", {
         method: "POST",
         body: JSON.stringify(data),
       });

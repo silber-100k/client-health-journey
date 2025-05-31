@@ -3,11 +3,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/app/components/ui/button";
 import { toast } from "sonner";
+import { Download, Trash2, Loader2 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function VideoList({ trigger }) {
+  const {user} = useAuth();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const isAdmin = user?.role === "admin";
   useEffect(() => {
     fetchVideos();
   }, [trigger]);
@@ -25,40 +30,60 @@ export default function VideoList({ trigger }) {
   };
 
   const handleDelete = async (videoId) => {
+    setDeletingId(videoId);
     try {
-      const response = await fetch(`/api/admin/resource/html/${videoId}`, {
+      const response = await fetch(`/api/admin/resource/video/${videoId}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
-        setVideos(videos.filter((v) => v.id !== videoId));
-        toast.success("Video deleted successfully");
-      } else {
-        throw new Error("Failed to delete video");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to delete video: ${response.status}`);
       }
+
+      setVideos(videos.filter((v) => v.id !== videoId));
+      toast.success("Video deleted successfully");
     } catch (error) {
-      toast.error("Error deleting video");
+      console.error("Delete error:", error);
+      toast.error(error.message || "Error deleting video");
+    } finally {
+      setDeletingId(null);
     }
   };
 
-  // Download function
-  const handleDownload = async (url, title) => {
+  const handleDownload = async (url, title, videoId) => {
+    if (!url) {
+      toast.error("Invalid video URL");
+      return;
+    }
+
+    setDownloadingId(videoId);
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to download video");
+      const response = await fetch(`/api/admin/resource/video/download?url=${encodeURIComponent(url)}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to download video: ${response.status}`);
+      }
+
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
 
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = title || "video.mp4";
+      a.download = `${title}.mp4`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
-      toast.success("Download started");
+      toast.success(`"${title}" downloaded successfully`);
     } catch (error) {
-      toast.error("Error downloading video");
+      console.error("Download error:", error);
+      toast.error(error.message || "Error downloading video");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -83,17 +108,43 @@ export default function VideoList({ trigger }) {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => handleDownload(video.content, video.title)}
+                onClick={() => handleDownload(video.content, video.title, video.id)}
+                disabled={downloadingId === video.id || deletingId === video.id}
+                className="flex items-center gap-2"
               >
-                Download
+                {downloadingId === video.id ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Downloading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4" />
+                    <span>Download</span>
+                  </>
+                )}
               </Button>
-              <Button
+              {isAdmin?(
+                <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => handleDelete(video.id)}
+                disabled={downloadingId === video.id || deletingId === video.id}
+                className="flex items-center gap-2"
               >
-                Delete
-              </Button>
+                {deletingId === video.id ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    <span>Delete</span>
+                  </>
+                )}
+              </Button>):("")}
+              
             </div>
           </div>
         </div>

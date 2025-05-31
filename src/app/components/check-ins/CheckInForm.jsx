@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   Card,
@@ -32,10 +32,10 @@ const CheckInForm = () => {
   const [currentTab, setCurrentTab] = useState("measurements");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkInData, setCheckInData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    coachId: user?.coachId || "",
-    clinic: user?.clinic || "",
+    name:"",
+    email: "",
+    coachId: "",
+    clinic: "",
     selectedDate: new Date(),
     weight: "",
     waterIntake: "",
@@ -69,11 +69,16 @@ const CheckInForm = () => {
     notes: "",
   });
 
+  useEffect(()=>{
+    setCheckInData((prev) => ({...prev, name:user?.name, email:user?.email, coachId:user?.coachId, clinic:user?.clinic}));
+  },[user])
+
   const handlechange = (date) => {
     setCheckInData((prev) => ({ ...prev, selectedDate: date }));
   };
 
   const handleSubmit = async () => {
+
     if (!user) {
       toast.error("Please log in to submit check-in data");
       return;

@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.817.0",
-    "@aws-sdk/s3-request-presigner": "^3.817.0",
+    "@aws-sdk/client-s3": "^3.820.0",
+    "@aws-sdk/lib-storage": "^3.820.0",
+    "@aws-sdk/s3-request-presigner": "^3.820.0",
     "@emailjs/nodejs": "^5.0.2",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.10",

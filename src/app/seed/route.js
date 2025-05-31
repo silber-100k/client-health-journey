@@ -97,7 +97,8 @@ async function seedProgram() {
         "checkInFrequency" VARCHAR(255),
         "description" TEXT,
         "tempId" UUID REFERENCES "Template"("id"),
-        "clinicId" UUID REFERENCES "Clinic"("id")
+        "clinicId" UUID REFERENCES "Clinic"("id"),
+        "all" VARCHAR(255)
     );
   `;
 }
