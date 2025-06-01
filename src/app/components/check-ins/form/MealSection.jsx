@@ -3,7 +3,7 @@ import { Textarea } from "../../../components/ui/textarea";
 import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 
-const MealSection = ({ title, checkInData, setCheckInData }) => {
+const MealSection = ({ title, register, errors, formData, setValue, prefix }) => {
   // Only show nutrition guidance for main meals, not snacks
   const mealType = title.toLowerCase();
   const showGuidance = mealType !== "snacks";
@@ -16,104 +16,80 @@ const MealSection = ({ title, checkInData, setCheckInData }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`${mealId}-protein`}>Protein</Label>
+          <Label htmlFor={`${prefix}Protein`}>Protein</Label>
           <Textarea
-            name={`${mealId}Protein`}
-            value={checkInData[`${mealId}Protein`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}Protein`]: e.target.value,
-              }))
-            }
+            {...register(`${prefix}Protein`)}
             placeholder={`What protein did you have for ${title.toLowerCase()}?`}
             rows={2}
           />
+          {errors[`${prefix}Protein`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}Protein`].message}</span>
+          )}
         </div>
         <div>
-          <Label htmlFor={`${mealId}-protein-portion`}>
+          <Label htmlFor={`${prefix}ProteinPortion`}>
             Protein Portion (oz)
           </Label>
           <Input
-            name={`${mealId}ProteinPortion`}
+            {...register(`${prefix}ProteinPortion`)}
             type="number"
-            value={checkInData[`${mealId}ProteinPortion`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}ProteinPortion`]: e.target.value,
-              }))
-            }
             placeholder="Portion size"
           />
+          {errors[`${prefix}ProteinPortion`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}ProteinPortion`].message}</span>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`${mealId}-fruit`}>Fruit</Label>
+          <Label htmlFor={`${prefix}Fruit`}>Fruit</Label>
           <Textarea
-            name={`${mealId}Fruit`}
-            value={checkInData[`${mealId}Fruit`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}Fruit`]: e.target.value,
-              }))
-            }
+            {...register(`${prefix}Fruit`)}
             placeholder={`What fruit did you have for ${title.toLowerCase()}?`}
             rows={2}
           />
+          {errors[`${prefix}Fruit`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}Fruit`].message}</span>
+          )}
         </div>
         <div>
-          <Label htmlFor={`${mealId}-fruit-portion`}>Fruit Portion (oz)</Label>
+          <Label htmlFor={`${prefix}FruitPortion`}>Fruit Portion (oz)</Label>
           <Input
-            name={`${mealId}FruitPortion`}
+            {...register(`${prefix}FruitPortion`)}
             type="number"
-            value={checkInData[`${mealId}FruitPortion`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}FruitPortion`]: e.target.value,
-              }))
-            }
             placeholder="Portion size"
           />
+          {errors[`${prefix}FruitPortion`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}FruitPortion`].message}</span>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`${mealId}-vegetable`}>Vegetables</Label>
+          <Label htmlFor={`${prefix}Vegetable`}>Vegetables</Label>
           <Textarea
-            name={`${mealId}Vegetable`}
-            value={checkInData[`${mealId}Vegetable`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}Vegetable`]: e.target.value,
-              }))
-            }
+            {...register(`${prefix}Vegetable`)}
             placeholder={`What vegetables did you have for ${title.toLowerCase()}?`}
             rows={2}
           />
+          {errors[`${prefix}Vegetable`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}Vegetable`].message}</span>
+          )}
         </div>
         <div>
-          <Label htmlFor={`${mealId}-vegetable-portion`}>
+          <Label htmlFor={`${prefix}VegetablePortion`}>
             Vegetable Portion (oz)
           </Label>
           <Input
-            name={`${mealId}VegetablePortion`}
+            {...register(`${prefix}VegetablePortion`)}
             type="number"
-            value={checkInData[`${mealId}VegetablePortion`]}
-            onChange={(e) =>
-              setCheckInData((prev) => ({
-                ...prev,
-                [`${mealId}VegetablePortion`]: e.target.value,
-              }))
-            }
             placeholder="Portion size"
           />
+          {errors[`${prefix}VegetablePortion`] && (
+            <span className="text-red-500 text-sm">{errors[`${prefix}VegetablePortion`].message}</span>
+          )}
         </div>
       </div>
     </div>

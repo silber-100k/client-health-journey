@@ -9,12 +9,10 @@ import {
 } from "../../../components/ui/card";
 import SupplementsList from "./SupplementsList";
 
-const SupplementsTab = ({ setCheckInData, checkInData }) => {
+const SupplementsTab = ({ register, errors, formData, setValue }) => {
   const loading = false;
   const programSupplements = [];
-  const handlechange = (e) => {
-    setCheckInData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+
   return (
     <div className="space-y-4">
       {loading ? (
@@ -34,24 +32,26 @@ const SupplementsTab = ({ setCheckInData, checkInData }) => {
         <div>
           <Label htmlFor="supplements">Supplements Taken Today</Label>
           <Textarea
-            name="supplements"
+            {...register("supplements")}
             placeholder="List supplements and time taken (e.g., Multivitamin - morning, Magnesium - evening)"
-            value={checkInData.supplements}
-            onChange={(e) => handlechange(e)}
             rows={4}
           />
+          {errors.supplements && (
+            <span className="text-red-500 text-sm">{errors.supplements.message}</span>
+          )}
         </div>
       )}
 
       <div>
-        <Label htmlFor="generalNotes">Additional Notes</Label>
+        <Label htmlFor="notes">Additional Notes</Label>
         <Textarea
-          name="notes"
+          {...register("notes")}
           placeholder="Any additional notes about your progress for this day?"
-          value={checkInData.notes}
-          onChange={(e) => handlechange(e)}
           rows={3}
         />
+        {errors.notes && (
+          <span className="text-red-500 text-sm">{errors.notes.message}</span>
+        )}
         <p className="text-xs text-gray-500 mt-1">
           You can record check-ins for up to 7 previous days. Make sure the
           correct date is selected.

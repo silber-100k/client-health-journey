@@ -10,57 +10,51 @@ import {
   SelectValue,
 } from "../../ui/select";
 
-const MeasurementsTab = ({ checkInData, setCheckInData }) => {
-  const handlechange = (e) => {
-    setCheckInData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+const MeasurementsTab = ({ register, errors, formData, setValue }) => {
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="weight">Weight (lbs)</Label>
         <Input
-          name="weight"
+          {...register("weight")}
           type="number"
           placeholder="Enter your current weight"
-          value={checkInData.weight}
-          onChange={(e) => handlechange(e)}
         />
+        {errors.weight && (
+          <span className="text-red-500 text-sm">{errors.weight.message}</span>
+        )}
       </div>
       <div>
         <Label htmlFor="waist">Waist</Label>
         <Input
-          name="waist"
+          {...register("waist")}
           type="number"
           placeholder="Enter your current waist"
-          value={checkInData.waist}
-          onChange={(e) => handlechange(e)}
         />
       </div>
 
       <div>
         <div className="flex justify-between items-center mb-2">
-          <Label htmlFor="water">Water Intake (oz)</Label>
+          <Label htmlFor="waterIntake">Water Intake (oz)</Label>
           <div className="flex items-center text-primary-600">
             <Droplets size={16} className="mr-1" />
-            <span className="font-medium">{checkInData.waterIntake} oz</span>
+            <span className="font-medium">{formData.waterIntake} oz</span>
           </div>
         </div>
         <Input
-          name="waterIntake"
+          {...register("waterIntake")}
           type="number"
-          value={checkInData.waterIntake}
-          onChange={(e) => handlechange(e)}
         />
+        {errors.waterIntake && (
+          <span className="text-red-500 text-sm">{errors.waterIntake.message}</span>
+        )}
       </div>
 
       <div>
         <Label htmlFor="exerciseType">Exercise Type</Label>
         <Select
-          name="exerciseType"
-          value={checkInData.exerciseType}
-          onValueChange={(e) =>
-            setCheckInData((prev) => ({ ...prev, ["exerciseType"]: e }))
-          }
+          value={formData.exerciseType}
+          onValueChange={(value) => setValue("exerciseType", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select exercise type" />
@@ -79,37 +73,40 @@ const MeasurementsTab = ({ checkInData, setCheckInData }) => {
         </Select>
       </div>
 
-      {checkInData.exerciseType === "steps" ? (
+      {formData.exerciseType === "steps" ? (
         <div>
-          <Label htmlFor="steps">Daily Steps</Label>
+          <Label htmlFor="exercise">Daily Steps</Label>
           <Input
-            name="exercise"
+            {...register("exercise")}
             type="number"
             placeholder="Enter your daily steps"
-            value={exercise}
-            onChange={(e) => handlechange(e)}
           />
+          {errors.exercise && (
+            <span className="text-red-500 text-sm">{errors.exercise.message}</span>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
           <div>
             <Label htmlFor="exercise">Exercise Description</Label>
             <Textarea
-              name="exercise"
+              {...register("exercise")}
               placeholder="Describe your exercise"
-              value={checkInData.exercise}
-              onChange={(e) => handlechange(e)}
             />
+            {errors.exercise && (
+              <span className="text-red-500 text-sm">{errors.exercise.message}</span>
+            )}
           </div>
           <div>
             <Label htmlFor="exerciseTime">Duration (minutes)</Label>
             <Input
-              name="exerciseTime"
+              {...register("exerciseTime")}
               type="number"
               placeholder="How long did you exercise?"
-              value={checkInData.exerciseTime}
-              onChange={(e) => handlechange(e)}
             />
+            {errors.exerciseTime && (
+              <span className="text-red-500 text-sm">{errors.exerciseTime.message}</span>
+            )}
           </div>
         </div>
       )}

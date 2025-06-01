@@ -23,20 +23,49 @@ import { Textarea } from "../../components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { Skeleton } from "../ui/skeleton";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+
+const programSchema = z.object({
+  type: z.string().min(1, "Type is required"),
+  customName: z.string().optional(),
+  duration: z.string().min(1, "Duration is required"),
+  checkInFrequency: z.string().min(1, "Check-in frequency is required"),
+  description: z.string().min(1, "Description is required"),
+  tempId: z.string().optional(),
+});
 
 const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
-  const [programType, setProgramType] = useState("nutrition");
-  const [customName, setCustomName] = useState("");
-  const [programDuration, setProgramDuration] = useState("");
-  const [checkInFrequency, setCheckInFrequency] = useState("daily");
-  const [programDescription, setProgramDescription] = useState("");
   const { user } = useAuth();
   const [Templates, setTemplates] = useState([]);
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [isTemplateError, setIsTemplateError] = useState(false);
-  const [tempId, settempId] = useState(null);
-  const [tempvalue, setvalue] = useState("");
-  // Reset form when dialog opens/closes
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+    trigger,
+  } = useForm({
+    resolver: zodResolver(programSchema),
+    defaultValues: {
+      type: "",
+      customName: "",
+      duration: "",
+      checkInFrequency: "daily",
+      description: "",
+      tempId: "",
+    },
+    mode: "onChange",
+  });
+
+  const formData = watch();
+
   const fetchTemplates = async () => {
     try {
       setIsTemplateLoading(true);
@@ -54,50 +83,53 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
   useEffect(() => {
     if (!isOpen) {
-      setProgramType("");
-      setCustomName("");
-      setProgramDuration("");
-      setCheckInFrequency("daily");
-      setProgramDescription("");
-      settempId(null);
+      reset();
     }
     fetchTemplates();
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
-  const getProgramName = () => {
-    if (programType === "custom") {
-      return customName;
-    } else if (programType) {
-      return `${programType
-        .replace("_", " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase())} PM`;
-    }
-  };
-
-  const handlechange = (value) => {
-    if (value == "custom") {
-      setProgramType("custom");
+  const handleTypeChange = async (value) => {
+    if (value === "custom") {
+      setValue("type", "custom");
+      setValue("tempId", "");
+      setValue("customName", "");
     } else {
-      setProgramType(Templates.find((template) => template.id === value).type);
-      settempId(value);
+      const template = Templates.find((template) => template.id === value);
+      setValue("type", template.type);
+      setValue("tempId", value);
     }
-    setvalue(value);
+    // Trigger validation after setting values
+    await trigger();
   };
-  const handleSubmit = async () => {
-    // Use the clinicId prop or fall back to the user's clinicId
-    const effectiveClinicId = user?.clinic || "";
 
-    console.log("Submitting program with clinicId:", effectiveClinicId);
-    const data = {
-      name: getProgramName(),
-      type: programType,
-      duration: programDuration,
-      checkInFrequency: checkInFrequency,
-      description: programDescription,
-      tempId: tempId,
-      clinicId: effectiveClinicId,
-    };
-    await onSubmit(data);
+  const onFormSubmit = async (data) => {
+    try {
+      const effectiveClinicId = user?.clinic || "";
+      
+      const programData = {
+        name: data.type === "custom" ? data.customName : `${data.type.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())} PM`,
+        type: data.type,
+        duration: data.duration,
+        checkInFrequency: data.checkInFrequency,
+        description: data.description || "",
+        tempId: data.tempId,
+        clinicId: effectiveClinicId,
+      };
+
+      await onSubmit(programData);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast.error("Failed to create program. Please try again.");
+    }
+  };
+
+  const onError = (errors) => {
+    console.log("Form validation errors:", errors);
+    // Show all validation errors in toast
+    const errorMessages = Object.values(errors).map(error => error.message);
+    if (errorMessages.length > 0) {
+      toast.error(errorMessages.join(", "));
+    }
   };
 
   return (
@@ -110,125 +142,157 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="Type" className="text-right">
-              Type
-            </Label>
-            {isTemplateLoading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-12 w-full" />
-              </div>
-            ) : isTemplateError ? (
-              <div className="text-center py-8 text-red-500">
-                Failed to load Templates. Please try again.
-              </div>
-            ) : Templates && Templates.length > 0 ? (
-              <Select value={tempvalue} onValueChange={handlechange}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Templates.map((template, index) => (
-                    <SelectItem key={index} value={template.id}>
-                      {template.type}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="text-center text-gray-500">
-                No Templates found.
-              </div>
-            )}
-          </div>
-
-          {programType === "custom" && (
+        <form onSubmit={handleSubmit(onFormSubmit, onError)}>
+          <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="custom-name" className="text-right">
-                Name
+              <Label htmlFor="type" className="text-right">
+                Type
               </Label>
-              <Input
-                id="custom-name"
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-                className="col-span-3"
-                placeholder="Enter custom program name"
-              />
+              {isTemplateLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : isTemplateError ? (
+                <div className="text-center py-8 text-red-500">
+                  Failed to load Templates. Please try again.
+                </div>
+              ) : Templates && Templates.length > 0 ? (
+                <div className="col-span-3">
+                  <Select onValueChange={handleTypeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Templates.map((template, index) => (
+                        <SelectItem key={index} value={template.id}>
+                          {template.type}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.type && (
+                    <p className="text-sm text-red-500 mt-1">{errors.type.message}</p>
+                  )}
+                  {errors.tempId && (
+                    <p className="text-sm text-red-500 mt-1">{errors.tempId.message}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">
+                  No Templates found.
+                </div>
+              )}
             </div>
-          )}
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="program-duration" className="text-right">
-              Duration
-            </Label>
-            <Select value={programDuration} onValueChange={setProgramDuration}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select duration" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30-days">30 Days</SelectItem>
-                <SelectItem value="60-days">60 Days</SelectItem>
-                <SelectItem value="6-weeks">6 Weeks</SelectItem>
-                <SelectItem value="8-weeks">8 Weeks</SelectItem>
-                <SelectItem value="12-weeks">12 Weeks</SelectItem>
-                <SelectItem value="16-weeks">16 Weeks</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="check-in-frequency" className="text-right">
-              Check-in
-            </Label>
-            <Select
-              value={checkInFrequency}
-              onValueChange={(value) => setCheckInFrequency(value)}
-              className="!border !border-black"
-            >
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select check-in frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label
-              htmlFor="program-description"
-              className="text-right align-top pt-2"
-            >
-              Description
-            </Label>
-            <Textarea
-              id="program-description"
-              value={programDescription}
-              onChange={(e) => setProgramDescription(e.target.value)}
-              className="col-span-3"
-              rows={4}
-              placeholder="Describe the program and its goals"
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Program"
+            {formData.type === "custom" && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="customName" className="text-right">
+                  Name
+                </Label>
+                <div className="col-span-3">
+                  <Input
+                    id="customName"
+                    {...register("customName")}
+                    placeholder="Enter custom program name"
+                  />
+                  {errors.customName && (
+                    <p className="text-sm text-red-500 mt-1">{errors.customName.message}</p>
+                  )}
+                </div>
+              </div>
             )}
-          </Button>
-        </DialogFooter>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="duration" className="text-right">
+                Duration
+              </Label>
+              <div className="col-span-3">
+                <Select onValueChange={(value) => {
+                  setValue("duration", value);
+                  trigger("duration");
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30-days">30 Days</SelectItem>
+                    <SelectItem value="60-days">60 Days</SelectItem>
+                    <SelectItem value="6-weeks">6 Weeks</SelectItem>
+                    <SelectItem value="8-weeks">8 Weeks</SelectItem>
+                    <SelectItem value="12-weeks">12 Weeks</SelectItem>
+                    <SelectItem value="16-weeks">16 Weeks</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.duration && (
+                  <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="checkInFrequency" className="text-right">
+                Check-in
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  onValueChange={(value) => {
+                    setValue("checkInFrequency", value);
+                    trigger("checkInFrequency");
+                  }}
+                  defaultValue="daily"
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select check-in frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.checkInFrequency && (
+                  <p className="text-sm text-red-500 mt-1">{errors.checkInFrequency.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="description"
+                className="text-right align-top pt-2"
+              >
+                Description
+              </Label>
+              <div className="col-span-3">
+                <Textarea
+                  id="description"
+                  {...register("description", { required: false })}
+                  rows={4}
+                  placeholder="Describe the program and its goals"
+                />
+                {errors.description && errors.description.message && (
+                  <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Program"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
