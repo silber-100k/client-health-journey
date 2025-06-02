@@ -19,13 +19,14 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import CoachesFilter from "../../components/admin/coaches/CoachesFilter";
 import { Skeleton } from "../../components/ui/skeleton";
-import {toast} from "sonner";
+import { toast } from "sonner";
 const CoachesPage = () => {
   const [filterText, setFilterText] = useState("");
   const [isAddCoachDialogOpen, setIsAddCoachDialogOpen] = useState(false);
   const [isEditCoachDialogOpen, setIsEditCoachDialogOpen] = useState(false);
   const [isDeleteCoachDialogOpen, setIsDeleteCoachDialogOpen] = useState(false);
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
   const [coaches, setCoaches] = useState([]);
@@ -66,7 +67,6 @@ const CoachesPage = () => {
       console.error("Error fetching coaches:", error);
     }
   };
-
   const fetchClinics = async () => {
     try {
       setIsLoading(true);
@@ -92,10 +92,10 @@ const CoachesPage = () => {
       (coach.name && coach.name.toLowerCase().includes(searchText)) ||
       (coach.email && coach.email.toLowerCase().includes(searchText)) ||
       (coach.phoneNumber && coach.phoneNumber.includes(searchText)) ||
-      (coach.clinic.name && coach.clinic.name.toLowerCase().includes(searchText))
+      (coach.clinic.name &&
+        coach.clinic.name.toLowerCase().includes(searchText))
     );
   });
-
   const isClinicAdmin = true;
 
   return (
@@ -192,9 +192,9 @@ const CoachesPage = () => {
           />
 
           <ResetCoachPasswordDialog
-            open={isResetPasswordDialogOpen} 
-            setOpen={setIsResetPasswordDialogOpen} 
-            selectedCoach={selectedCoach} 
+            open={isResetPasswordDialogOpen}
+            setOpen={setIsResetPasswordDialogOpen}
+            selectedCoach={selectedCoach}
             fetchCoaches={fetchCoaches}
           />
         </>

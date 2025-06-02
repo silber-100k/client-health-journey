@@ -46,7 +46,7 @@ const CoachesTable = ({
         <TableBody>
           {coaches && coaches.length > 0 ? (
             coaches.map((coach, index) => (
-              <TableRow key={coach.id || index} className="hover:bg-gray-50">
+              <TableRow key={coach.id || index} className="hover:bg-gray-50 cursor-pointer">
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div className="bg-primary-100 h-8 w-8 rounded-full flex items-center justify-center">
@@ -62,7 +62,7 @@ const CoachesTable = ({
                     <div className="bg-primary-100 h-6 w-6 rounded-full flex items-center justify-center">
                       <Building className="h-3 w-3 text-primary-700" />
                     </div>
-                    <span>{coach?.clinic?.name || "N/A"}</span>
+                    <span>{coach?.clinicdetail?.name || "N/A"}</span>
                   </div>
                 </TableCell>
                 <TableCell>

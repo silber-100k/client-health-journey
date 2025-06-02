@@ -122,7 +122,7 @@ const ClientsPage = () => {
     fetchClients();
     fetchCoaches();
   }, []);
-
+console.log("clients", clients)
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

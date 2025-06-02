@@ -18,7 +18,7 @@ export async function GET(req, { params }) {
     }
     
     const clinicId = sessionUser.clinic;
-    const { id } = params;
+    const { id } = await params;
 
     if (clinicId !== id) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

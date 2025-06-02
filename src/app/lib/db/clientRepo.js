@@ -3,15 +3,55 @@ import postgres from 'postgres';
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 async function getClients() {
-  const clients = await sql`SELECT * FROM "Client"`;
-  return clients;
-}
-
-async function getclientsbyclinicId(clinicId) {
   const clients = await sql`
-    SELECT * FROM "Client" WHERE "clinic" = ${clinicId}
+    SELECT 
+      c.*,
+      cd.id AS coach_id,
+      cd.name AS coach_name,
+      cd.email AS coach_email,
+      cd."phoneNumber" AS coach_phone,
+      pd.id AS program_id,
+      pd.name AS program_title,
+      pd.description AS program_description,
+      pd.duration AS program_duration
+    FROM "Client" c
+    LEFT JOIN "User" cd ON c."coachId" = cd.id
+    LEFT JOIN "Program" pd ON c."programId" = pd.id
   `;
   return clients;
+}
+async function getclientsbyclinicId(clinicId) {
+  try {
+    const clients = await sql`
+      WITH last_checkins AS (
+        SELECT 
+          "email",
+          MAX("selectedDate") as "lastCheckIn"
+        FROM "CheckIn"
+        GROUP BY "email"
+      )
+      SELECT 
+        c.*,
+        cd.id AS coach_id,
+        cd.name AS coach_name,
+        cd.email AS coach_email,
+        cd."phoneNumber" AS coach_phone,
+        pd.id AS program_id,
+        pd.name AS program_title,
+        pd.description AS program_description,
+        pd.duration AS program_duration,
+        lc."lastCheckIn"
+      FROM "Client" c
+      LEFT JOIN "User" cd ON c."coachId" = cd.id
+      LEFT JOIN "Program" pd ON c."programId" = pd.id
+      LEFT JOIN last_checkins lc ON c.email = lc.email
+      WHERE c."clinic" = ${clinicId}
+    `;
+    return clients;
+  } catch (error) {
+    console.error('Error in getclientsbyclinicId:', error);
+    throw error;
+  }
 }
 
 async function getnumclientsbyId(coachId) {
@@ -146,8 +186,8 @@ async function createCheckIn(
   return checkin;
 }
 
-async function getCheckInsbyRange(email,startDate,endDate) {
- const checkIns = await sql`
+async function getCheckInsbyRange(email, startDate, endDate) {
+  const checkIns = await sql`
   SELECT * FROM "CheckIn"
   WHERE "email" = ${email}
     AND "selectedDate" >= ${startDate}
@@ -157,7 +197,7 @@ async function getCheckInsbyRange(email,startDate,endDate) {
   return checkIns;
 }
 
-async function getWeightByClientId(clientId,email) {
+async function getWeightByClientId(clientId, email) {
   const initialWeight = await sql`
     SELECT "initialWeight" FROM "Client" WHERE "id" = ${clientId}
   `;
@@ -171,7 +211,7 @@ async function getWeightByClientId(clientId,email) {
     initialWeight: initialWeight[0]?.initialWeight || 0,
     currentWeight: currentWeight[0]?.weight || 0
   }
-  
+
 }
 
 async function getnumCheckInbyId(id) {
@@ -510,7 +550,7 @@ export const clientRepo = {
   getProgressdataByRange,
   gethistoricalData,
   getPendingCheckIns,
-  getCompletedProgramsCount, 
+  getCompletedProgramsCount,
   getCoachRecentActivities,
   getWeightByClientId
 };
