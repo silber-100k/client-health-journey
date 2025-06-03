@@ -68,7 +68,11 @@ export default function NotificationBadge({ isMessage, email }) {
         };
       }
     }
-    if (unread > 0) {
+    if (unread == 1) {
+      toast.success(`You have ${unread} new message.`);
+      showNotification("New Message", `You have ${unread} new message.`);
+    }
+    if (unread > 1) {
       toast.success(`You have ${unread} new messages.`);
       showNotification("New Message", `You have ${unread} new messages.`);
     }

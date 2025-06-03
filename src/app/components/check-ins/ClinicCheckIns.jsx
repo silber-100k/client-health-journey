@@ -121,7 +121,7 @@ const ClinicCheckIns = () => {
     fetchClientsByCoach(currentCoach);
     setSelectedClient("");
   }, [currentCoach]);
-
+console.log("checkIn", checkIns)
   useEffect(() => {
     const now = new Date();
 

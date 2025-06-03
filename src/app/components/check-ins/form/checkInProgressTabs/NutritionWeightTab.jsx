@@ -110,6 +110,7 @@ const NutritionWeightTab = ({ checkIns }) => {
                     return date.toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     });
                   }}
                 />

@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 
-const SleepTab = ({checkIns}) => {
+const SleepTab = ({ checkIns }) => {
   return (
     <div>
       <Card>
@@ -50,6 +50,7 @@ const SleepTab = ({checkIns}) => {
                     return date.toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     });
                   }}
                 />

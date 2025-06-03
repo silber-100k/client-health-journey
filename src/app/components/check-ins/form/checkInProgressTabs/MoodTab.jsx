@@ -45,14 +45,15 @@ const MoodTab = ({ checkIns }) => {
                   axisLine={true}
                   tickMargin={8}
                   tickFormatter={(value) => {
-                    // Format date string, e.g. "2025-05-22" -> "May 22"
                     const date = new Date(value);
                     return date.toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC"
                     });
                   }}
                 />
+
                 <YAxis
                   dataKey="moodLevel"
                   tickLine={true}

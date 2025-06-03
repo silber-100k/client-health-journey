@@ -102,7 +102,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true, message: "Clinic created successfully", url: session.url }, { status: 200 });
     } catch (error) {
-        console.error(error);
+        console.log(error);
         // Rollback in reverse order
         try {
             // Delete all created coach users
@@ -120,7 +120,7 @@ export async function POST(request) {
                 await clinicRepo.deleteClinic(clinic.id);
             }
         } catch (rollbackError) {
-            console.error("Error during rollback:", rollbackError);
+            console.log("Error during rollback:", rollbackError);
         }
         
         return NextResponse.json({ success: false, message: "Error creating clinic" }, { status: 500 });

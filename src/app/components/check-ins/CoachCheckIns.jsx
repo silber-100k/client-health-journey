@@ -73,7 +73,7 @@ const CoachReportsPage = () => {
   useEffect(() => {
     Totalclients();
   }, []);
-  
+
   useEffect(() => {
     const fetchCoachCheckIns = async () => {
       setLoading(true);
@@ -127,7 +127,6 @@ const CoachReportsPage = () => {
     setEndDate(date);
   };
 
-  console.log("asdfasdf", isLoading);
   return (
     <div>
       <div className="flex items-center gap-4">

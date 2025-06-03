@@ -192,6 +192,7 @@ async function getCheckInsbyRange(email, startDate, endDate) {
   WHERE "email" = ${email}
     AND "selectedDate" >= ${startDate}
     AND "selectedDate" <= ${endDate}
+  ORDER BY "selectedDate" ASC
 `;
 
   return checkIns;
