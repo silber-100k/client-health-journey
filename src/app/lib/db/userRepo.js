@@ -121,7 +121,7 @@ async function getUserById(id) {
 }
 
 async function getUserByEmail(email) {
-const users = await sql`
+  const users = await sql`
   SELECT 
     u.*,
     row_to_json(c) AS clinicDetail
