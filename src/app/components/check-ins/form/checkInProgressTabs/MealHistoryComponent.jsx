@@ -4,14 +4,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { format } from "date-fns";
 import { Badge } from "@/app/components/ui/badge";
+
 const MealHistoryComponent = ({ checkIn }) => {
   return (
     <Card className="ml-[24px] mr-[24px] p-[0px]">
       <CardHeader className=" bg-[#F9FAFB]">
         <CardTitle className="text-[14px] font-semibold pt-[24px] pb-[12px]">
-          {checkIn ? format(checkIn.selectedDate, "MMMM d, yyyy") : ""}
+          {checkIn
+            ? new Date(checkIn.selectedDate).toLocaleDateString(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                timeZone: "UTC",
+              })
+            : ""}
         </CardTitle>
       </CardHeader>
       <CardContent className="text-[14px] pb-[24px]">
