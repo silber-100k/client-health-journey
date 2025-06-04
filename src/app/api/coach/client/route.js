@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { userRepo } from "@/app/lib/db/userRepo";
 import { subscriptionRepo } from "@/app/lib/db/subscriptionRepo";
 import { sendClientRegistrationEmail } from "@/app/lib/api/email";
+import { SubscriptionPlan } from "@/app/lib/stack";
 
 export async function GET() {
   try {
@@ -25,7 +26,8 @@ export async function GET() {
     let clientLimit = 0;
     const subscriptionTier = await subscriptionRepo.getSubscriptionTier(user.clinic);
     if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate >= new Date()) {
-      clientLimit = subscriptionTier.clientLimit;
+      const plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);  
+      clientLimit = plan?.clientLimit;
     }
     const clients = await clientRepo.getclientsbycoachId(coachId);
     return NextResponse.json({ status: true, clients, clientLimit });

@@ -123,13 +123,13 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            {/* <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="general">General Info</TabsTrigger>
                 <TabsTrigger value="billing">Billing Info</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="general" className="space-y-4 mt-4">
+              <TabsContent value="general" className="space-y-4 mt-4"> */}
                 <div className="grid gap-4">
                   <FormField
                     control={form.control}
@@ -296,9 +296,9 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
                     )}
                   />
                 </div>
-              </TabsContent>
+              {/* </TabsContent> */}
 
-              <TabsContent value="billing" className="space-y-4 mt-4">
+              {/* <TabsContent value="billing" className="space-y-4 mt-4">
                 <div className="grid gap-4">
                   <FormField
                     control={form.control}
@@ -450,7 +450,7 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
                     )}
                   />
                 </div>
-              </TabsContent>
+              </TabsContent> */}
 
               <DialogFooter className="mt-6">
                 <Button
@@ -464,7 +464,7 @@ const AddClinicDialog = ({ open, setOpen, fetchClinics }) => {
                   {isSubmitting ? "Adding..." : "Add Clinic"}
                 </Button>
               </DialogFooter>
-            </Tabs>
+            {/* </Tabs> */}
           </form>
         </Form>
       </DialogContent>

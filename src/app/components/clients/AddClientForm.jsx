@@ -7,7 +7,7 @@ import ClientFormFields from "./ClientFormFields";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "./AddClientSchema";
+import { formSchema, formSchema2 } from "./AddClientSchema";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
@@ -19,8 +19,9 @@ const AddClientForm = ({
   clientCount,
 }) => {
   const { user } = useAuth();
+  const schema = user?.role === "clinic_admin" ? formSchema : formSchema2;
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       email: "",

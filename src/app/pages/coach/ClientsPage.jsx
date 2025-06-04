@@ -18,23 +18,33 @@ import { motion, useAnimation } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 const ClientsPage = () => {
-
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
   const [clients, setClients] = useState([]);
   const [clientLimit, setClientLimit] = useState(0);
   const { user } = useAuth();
   const controls = useAnimation();
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleAddlclientdialogue = () => {
-    if (clientLimit !== false && (clientLimit === 0 || clientLimit <= clients.length)) {
+    if (
+      clientLimit !== false &&
+      (clientLimit === 0 || clientLimit <= clients.length)
+    ) {
       toast.custom(() => (
         <Alert>
-          <AlertTitle>You have reached the maximum number of clients</AlertTitle>
+          <AlertTitle>
+            You have reached the maximum number of clients
+          </AlertTitle>
           <AlertDescription>
-            You have reached the maximum number of clients for your plan. Please upgrade to a higher plan to add more clients.
+            You have reached the maximum number of clients for your plan. Please
+            upgrade to a higher plan to add more clients.
           </AlertDescription>
-          <Button variant="outline" onClick={() => router.push("/clinic/settings")}>Upgrade</Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/clinic/settings")}
+          >
+            Upgrade
+          </Button>
         </Alert>
       ));
       return;
@@ -44,17 +54,18 @@ const ClientsPage = () => {
 
   const fetchClients = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/coach/client");
       const data = await response.json();
       console.log("clients", data);
       setClients(data.clients);
       setClientLimit(data.clientLimit);
+      setIsLoading(false);
     } catch (error) {
       toast.error("Failed to fetch clients");
       console.log(error);
     }
   };
-
   useEffect(() => {
     fetchClients();
   }, []);
@@ -87,7 +98,7 @@ const ClientsPage = () => {
             </motion.svg>
             Refresh
           </Button>
-          <Button onClick={handleAddlclientdialogue}>
+          <Button onClick={handleAddlclientdialogue} disabled={isLoading}>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Client
           </Button>

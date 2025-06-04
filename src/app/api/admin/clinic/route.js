@@ -49,7 +49,7 @@ export async function POST(request) {
         addOns,
     } = await request.json();
 
-    if (!clinicName || !clinicEmail || !clinicPhone || !streetAddress || !city || !state || !zipCode || !primaryContact || !email || !hipaaAcknowledgment || !legalAcknowledgment || !selectedPlan) {
+    if (!clinicName || !clinicEmail || !clinicPhone || !streetAddress || !city || !state || !zipCode || !primaryContact || !email || !hipaaAcknowledgment || !legalAcknowledgment ) {
         return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 });
     }
 
