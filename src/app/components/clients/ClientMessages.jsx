@@ -355,7 +355,10 @@ const ClientMessages = () => {
             {isConnected ? "Connected" : "Disconnected"}
           </p>
         </div>
-        <p className="text-sm text-muted-foreground">Transport: {transport}</p>
+        <p className="text-sm text-muted-foreground">
+          Coach:{" "}
+          <span className="text-red-500">{coach ? coach.name : "..."}</span>
+        </p>
       </div>
 
       {user?.role === "coach" || user?.role === "clinic_admin" ? (

@@ -33,7 +33,7 @@ const MyProfile = () => {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    phone: user?.phone || ""
+    phone: user?.phone || "",
   });
 
   const [securityForm, setSecurityForm] = useState({
@@ -58,10 +58,31 @@ const MyProfile = () => {
     setSecurityForm((pre) => ({ ...pre, [e.target.name]: e.target.value }));
   };
 
-  const handleSaveProfile = () => { };
+  const handleSaveProfile = async () => {
+    try {
+      setLoading(true);
+      const respond = await fetch("/api/user/profile", {
+        method: "PUT",
+        body: JSON.stringify(formData),
+      });
+      const data = await respond.json();
+      if (data.success) {
+        toast.success("Profile updated successfully");
+        setLoading(false);
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+      setLoading(false);
+    }
+  };
 
   const handlePasswordChange = async () => {
-    if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+    if (
+      securityForm.newPassword &&
+      securityForm.newPassword !== securityForm.confirmPassword
+    ) {
       toast.error("Passwords do not match");
       return;
     }
@@ -81,7 +102,7 @@ const MyProfile = () => {
         method: "POST",
         body: JSON.stringify({
           currentPassword: securityForm.currentPassword,
-          newPassword: securityForm.newPassword
+          newPassword: securityForm.newPassword,
         }),
       });
       const data = await response.json();
@@ -100,7 +121,7 @@ const MyProfile = () => {
       toast.error("An error occurred while updating the password");
     }
   };
-  const logout = () => { };
+  const logout = () => {};
   const handleNotificationChange = (key, value) => {
     const newNotifications = { ...notifications, [key]: value };
     setNotifications(newNotifications);
@@ -240,11 +261,11 @@ const MyProfile = () => {
                 </div>
               </div>
             </CardContent>
-            {/* <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-end">
               <Button onClick={handleSaveProfile} disabled={loading}>
                 {loading ? "Saving..." : "Save Changes"}
               </Button>
-            </CardFooter> */}
+            </CardFooter>
           </Card>
         </TabsContent>
 
@@ -305,7 +326,7 @@ const MyProfile = () => {
                     {loading ? "Updating..." : "Update Password"}
                   </Button>
                 </div>
-{/* 
+                {/* 
                 <div className="pt-6 border-t">
                   <h3 className="text-lg font-medium mb-4">Account Actions</h3>
 

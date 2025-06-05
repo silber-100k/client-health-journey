@@ -37,7 +37,7 @@ const checkInSchema = z.object({
   clinic: z.string().min(1, "Clinic is required"),
   selectedDate: z.date(),
   weight: z.string().min(1, "Weight is required").transform((val) => parseFloat(val) || 0),
-  waist: z.string().min(1, "Waist is required").transform((val) => parseFloat(val) || 0),
+  waist: z.string().optional().default("").transform((val) => val ? parseFloat(val) : null),
   waterIntake: z.string().min(1, "Water intake is required").transform((val) => parseFloat(val) || 0),
   energyLevel: z.number().min(1).max(10).default(5),
   moodLevel: z.number().min(1).max(10).default(5),

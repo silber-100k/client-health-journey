@@ -16,17 +16,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
-import { signOut } from "next-auth/react"
+import { signOut } from "next-auth/react";
 import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const TopBar = () => {
   const { user } = useAuth();
+  const router = useRouter();
 
   const theme = {
     primaryColor: null,
     secondaryColor: null,
     logo: null,
     clinicName: null,
+  };
+  const onSetting = () => {
+    if (user?.role === "admin") {
+      router.push("/admin/settings");
+    } else if (user?.role === "client") {
+      router.push("/client/profile");
+    } else if (user?.role === "coach") {
+      router.push("/coach/settings");
+    } else if (user?.role === "clinic") {
+      router.push("/clinic/settings");
+    }
   };
   // Extract first name from user's full name
   const firstName = user?.name ? user.name.split(" ")[0] : "";
@@ -90,11 +103,17 @@ const TopBar = () => {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center cursor-pointer">
+              <DropdownMenuItem
+                className="flex items-center cursor-pointer"
+                onClick={onSetting}
+              >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center text-red-500 focus:text-red-500 cursor-pointer" onClick={() => signOut()}>
+              <DropdownMenuItem
+                className="flex items-center text-red-500 focus:text-red-500 cursor-pointer"
+                onClick={() => signOut()}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
