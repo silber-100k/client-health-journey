@@ -9,7 +9,8 @@ export const messageRepo = {
   updateMessage,
   updateNotification,
   getNumber,
-  markNotification
+  markNotification,
+  getUnreadUsers,
 };
 
 async function viewedMessage(messageIds,viewerEmail) {
@@ -36,6 +37,15 @@ async function saveMessage(id, message, sender, receiver, status) {
     RETURNING *
   `;
   return newMessage;
+}
+
+async function getUnreadUsers(email) {
+  const users = await sql`
+    SELECT DISTINCT "sender"
+    FROM "Message"
+    WHERE "receiver" = ${email} AND "status" = 'sent'
+  `;
+  return users;
 }
 
 async function updateMessage(id, status) {

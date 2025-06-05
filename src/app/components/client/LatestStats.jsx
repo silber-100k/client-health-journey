@@ -21,7 +21,7 @@ import { useState, useEffect } from "react";
 const LatestStats = () => {
   const [checkIns, setCheckIns] = useState([]);
   const { user } = useAuth();
-  
+
   const fetchLatestStatus = async () => {
     try {
       const response = await fetch("/api/client/progress");
@@ -35,7 +35,7 @@ const LatestStats = () => {
   useEffect(() => {
     fetchLatestStatus();
   }, [user]);
-
+  console.log(checkIns);
   const weightTrend = "down";
   const waterProgress = 12;
   return (
@@ -47,7 +47,7 @@ const LatestStats = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {checkIns.length > 0 ? (
+        {checkIns.length>0 ? (
           <>
             {checkIns[0].weight && (
               <div className="flex items-center justify-between">

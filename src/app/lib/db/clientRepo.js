@@ -121,9 +121,12 @@ async function getProgressdata(email) {
       "selectedDate", "weight", "waist", "energyLevel", "moodLevel", "sleepHours"
     FROM "CheckIn"
     WHERE "email" = ${email}
+    ORDER BY "selectedDate" DESC
+    LIMIT 1
   `;
   return progress;
 }
+
 
 async function createCheckIn(
   name,

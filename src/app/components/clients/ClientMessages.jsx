@@ -44,8 +44,23 @@ const ClientMessages = () => {
   const [coach, setCoach] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [, setUnread] = useAtom(unreadCount);
+  const [unread, setUnread] = useAtom(unreadCount);
   const [toggle, setToggle] = useState(false);
+  const [unreadUsers, setUnreadUsers] = useState([]);
+
+  const feachUnreadUsers = async () => {
+    try {
+      const response = await fetch("/api/message/unread");
+      const data = await response.json();
+      if (data.status) {
+        setUnreadUsers(data.users);
+      } else {
+        toast.error(data.message || "Failed to fetch unread clients");
+      }
+    } catch (error) {
+      toast.error("Unable to get unread clients");
+    }
+  };
 
   const fetchMessageHistory = async (receiver) => {
     if (!receiver) return;
@@ -110,6 +125,7 @@ const ClientMessages = () => {
   useEffect(() => {
     if (user?.role === "coach" || user?.role === "clinic_admin") {
       fetchClients();
+      feachUnreadUsers();
     }
     if (user?.role === "client") {
       fetchCoachbyId();
@@ -304,8 +320,9 @@ const ClientMessages = () => {
 
   const handlechange = (e) => {
     setCurrentClient(e);
+    setUnreadUsers((prev) => prev.filter((user) => user.sender !== e.email));
   };
-
+  console.log("unreadUsr", unreadUsers);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -334,7 +351,6 @@ const ClientMessages = () => {
       }
       updateMessageStatus();
     }
-
     console.log(toggle);
   }, [toggle]);
 
@@ -342,6 +358,11 @@ const ClientMessages = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    feachUnreadUsers();
+
+  }, [unread]);
+    console.log("unreadc",unread );
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -378,6 +399,21 @@ const ClientMessages = () => {
             <SelectContent>
               {clients?.map((client, index) => (
                 <SelectItem value={client.email} key={index}>
+                  {unreadUsers.some(
+                    (unread) => unread.sender === client.email
+                  ) && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: "red",
+                        marginRight: 8,
+                        verticalAlign: "middle",
+                      }}
+                    ></span>
+                  )}
                   {client.name}
                 </SelectItem>
               ))}
