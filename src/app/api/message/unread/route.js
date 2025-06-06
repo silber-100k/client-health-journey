@@ -14,9 +14,6 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    if (user.role !== "clinic_admin" && user.role !== "coach") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
  try {
     const users = await messageRepo.getUnreadUsers(email);
     return NextResponse.json({ status: true, users });
