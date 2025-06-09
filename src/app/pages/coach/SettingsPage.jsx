@@ -20,6 +20,7 @@ import {
 import { Switch } from "../../components/ui/switch";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
@@ -41,18 +42,20 @@ const SettingsPage = () => {
   });
 
   const { user, setUser } = useAuth();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     setProfileForm({
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "", // Safe to use now that we've added it to the UserData type
+      origin: user?.email || ""
     });
   }, [user]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       const response = await fetch("/api/user/profile", {
         method: "PUT",
         body: JSON.stringify(profileForm),
@@ -61,12 +64,14 @@ const SettingsPage = () => {
       if (data.success) {
         toast.success("Profile updated successfully");
         setUser(data.user);
+        setIsSubmitting(false);
+        signOut();
       } else {
-        console.log(error);
         toast.error("Profile update failed");
       }
     } catch (error) {
-      console.log("Error updating profile:", error);
+      console.log(error);
+      setIsSubmitting(false);
       toast.error("Profile update failed");
     }
   };
@@ -185,7 +190,7 @@ const SettingsPage = () => {
                   />
                 </div>
 
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled = {isSubmitting}>Save Changes</Button>
               </form>
             </CardContent>
           </Card>

@@ -121,10 +121,11 @@ const formSchema = z.object({
   }),
 });
 
-export function TemplateDialogue({
+export default function EditProgramDialogue({
   open,
-  onClose,
-  fetchTemplates
+  setOpen,
+  fetchTemplates,
+  selectedTemplate,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -155,6 +156,36 @@ export function TemplateDialogue({
       },
     },
   });
+
+  // Reset form when selectedTemplate changes
+  useEffect(() => {
+    if (selectedTemplate) {
+      console.log("ASDASD",selectedTemplate)
+      form.reset({
+        programName: selectedTemplate.program_name || "",
+        programLength: Number(selectedTemplate.program_length) || 0,
+        programType: selectedTemplate.program_type || "Practice Naturals",
+        checkInFrequency: selectedTemplate.check_in_frequency || "none",
+        description: selectedTemplate.description || "",
+        goals: JSON.parse(selectedTemplate.goals) || {},
+        foodRules: JSON.parse(selectedTemplate.food_rules) || {},
+        cookingMethods: JSON.parse(selectedTemplate.cooking_methods) || {},
+        recommendedProteins: selectedTemplate.recommended_proteins || "",
+        recommendedVegetables: selectedTemplate.recommended_vegetables || "",
+        allowedFruits: selectedTemplate.allowed_fruits || "",
+        healthyFats: selectedTemplate.healthy_fats || "",
+        foodsToAvoid: JSON.parse(selectedTemplate.foods_to_avoid) || {},
+        portionGuidelines: JSON.parse(selectedTemplate.portion_guidelines) || {},
+        supplements: JSON.parse(selectedTemplate.supplements) || [],
+        weeklySchedule: JSON.parse(selectedTemplate.weekly_schedule) || [],
+        lifestyle: JSON.parse(selectedTemplate.lifestyle) || {},
+        messagingPreferences: JSON.parse(selectedTemplate.messaging_preferences) || {
+          tone: "gentle-encouragement",
+          keywords: "",
+        },
+      });
+    }
+  }, [selectedTemplate, form]);
 
   const { control, handleSubmit, setValue, getValues, watch } = form;
 
@@ -188,39 +219,45 @@ export function TemplateDialogue({
   };
 
   const onSubmit = async (data) => {
-    console.log("data",data)
+    if (!selectedTemplate?.id) {
+      setErrorMessage("No template selected for editing");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/template", {
-        method: "POST",
+      const response = await fetch(`/api/admin/program/${selectedTemplate.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
+
       const result = await response.json();
       if (result.status) {
         setErrorMessage(null);
-        fetchTemplates();
-        onClose(false);
+        setOpen(false);
         await fetchTemplates();
-        toast.success("Template added successfully");
-      } 
+        toast.success("Template updated successfully");
+      } else {
+        setErrorMessage(result.message || "Failed to update template");
+      }
     } catch (error) {
-      console.log("error",error)
-      setErrorMessage("Failed to add template");
+      console.error("Error updating template:", error);
+      setErrorMessage("Failed to update template");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[600px] overflow-y-scroll">
         <DialogHeader>
-          <DialogTitle>Add New Template</DialogTitle>
+          <DialogTitle>Edit Template</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new Template.
+            Update the template details below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -1013,7 +1050,7 @@ export function TemplateDialogue({
 
             <DialogFooter>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Template"}
+                {isLoading ? "Updating..." : "Update Program"}
               </Button>
             </DialogFooter>
           </form>

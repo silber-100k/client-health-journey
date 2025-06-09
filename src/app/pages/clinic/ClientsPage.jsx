@@ -40,7 +40,7 @@ const ClientsPage = () => {
   const handleAddlclientdialogue = () => {
     if (
       clientLimit !== false &&
-      (clientLimit === 0 || clientLimit <= clients.length)
+      (clientLimit === 0 || clientLimit <= clients?.length)
     ) {
       toast.custom(() => (
         <Alert>
@@ -122,7 +122,6 @@ const ClientsPage = () => {
     fetchClients();
     fetchCoaches();
   }, []);
-console.log("clients", clients)
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

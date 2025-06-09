@@ -20,6 +20,7 @@ import {
 import { Switch } from "../../components/ui/switch";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
+import { signOut } from "next-auth/react";
 
 const SettingsPage = () => {
   const { user, setUser } = useAuth();
@@ -28,6 +29,8 @@ const SettingsPage = () => {
     name: "",
     email: "",
     phone: "",
+    origin: user?.email || ""
+
   });
 
   const [securityForm, setSecurityForm] = useState({
@@ -63,6 +66,7 @@ const SettingsPage = () => {
       if (data.success) {
         toast.success("Profile updated successfully");
         setUser(data.user);
+        signOut();
       } else {
         toast.error("Profile update failed");
       }

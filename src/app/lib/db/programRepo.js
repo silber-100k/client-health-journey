@@ -5,12 +5,41 @@ const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 async function getPrograms(clinicId) {
   // Get all programs for the clinic with template info
   const programs = await sql`
-  SELECT 
-    p.*,
-    row_to_json(t) AS template
-  FROM "Program" p
-  LEFT JOIN "Template" t ON p."tempId" = t."id"
-  WHERE p."clinicId" = ${clinicId} OR p."all" = 'all'
+  SELECT * 
+  FROM "Program"
+  WHERE "clinicId" = ${clinicId} OR "all" = 'all'
+`;
+
+  // Get client counts grouped by programId
+  const clientCounts = await sql`
+    SELECT "programId", COUNT(*) AS count
+    FROM "Client"
+    WHERE "clinic" = ${clinicId}
+    GROUP BY "programId"
+  `;
+
+  // Convert clientCounts to a map for quick lookup
+  const countMap = new Map(clientCounts.map(row => [row.programId, Number(row.count)]));
+
+  // Add clientCount to each program
+  const result = programs.map(program => ({
+    ...program,
+    clientCount: countMap.get(program.id) || 0,
+  }));
+
+  return result;
+}
+
+async function getProsForCreateClient(clinicId) {
+  const programs = await sql`
+  SELECT
+  id,
+  program_name,
+  program_type,
+  description,
+  program_length 
+  FROM "Program"
+  WHERE "clinicId" = ${clinicId} OR "all" = 'all'
 `;
 
   // Get client counts grouped by programId
@@ -34,55 +63,102 @@ async function getPrograms(clinicId) {
 }
 
 async function getAllProgramsAdmin() {
-  // 1. Get programs with template info
-  const programs = await sql`
-    SELECT 
-      p.*,
-      row_to_json(t) AS template
-    FROM "Program" p
-    LEFT JOIN "Template" t ON p."tempId" = t."id"
-  `;
-
-  // 2. Get client counts grouped by programId
-  const clientCounts = await sql`
-    SELECT "programId", COUNT(*) AS count
-    FROM "Client"
-    GROUP BY "programId"
-  `;
-  const countMap = new Map(clientCounts.map(row => [row.programId, Number(row.count)]));
-
-  // 3. Get all clinic emails
-  const clinics = await sql`
-    SELECT "id", "email"
-    FROM "Clinic"
-  `;
-  const clinicEmailMap = new Map(clinics.map(row => [row.id, row.email]));
-
-  // 4. Merge everything
-  const result = programs.map(program => ({
-    ...program,
-    clientCount: countMap.get(program.id) || 0,
-    clinicEmail: program.clinicId ? (clinicEmailMap.get(program.clinicId) || "all") : "all"
-  }));
-
-  return result;
+  return await sql`SELECT * FROM "Program"`;
 }
 
 
 
-async function createProgram(name, type, duration, checkInFrequency, description, tempId, clinicId) {
+async function createProgram(templateData) {
   const [program] = await sql`
-    INSERT INTO "Program" ("name", "type", "duration", "checkInFrequency", "description", "tempId", "clinicId")
-    VALUES (${name}, ${type}, ${duration}, ${checkInFrequency}, ${description}, ${tempId}, ${clinicId})
-    RETURNING *
-  `;
+  INSERT INTO "Program" (
+  program_name,
+  program_length,
+  program_type,
+  check_in_frequency,
+  description,
+  goals,
+  food_rules,
+  cooking_methods,
+  recommended_proteins,
+  recommended_vegetables,
+  allowed_fruits,
+  healthy_fats,
+  foods_to_avoid,
+  portion_guidelines,
+  supplements,
+  weekly_schedule,
+  lifestyle,
+  messaging_preferences,
+  "clinicId"
+) VALUES (
+  ${templateData.program_name},
+  ${templateData.program_length},
+  ${templateData.program_type},
+  ${templateData.check_in_frequency},
+  ${templateData.description},
+  ${JSON.stringify(templateData.goals)},
+  ${JSON.stringify(templateData.food_rules)},
+  ${JSON.stringify(templateData.cooking_methods)},
+  ${templateData.recommended_proteins},
+  ${templateData.recommended_vegetables},
+  ${templateData.allowed_fruits},
+  ${templateData.healthy_fats},
+  ${JSON.stringify(templateData.foods_to_avoid)},
+  ${JSON.stringify(templateData.portion_guidelines)},
+  ${JSON.stringify(templateData.supplements)},
+  ${JSON.stringify(templateData.weekly_schedule)},
+  ${JSON.stringify(templateData.lifestyle)},
+  ${JSON.stringify(templateData.messaging_preferences)},
+  ${templateData.clinicId}
+)
+RETURNING *
+`;
   return program;
 }
 
-async function createProgramAdmin(name, type, duration, checkInFrequency, description, tempId, all) {
+async function createProgramAdmin(templateData) {
   const [program] = await sql`
-    INSERT INTO "Program" ("name", "type", "duration", "checkInFrequency", "description", "tempId", "all")
-    VALUES (${name}, ${type}, ${duration}, ${checkInFrequency}, ${description}, ${tempId}, ${all})
+      INSERT INTO "Program" (
+      program_name,
+      program_length,
+      program_type,
+      check_in_frequency,
+      description,
+      goals,
+      food_rules,
+      cooking_methods,
+      recommended_proteins,
+      recommended_vegetables,
+      allowed_fruits,
+      healthy_fats,
+      foods_to_avoid,
+      portion_guidelines,
+      supplements,
+      weekly_schedule,
+      lifestyle,
+      messaging_preferences,
+      "all"
+    ) VALUES (
+      ${templateData.program_name},
+      ${templateData.program_length},
+      ${templateData.program_type},
+      ${templateData.check_in_frequency},
+      ${templateData.description},
+      ${JSON.stringify(templateData.goals)},
+      ${JSON.stringify(templateData.food_rules)},
+      ${JSON.stringify(templateData.cooking_methods)},
+      ${templateData.recommended_proteins},
+      ${templateData.recommended_vegetables},
+      ${templateData.allowed_fruits},
+      ${templateData.healthy_fats},
+      ${JSON.stringify(templateData.foods_to_avoid)},
+      ${JSON.stringify(templateData.portion_guidelines)},
+      ${JSON.stringify(templateData.supplements)},
+      ${JSON.stringify(templateData.weekly_schedule)},
+      ${JSON.stringify(templateData.lifestyle)},
+      ${JSON.stringify(templateData.messaging_preferences)},
+      'all'
+    )
     RETURNING *
   `;
   return program;
@@ -105,37 +181,138 @@ async function getTemplateDescription(id) {
 /**
  * Create a new template
  */
-async function createTemplate(type, description) {
+async function createTemplate(templateData) {
   const [template] = await sql`
-    INSERT INTO "Template" ("type", "description")
-    VALUES (${type}, ${description})
+    INSERT INTO "Template" (
+      program_name,
+      program_length,
+      program_type,
+      check_in_frequency,
+      description,
+      goals,
+      food_rules,
+      cooking_methods,
+      recommended_proteins,
+      recommended_vegetables,
+      allowed_fruits,
+      healthy_fats,
+      foods_to_avoid,
+      portion_guidelines,
+      supplements,
+      weekly_schedule,
+      lifestyle,
+      messaging_preferences
+    ) VALUES (
+      ${templateData.program_name},
+      ${templateData.program_length},
+      ${templateData.program_type},
+      ${templateData.check_in_frequency},
+      ${templateData.description},
+      ${JSON.stringify(templateData.goals)},
+      ${JSON.stringify(templateData.food_rules)},
+      ${JSON.stringify(templateData.cooking_methods)},
+      ${templateData.recommended_proteins},
+      ${templateData.recommended_vegetables},
+      ${templateData.allowed_fruits},
+      ${templateData.healthy_fats},
+      ${JSON.stringify(templateData.foods_to_avoid)},
+      ${JSON.stringify(templateData.portion_guidelines)},
+      ${JSON.stringify(templateData.supplements)},
+      ${JSON.stringify(templateData.weekly_schedule)},
+      ${JSON.stringify(templateData.lifestyle)},
+      ${JSON.stringify(templateData.messaging_preferences)}
+    )
     RETURNING *
   `;
   return template;
 }
 
-/**
- * Update a template by ID (upsert behavior)
- */
-async function updateTemplate(id, description, type) {
-  // PostgreSQL UPSERT using ON CONFLICT requires a unique constraint on id
-  const [updated] = await sql`
-    INSERT INTO "Template" ("id", "description", "type")
-    VALUES (${id}, ${description}, ${type})
-    ON CONFLICT ("id") DO UPDATE SET
-      "description" = EXCLUDED."description",
-      "type" = EXCLUDED."type"
-    RETURNING *
-  `;
-  return updated;
+async function updateTemplate(id, data) {
+  try {
+    const result = await sql`
+      UPDATE "Template"
+      SET 
+        program_name = ${data.program_name},
+        program_length = ${data.program_length},
+        program_type = ${data.program_type},
+        check_in_frequency = ${data.check_in_frequency},
+        description = ${data.description},
+        goals = ${data.goals}::jsonb,
+        food_rules = ${data.food_rules}::jsonb,
+        cooking_methods = ${data.cooking_methods}::jsonb,
+        recommended_proteins = ${data.recommended_proteins},
+        recommended_vegetables = ${data.recommended_vegetables},
+        allowed_fruits = ${data.allowed_fruits},
+        healthy_fats = ${data.healthy_fats},
+        foods_to_avoid = ${data.foods_to_avoid}::jsonb,
+        portion_guidelines = ${data.portion_guidelines}::jsonb,
+        supplements = ${data.supplements}::jsonb,
+        weekly_schedule = ${data.weekly_schedule}::jsonb,
+        lifestyle = ${data.lifestyle}::jsonb,
+        messaging_preferences = ${data.messaging_preferences}::jsonb
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (result.length === 0) {
+      throw new Error("Template not found");
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error("Error updating template:", error);
+    throw error;
+  }
 }
 
-/**
- * Delete a template by ID
- */
+async function updateProgram(id, data) {
+  try {
+    const result = await sql`
+      UPDATE "Program"
+      SET 
+        program_name = ${data.program_name},
+        program_length = ${data.program_length},
+        program_type = ${data.program_type},
+        check_in_frequency = ${data.check_in_frequency},
+        description = ${data.description},
+        goals = ${data.goals}::jsonb,
+        food_rules = ${data.food_rules}::jsonb,
+        cooking_methods = ${data.cooking_methods}::jsonb,
+        recommended_proteins = ${data.recommended_proteins},
+        recommended_vegetables = ${data.recommended_vegetables},
+        allowed_fruits = ${data.allowed_fruits},
+        healthy_fats = ${data.healthy_fats},
+        foods_to_avoid = ${data.foods_to_avoid}::jsonb,
+        portion_guidelines = ${data.portion_guidelines}::jsonb,
+        supplements = ${data.supplements}::jsonb,
+        weekly_schedule = ${data.weekly_schedule}::jsonb,
+        lifestyle = ${data.lifestyle}::jsonb,
+        messaging_preferences = ${data.messaging_preferences}::jsonb
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (result.length === 0) {
+      throw new Error("Program not found");
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error("Error updating program:", error);
+    throw error;
+  }
+}
+
 async function deleteTemplate(id) {
   const [deleted] = await sql`
     DELETE FROM "Template" WHERE "id" = ${id} RETURNING *
+  `;
+  return deleted || null;
+}
+
+async function deleteProgram(id) {
+  const [deleted] = await sql`
+    DELETE FROM "Program" WHERE "id" = ${id} RETURNING *
   `;
   return deleted || null;
 }
@@ -146,8 +323,11 @@ export const programRepo = {
   createProgram,
   createTemplate,
   updateTemplate,
+  updateProgram,
+  deleteProgram,
   getTemplateDescription,
   deleteTemplate,
   getAllProgramsAdmin,
-  createProgramAdmin
+  createProgramAdmin,
+  getProsForCreateClient
 };

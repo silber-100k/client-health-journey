@@ -11,9 +11,9 @@ async function getClients() {
       cd.email AS coach_email,
       cd."phoneNumber" AS coach_phone,
       pd.id AS program_id,
-      pd.name AS program_title,
+      pd.program_name AS program_title,
       pd.description AS program_description,
-      pd.duration AS program_duration
+      pd.program_length AS program_duration
     FROM "Client" c
     LEFT JOIN "User" cd ON c."coachId" = cd.id
     LEFT JOIN "Program" pd ON c."programId" = pd.id
@@ -37,9 +37,9 @@ async function getclientsbyclinicId(clinicId) {
         cd.email AS coach_email,
         cd."phoneNumber" AS coach_phone,
         pd.id AS program_id,
-        pd.name AS program_title,
+        pd.program_name AS program_title,
         pd.description AS program_description,
-        pd.duration AS program_duration,
+        pd.program_length AS program_duration,
         lc."lastCheckIn"
       FROM "Client" c
       LEFT JOIN "User" cd ON c."coachId" = cd.id
@@ -339,7 +339,7 @@ async function getCompletedProgramsCount(coachId) {
 
     // Step 1: Get clients with non-null startDate and programId
     const clients = await sql`
-      SELECT c."startDate", c."programId", p."duration"
+      SELECT c."startDate", c."programId", p."program_length"
       FROM "Client" c
       JOIN "Program" p ON c."programId" = p."id"
       WHERE c."coachId" = ${coachId}
@@ -368,8 +368,8 @@ async function getCompletedProgramsCount(coachId) {
     // Step 2: Calculate endDate and count completed programs
     let completedCount = 0;
     for (const row of clients) {
-      const { startDate, duration } = row;
-      const { value, unit } = parseDuration(duration);
+      const { startDate, program_length } = row;
+      const { value, unit } = parseDuration(program_length);
       const durationInDays = durationToDays(value, unit);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + durationInDays);
@@ -486,10 +486,37 @@ async function updateClientNum(clinicId) {
 }
 
 async function getclientsbycoachId(coachId) {
-  const clients = await sql`
-    SELECT * FROM "Client" WHERE "coachId" = ${coachId}
-  `;
-  return clients;
+  try {
+    const clients = await sql`
+      WITH last_checkins AS (
+        SELECT 
+          "email",
+          MAX("selectedDate") as "lastCheckIn"
+        FROM "CheckIn"
+        GROUP BY "email"
+      )
+      SELECT 
+        c.*,
+        cd.id AS coach_id,
+        cd.name AS coach_name,
+        cd.email AS coach_email,
+        cd."phoneNumber" AS coach_phone,
+        pd.id AS program_id,
+        pd.program_name AS program_title,
+        pd.description AS program_description,
+        pd.program_length AS program_duration,
+        lc."lastCheckIn"
+      FROM "Client" c
+      LEFT JOIN "User" cd ON c."coachId" = cd.id
+      LEFT JOIN "Program" pd ON c."programId" = pd.id
+      LEFT JOIN last_checkins lc ON c.email = lc.email
+      WHERE c."coachId" = ${coachId}
+    `;
+    return clients;
+  } catch (error) {
+    console.log('Error in getclientsbyclinicId:', error);
+    throw error;
+  }
 }
 
 async function getClientById(clientId) {

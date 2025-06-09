@@ -1,143 +1,129 @@
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
-import { Badge } from "../../components/ui/badge";
-import {
-  Utensils,
-  FileText,
-  Calendar,
-  ListCheck,
-  Loader2,
-  Users,
-} from "lucide-react";
+import React, { useState } from "react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
 import { useAuth } from "@/app/context/AuthContext";
-
-const ProgramTable = ({ programs, isLoading, isError, onSelectProgram }) => {
+const ProgramTable = ({
+  Programs,
+  isProgramLoading,
+  isProgramError,
+  onSelectProgram,
+  selectedProgram,
+  onEdit,
+  onDelete,
+}) => {
   const {user} = useAuth();
-  const isAdmin = user?.role === "admin";
-  const getProgramIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case "nutrition":
-      case "practice_naturals":
-        return <Utensils className="h-5 w-5 text-primary-700" />;
-      case "fitness":
-        return <ListCheck className="h-5 w-5 text-primary-700" />;
-      case "chirothin":
-      case "keto":
-        return <Calendar className="h-5 w-5 text-primary-700" />;
-      default:
-        return <FileText className="h-5 w-5 text-primary-700" />;
-    }
-  };
-  console.log(programs);
-  const formatDuration = (days) => {
-    if (days === 30) return "30 days";
-    if (days === 60) return "60 days";
-    if (days % 7 === 0) {
-      const weeks = days / 7;
-      return `${weeks} ${weeks === 1 ? "week" : "weeks"}`;
-    }
-    return `${days} days`;
-  };
+  const [deletingId, setDeletingId] = useState(null);
 
-  console.log("ProgramTable rendering with programs:", programs);
-
-  if (isLoading) {
+  if (isProgramLoading) {
     return (
       <div className="flex justify-center items-center py-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-
-  if (isError) {
+  if (isProgramError) {
     return (
       <div className="text-center py-8 text-red-500">
-        Failed to load programs. Please try again.
+        Failed to load Programs. Please try again.
       </div>
     );
   }
 
-  if (!programs || programs.length === 0) {
+  if (!Programs || Programs.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        No programs found. Click "Add Program" to create one.
+        No Programs found. Click "Add Program" to create one.
       </div>
     );
   }
-  console.log("table", programs);
+
+  const handleProgramClick = (Program) => {
+    if (onSelectProgram) {
+      onSelectProgram(Program);
+    }
+  };
+
+  const handleEdit = (e, Program) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(Program);
+    }
+  };
+
+  const handleDelete = async (e, Program) => {
+    e.stopPropagation();
+    if (onDelete) {
+      setDeletingId(Program.id);
+      try {
+        await onDelete(Program.id);
+      } finally {
+        setDeletingId(null);
+      }
+    }
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Program</TableHead>
-            {isAdmin?(
-              <TableHead>Clinic</TableHead>
-            ):("")}
-            <TableHead>Type</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Check-in</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1">
-                <Users size={16} />
-                <span>Clients</span>
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {programs.map((program, index) => (
-            <TableRow
-              key={index}
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => onSelectProgram(program)}
-            >
-              <TableCell>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center">
-                    {getProgramIcon(
-                      program?.type ? program.type : program.template?.type
-                    )}
-                  </div>
-                  <div className="font-medium">
-                    {program.name
-                      ? program.name
-                      : `${program.template?.type
-                          .replace("_", " ")
-                          .replace(/\b\w/g, (l) => l.toUpperCase())} Program`}
-                  </div>
-                </div>
-              </TableCell>
+    <div className="grid md:grid-cols-3 gap-3">
+      {Programs.map((Program, index) => (
+        <Card
+          key={Program.id}
+          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 ${
+            selectedProgram?.id === Program.id
+              ? "ring-2 ring-blue-500 bg-blue-50"
+              : ""
+          }`}
+          onClick={() => handleProgramClick(Program)}
+        >
+          <CardContent className="p-3">
+            <div className="flex justify-between items-start mb-1">
+              <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
+                {Program.program_type}
+              </span>
               {
-                isAdmin?(
-                  <TableCell>
-                 {program.clinicEmail}
-                  </TableCell>
-                ):("")
+                (Program.clinicId && user.role == "clinic_admin") || user.role == "admin"?
+                (
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-blue-500 hover:text-blue-700 hover:bg-blue-200"
+                    onClick={(e) => handleEdit(e, Program)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-200"
+                    onClick={(e) => handleDelete(e, Program)}
+                    disabled={deletingId === Program.id}
+                  >
+                    {deletingId === Program.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                ):(
+                  ""
+                )
               }
-              <TableCell>
-                <Badge variant="outline" className="capitalize">
-                  {program.template? program.template.type : "custom"}
-                </Badge>
-              </TableCell>
-              <TableCell>{formatDuration(program.duration)}</TableCell>
-              <TableCell>
-                {program.checkInFrequency === "daily" ? "Daily" : "Weekly"}
-              </TableCell>
-              <TableCell>
-                {program.clientCount !== undefined ? program.clientCount : 0}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              
+            </div>
+            <h4 className="font-semibold text-gray-800 text-sm mb-1">
+              {Program.program_name}
+            </h4>
+            <p className="text-xs text-gray-600 mb-2">{Program.description}</p>
+            <div className="text-xs text-gray-500">
+              {Program.program_length} • {Object.entries(JSON.parse(Program.goals))
+                .filter(([_, value]) => value)
+                .map(([key]) => key).join(" • ")}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

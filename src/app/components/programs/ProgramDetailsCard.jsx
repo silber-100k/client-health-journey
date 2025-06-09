@@ -51,6 +51,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
+import { useAuth } from "@/app/context/AuthContext";
 
 const formSchema = z.object({
   programName: z.string().min(1, "Program name is required"),
@@ -121,14 +122,22 @@ const formSchema = z.object({
   }),
 });
 
-export function TemplateDialogue({
+export default function ProgramDetailsCard({
   open,
-  onClose,
-  fetchTemplates
+  setOpen,
+  fetchPrograms,
+  selectedTemplate,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-
+  const {user} = useAuth();
+  let apiRole = "";
+  if (user?.role === "clinic_admin") {
+    apiRole = "clinic";
+  }
+  if (user?.role === "admin") {
+    apiRole = "admin";
+  }
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -155,6 +164,35 @@ export function TemplateDialogue({
       },
     },
   });
+
+  // Reset form when selectedTemplate changes
+  useEffect(() => {
+    if (selectedTemplate) {
+      form.reset({
+        programName: selectedTemplate.program_name || "",
+        programLength: Number(selectedTemplate.program_length) || 0,
+        programType: selectedTemplate.program_type || "Practice Naturals",
+        checkInFrequency: selectedTemplate.check_in_frequency || "none",
+        description: selectedTemplate.description || "",
+        goals: JSON.parse(selectedTemplate.goals) || {},
+        foodRules: JSON.parse(selectedTemplate.food_rules) || {},
+        cookingMethods: JSON.parse(selectedTemplate.cooking_methods) || {},
+        recommendedProteins: selectedTemplate.recommended_proteins || "",
+        recommendedVegetables: selectedTemplate.recommended_vegetables || "",
+        allowedFruits: selectedTemplate.allowed_fruits || "",
+        healthyFats: selectedTemplate.healthy_fats || "",
+        foodsToAvoid: JSON.parse(selectedTemplate.foods_to_avoid) || {},
+        portionGuidelines: JSON.parse(selectedTemplate.portion_guidelines) || {},
+        supplements: JSON.parse(selectedTemplate.supplements) || [],
+        weeklySchedule: JSON.parse(selectedTemplate.weekly_schedule) || [],
+        lifestyle: JSON.parse(selectedTemplate.lifestyle) || {},
+        messagingPreferences: JSON.parse(selectedTemplate.messaging_preferences) || {
+          tone: "gentle-encouragement",
+          keywords: "",
+        },
+      });
+    }
+  }, [selectedTemplate, form]);
 
   const { control, handleSubmit, setValue, getValues, watch } = form;
 
@@ -188,49 +226,45 @@ export function TemplateDialogue({
   };
 
   const onSubmit = async (data) => {
-    console.log("data",data)
     setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/template", {
+      const response = await fetch(`/api/${apiRole}/program`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
+
       const result = await response.json();
       if (result.status) {
         setErrorMessage(null);
-        fetchTemplates();
-        onClose(false);
-        await fetchTemplates();
-        toast.success("Template added successfully");
-      } 
+        setOpen(false);
+        await fetchPrograms();
+        console.log(result.status);
+        toast.success("Program added successfully");
+      } else {
+        setErrorMessage(result.message || "Failed to add program");
+      }
     } catch (error) {
-      console.log("error",error)
-      setErrorMessage("Failed to add template");
+      console.error("Error adding program:", error);
+      setErrorMessage("Failed to add program");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[600px] overflow-y-scroll">
         <DialogHeader>
-          <DialogTitle>Add New Template</DialogTitle>
+          <DialogTitle>Create Program</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new Template.
+            Program details below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {errorMessage && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            )}
             <Card>
               <CardHeader>
                 <CardTitle>Program Basics</CardTitle>
@@ -1013,7 +1047,7 @@ export function TemplateDialogue({
 
             <DialogFooter>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Template"}
+                {isLoading ? "Adding..." : "Add Program"}
               </Button>
             </DialogFooter>
           </form>

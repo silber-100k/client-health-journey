@@ -29,9 +29,9 @@ export async function PUT(req) {
         if (!user) {
             return Response.json({ success: false, message: "User not found" });
         }
-        const { name, email, phone } = await req.json();
-        console.log(name, email, phone);
-        const updatedUser = await userRepo.updateAdminUser(user.id, name, email, phone, user.role, user.isActive);
+        const { name, email, phone, origin } = await req.json();
+        console.log(name, email, phone, origin);
+        const updatedUser = await userRepo.updateAdminUser(user.id, name, email, phone, user.role, user.isActive, origin);
         return Response.json({ success: true, user: updatedUser });
     } catch (error) {
         console.log(error);

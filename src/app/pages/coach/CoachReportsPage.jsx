@@ -14,7 +14,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import ProgressChart from "@/app/components/progress/ProgressChart";
-
+import CoachReport from "@/app/components/coaches/CoachReport"
 const CoachReportsPage = () => {
   const { user } = useAuth();
   const [activeClients, setActiveClients] = useState(0);
@@ -228,9 +228,7 @@ const CoachReportsPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
-            <ProgressChart progressData={progressData} />
-          </div>
+          <CoachReport/>
         </CardContent>
       </Card>
     </div>

@@ -10,7 +10,7 @@ import { PlusCircle } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import TemplateDialog from "../../components/programs/TemplateDialog";
+import { TemplateDialogue } from "../../components/programs/TemplateDialog";
 import TempTable from "../../components/programs/TempTable";
 import TemplateDetailsDialog from "../../components/programs/TemplateDetailsDialog";
 import { EditTemplateDialogue } from "@/app/components/programs/EditTemplateDialogue";
@@ -20,7 +20,6 @@ const ProgramsPage = () => {
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [isTemplateError, setIsTemplateError] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
-  const [isSubmittingTemplate, setIsSubmittingTemplate] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showTemplateDetails, setShowTemplateDetails] = useState(false);
   const [showEditDialogue, setEditDialogue] = useState(false);
@@ -43,30 +42,8 @@ const ProgramsPage = () => {
     fetchTemplates();
   }, []);
 
-  console.log("selected", selectedTemplate);
-  const handleSubmitTemplate = async (data) => {
-    console.log(data);
-    setIsSubmittingTemplate(true);
-    try {
-      const response = await fetch("/api/admin/template", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      const responseData = await response.json();
-      if (responseData.status) {
-        await fetchTemplates();
-        setShowTemplateDialog(false);
-        toast.success("Template added successfully");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to add template");
-    } finally {
-      setIsSubmittingTemplate(false);
-    }
-  };
+
   const handleViewTemplateDetails = (template) => {
-    console.log("Selected template for details:", template);
     setSelectedTemplate(template);
     setShowTemplateDetails(true);
   };
@@ -87,21 +64,26 @@ const ProgramsPage = () => {
       toast.error("Failed to delete template");
     }
   };
+
+  const handleEdit = (template) => {
+    setSelectedTemplate(template);
+    setEditDialogue(true);
+  }
+
   return (
     <>
       <div>
         {/* Template Dialog */}
-        <TemplateDialog
-          isOpen={showTemplateDialog}
-          onClose={() => setShowTemplateDialog(false)}
-          onSubmit={handleSubmitTemplate}
-          isSubmitting={isSubmittingTemplate}
+        <TemplateDialogue
+          open={showTemplateDialog}
+          onClose={setShowTemplateDialog}
+          fetchTemplates={fetchTemplates}
         />
         <EditTemplateDialogue
           open={showEditDialogue}
           setOpen={setEditDialogue}
-          tempId={selectedTemplate?.id}
           fetchTemplates={fetchTemplates}
+          selectedTemplate = {selectedTemplate}
         />
 
         {/* Template Details Dialog */}
@@ -124,11 +106,12 @@ const ProgramsPage = () => {
         </CardHeader>
         <CardContent>
           {isTemplateLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
+              <div className="flex h-[200px] w-full space-x-3">
+              <Skeleton className="h-full w-1/3" />
+              <Skeleton className="h-full w-1/3" />
+              <Skeleton className="h-full w-1/3" />
+              </div>
+     
           ) : isTemplateError ? (
             <div className="text-center py-8 text-red-500">
               Failed to load Templates. Please try again.
@@ -139,8 +122,8 @@ const ProgramsPage = () => {
               isTemplateLoading={false}
               isTemplateError={false}
               onSelectTemplate={handleViewTemplateDetails}
-              setSelectedTemplate={setSelectedTemplate}
-              onEdit={setEditDialogue}
+              selectedTemplate = {selectedTemplate}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ) : (

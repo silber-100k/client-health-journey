@@ -107,7 +107,7 @@
     "src/app/components/clients/AddClientSchema.js",
     "src/app/components/ui/select.jsx",
     "src/app/api/coach/client/route.js"
-  ],
+, "src/app/layout.jsx"  ],
   "exclude": [
     "node_modules"
   ]

@@ -58,7 +58,7 @@ const AddClientForm = ({
   const fetchPrograms = async () => {
     try {
       setProgramsLoading(true);
-      const response = await fetch("/api/clinic/program");
+      const response = await fetch("/api/clinic/program/programId");
       const data = await response.json();
       setPrograms(data.programs);
       setProgramsLoading(false);

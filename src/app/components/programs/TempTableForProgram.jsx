@@ -4,14 +4,12 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import PropTypes from 'prop-types';
 
-const TempTable = ({
+const TempTableForProgram = ({
   Templates,
   isTemplateLoading,
   isTemplateError,
   onSelectTemplate,
   selectedTemplate,
-  onEdit,
-  onDelete,
 }) => {
   const [deletingId, setDeletingId] = useState(null);
 
@@ -45,33 +43,14 @@ const TempTable = ({
     }
   };
 
-  const handleEdit = (e, template) => {
-    e.stopPropagation();
-    if (onEdit) {
-      onEdit(template);
-    }
-  };
-
-  const handleDelete = async (e, template) => {
-    e.stopPropagation();
-    if (onDelete) {
-      setDeletingId(template.id);
-      try {
-        await onDelete(template.id);
-      } finally {
-        setDeletingId(null);
-      }
-    }
-  };
-
   return (
     <div className="grid md:grid-cols-3 gap-3">
       {Templates.map((template) => (
         <Card
           key={template.id}
-          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 ${
+          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-150 ${
             selectedTemplate?.id === template.id
-              ? "ring-2 ring-blue-500 bg-blue-50"
+              ? "ring-2 ring-green-500 bg-green-50"
               : ""
           }`}
           onClick={() => handleTemplateClick(template)}
@@ -81,29 +60,6 @@ const TempTable = ({
               <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
                 {template.program_type}
               </span>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-blue-500 hover:text-blue-700 hover:bg-blue-200"
-                  onClick={(e) => handleEdit(e, template)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-200"
-                  onClick={(e) => handleDelete(e, template)}
-                  disabled={deletingId === template.id}
-                >
-                  {deletingId === template.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
             </div>
             <h4 className="font-semibold text-gray-800 text-sm mb-1">
               {template.program_name}
@@ -121,4 +77,4 @@ const TempTable = ({
   );
 };
 
-export default TempTable;
+export default TempTableForProgram;

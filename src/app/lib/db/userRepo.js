@@ -69,7 +69,7 @@ async function createClientUser(name, email, phoneNumber, role, password, clinic
   return user;
 }
 
-async function updateAdminUser(id, name, email, phone, role, isActive) {
+async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
   const [updated] = await sql`
     UPDATE "User"
     SET "name" = ${name},
@@ -79,7 +79,48 @@ async function updateAdminUser(id, name, email, phone, role, isActive) {
         "isActive" = ${isActive}
     WHERE "id" = ${id}
     RETURNING *
-  `;
+  `;if (role === "coach" || role === "client") {
+    // Update CheckIn table
+    const [dd] = await sql`
+      UPDATE "CheckIn"
+      SET "email" = ${email}
+      WHERE "email" = ${origin}
+      RETURNING *
+    `;
+  
+    // Update Message table: update both sender and receiver if they match origin
+    const [mes] = await sql`
+      UPDATE "Message"
+      SET
+        "sender" = CASE WHEN "sender" = ${origin} THEN ${email} ELSE "sender" END,
+        "receiver" = CASE WHEN "receiver" = ${origin} THEN ${email} ELSE "receiver" END
+      WHERE "sender" = ${origin} OR "receiver" = ${origin}
+      RETURNING *
+    `;
+  
+    // Update Notification table
+    const [No] = await sql`
+      UPDATE "Notification"
+      SET "email" = ${email}
+      WHERE "email" = ${origin}
+      RETURNING *
+    `;
+  }
+  
+  if (role === "client") {
+    // Update Client table (removed trailing comma)
+    const [cli] = await sql`
+      UPDATE "Client"
+      SET
+        "email" = ${email},
+        "phone" = ${phone}
+      WHERE "email" = ${origin}
+      RETURNING *
+    `;
+  }
+  
+
+
   return updated || null;
 }
 

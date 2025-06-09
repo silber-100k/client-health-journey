@@ -25,6 +25,7 @@ import { User, Settings, Shield, BellRing, LogOut } from "lucide-react";
 import { Switch } from "../../components/ui/switch";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const MyProfile = () => {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ const MyProfile = () => {
     name: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
+    origin: user?.email || ""
   });
 
   const [securityForm, setSecurityForm] = useState({
@@ -69,6 +71,7 @@ const MyProfile = () => {
       if (data.success) {
         toast.success("Profile updated successfully");
         setLoading(false);
+        signOut();
       } else {
         toast.error("Something went wrong");
       }

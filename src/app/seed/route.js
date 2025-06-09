@@ -8,9 +8,26 @@ async function seedTemplate() {
 
   await sql`
     CREATE TABLE "Template" (
-        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "type" VARCHAR(255),
-        "description" TEXT
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "program_name" VARCHAR(255) NOT NULL,
+      "program_length" INTEGER NOT NULL,
+      "program_type" VARCHAR(255) NOT NULL,
+      "check_in_frequency" VARCHAR(50),
+      "description" TEXT NOT NULL,
+      "goals" JSONB,
+      "food_rules" JSONB,
+      "cooking_methods" JSONB,
+      "recommended_proteins" TEXT,
+      "recommended_vegetables" TEXT,
+      "allowed_fruits" TEXT,
+      "healthy_fats" TEXT,
+      "foods_to_avoid" JSONB,
+      "portion_guidelines" JSONB,
+      "supplements" JSONB,
+      "weekly_schedule" JSONB,
+      "lifestyle" JSONB,
+      "messaging_preferences" JSONB,
+      "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `;
 }
@@ -84,23 +101,38 @@ async function seedUser() {
   `;
 }
 
-
-
-
 async function seedProgram() {
+  await sql`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
+
   await sql`
     CREATE TABLE "Program" (
-        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "name" VARCHAR(255),
-        "type" VARCHAR(255),
-        "duration" VARCHAR(255),
-        "checkInFrequency" VARCHAR(255),
-        "description" TEXT,
-        "tempId" UUID REFERENCES "Template"("id"),
-        "clinicId" UUID REFERENCES "Clinic"("id"),
-        "all" VARCHAR(255)
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "program_name" VARCHAR(255) NOT NULL,
+      "program_length" INTEGER NOT NULL,
+      "program_type" VARCHAR(255) NOT NULL,
+      "check_in_frequency" VARCHAR(50),
+      "description" TEXT NOT NULL,
+      "goals" JSONB,
+      "food_rules" JSONB,
+      "cooking_methods" JSONB,
+      "recommended_proteins" TEXT,
+      "recommended_vegetables" TEXT,
+      "allowed_fruits" TEXT,
+      "healthy_fats" TEXT,
+      "foods_to_avoid" JSONB,
+      "portion_guidelines" JSONB,
+      "supplements" JSONB,
+      "weekly_schedule" JSONB,
+      "lifestyle" JSONB,
+      "messaging_preferences" JSONB,
+      "status" VARCHAR(50) DEFAULT 'active',
+      "clinicId" UUID REFERENCES "Clinic"("id"),
+      "all" VARCHAR(255),
+      "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `;
+
+  console.log("Program seeding completed successfully");
 }
 
 async function seedResource() {

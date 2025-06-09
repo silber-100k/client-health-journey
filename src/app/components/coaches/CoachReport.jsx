@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogOverlay,
 } from "@/app/components/ui/dialog";
-export default function HealthTracker() {
+export default function CoachReport() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isOpen, setIsOpen] = useState(false);
   const Nutrient = ({ value, label, color }) => {

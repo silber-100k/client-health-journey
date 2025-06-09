@@ -24,12 +24,13 @@ import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { useClinic } from "@/app/context/ClinicContext";
 import { useRouter } from "next/navigation";
-
+import { signOut } from "next-auth/react";
 const SettingsPage = () => {
   const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
     phone: "",
+    origin: user?.email || ""
   });
 
   const [securityForm, setSecurityForm] = useState({
@@ -69,6 +70,7 @@ const SettingsPage = () => {
       if (data.success) {
         toast.success("Profile updated successfully");
         setUser(data.user);
+        signOut();
       } else {
         toast.error("Profile update failed");
       }

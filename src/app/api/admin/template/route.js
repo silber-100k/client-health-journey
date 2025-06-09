@@ -22,7 +22,7 @@ export async function GET(request) {
         const templates = await programRepo.getTemplates();
         return NextResponse.json({ staus: true, templates });
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
@@ -42,14 +42,51 @@ export async function POST(request) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { type, description } = await request.json();
-        const template = await programRepo.createTemplate(
-            type, description
-        );
+        const {
+            programName,
+            programLength,
+            programType,
+            checkInFrequency,
+            description,
+            goals,
+            foodRules,
+            cookingMethods,
+            recommendedProteins,
+            recommendedVegetables,
+            allowedFruits,
+            healthyFats,
+            foodsToAvoid,
+            portionGuidelines,
+            supplements,
+            weeklySchedule,
+            lifestyle,
+            messagingPreferences
+        } = await request.json();
+
+        const template = await programRepo.createTemplate({
+            program_name: programName,
+            program_length: programLength,
+            program_type: programType,
+            check_in_frequency: checkInFrequency,
+            description,
+            goals,
+            food_rules: foodRules,
+            cooking_methods: cookingMethods,
+            recommended_proteins: recommendedProteins,
+            recommended_vegetables: recommendedVegetables,
+            allowed_fruits: allowedFruits,
+            healthy_fats: healthyFats,
+            foods_to_avoid: foodsToAvoid,
+            portion_guidelines: portionGuidelines,
+            supplements,
+            weekly_schedule: weeklySchedule,
+            lifestyle,
+            messaging_preferences: messagingPreferences
+        });
 
         return NextResponse.json({ status: true, template });
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }

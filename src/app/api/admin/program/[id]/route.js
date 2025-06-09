@@ -4,16 +4,6 @@ import { userRepo } from "@/app/lib/db/userRepo";
 import { getServerSession } from "next-auth";
 import authOptions from "@/app/lib/authoption";
 
-export async function GET(request, { params }) {
-  const { id } = await params;
-  try {
-    const template = await programRepo.getTemplateDescription(id);
-    return NextResponse.json({ status: true, template });
-  } catch (error) {
-    return NextResponse.json({ status: false, message: error.message });
-  }
-}
-
 export async function PUT(request, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -24,7 +14,7 @@ export async function PUT(request, { params }) {
   if (!sessionUser) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (sessionUser.role !== "admin") {
+  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -32,7 +22,7 @@ export async function PUT(request, { params }) {
   const data = await request.json();
 
   try {
-    const template = await programRepo.updateTemplate(id, {
+    const program = await programRepo.updateProgram(id, {
       program_name: data.programName,
       program_length: data.programLength,
       program_type: data.programType,
@@ -52,7 +42,7 @@ export async function PUT(request, { params }) {
       lifestyle: JSON.stringify(data.lifestyle),
       messaging_preferences: JSON.stringify(data.messagingPreferences)
     });
-    return NextResponse.json({ status: true, template });
+    return NextResponse.json({ status: true, program });
   } catch (error) {
     return NextResponse.json({ status: false, message: error.message });
   }
@@ -74,8 +64,8 @@ export async function DELETE(request, { params }) {
   }
 
   try {
-    const template = await programRepo.deleteTemplate(id);
-    return NextResponse.json({ status: true, template });
+    const program = await programRepo.deleteProgram(id);
+    return NextResponse.json({ status: true, program });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ status: false, message: error.message });

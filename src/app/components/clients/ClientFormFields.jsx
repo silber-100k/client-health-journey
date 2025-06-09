@@ -243,7 +243,7 @@ const ClientFormFields = ({
                 {programs && programs.length > 0 ? (
                   programs.map((program) => (
                     <SelectItem key={program.id} value={program.id}>
-                      {program.name} ({program.type}) - {program.duration} days
+                      {program.program_name} ({program.program_type}) - {program.program_length} days
                       {program.isGlobal && (
                         <span className="ml-2 inline-flex items-center">
                           <Globe className="h-3 w-3 text-blue-500" />
