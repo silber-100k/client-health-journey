@@ -25,12 +25,14 @@ import { Check } from "lucide-react";
 import { useClinic } from "@/app/context/ClinicContext";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+
 const SettingsPage = () => {
+  const { user, setUser } = useAuth();
   const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
     phone: "",
-    origin: user?.email || ""
+    origin: ""
   });
 
   const [securityForm, setSecurityForm] = useState({
@@ -46,7 +48,6 @@ const SettingsPage = () => {
     weeklyReports: true,
   });
 
-  const { user, setUser } = useAuth();
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const { planId, currentPlan, setCurrentPlan } = useClinic();
   const router = useRouter();
@@ -56,6 +57,7 @@ const SettingsPage = () => {
       name: user?.name || "HealthTracker Admin",
       email: user?.email || "",
       phone: user?.phoneNumber || "", // Safe to use now that we've added it to the UserData type
+      origin: user?.email || ""
     });
   }, [user]);
 
