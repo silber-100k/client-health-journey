@@ -23,6 +23,7 @@ export const createCheckoutSession = async (customerId, priceId, email) => {
             priceId: priceId,
             email: email,
         },
+        locale: 'en',
     });
     return session;
 };
