@@ -56,11 +56,11 @@ const TempTableForProgram = ({
           onClick={() => handleTemplateClick(template)}
         >
           <CardContent className="p-3">
-            <div className="flex justify-between items-start mb-1">
+            {/* <div className="flex justify-between items-start mb-1">
               <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
                 {template.program_type}
               </span>
-            </div>
+            </div> */}
             <h4 className="font-semibold text-gray-800 text-sm mb-1">
               {template.program_name}
             </h4>

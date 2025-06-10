@@ -223,6 +223,11 @@ export const coachNavItems = [
     icon: MessageCircle,
   },
   {
+    title: "Programs",
+    href: "/coach/programs",
+    icon: Users,
+  },
+  {
     title: "Settings",
     href: "/coach/settings",
     icon: Settings,

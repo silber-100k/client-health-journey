@@ -77,11 +77,11 @@ const ProgramTable = ({
         >
           <CardContent className="p-3">
             <div className="flex justify-between items-start mb-1">
-              <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
+              {/* <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
                 {Program.program_type}
-              </span>
+              </span> */}
               {
-                (Program.clinicId && user.role == "clinic_admin") || user.role == "admin"?
+                (Program.clinicId && user.role == "clinic_admin") || user.role == "admin" || (user.role =="coach" && Program.all == "coach")?
                 (
                 <div className="flex gap-1">
                   <Button

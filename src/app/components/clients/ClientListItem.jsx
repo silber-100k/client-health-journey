@@ -1,8 +1,9 @@
-const ClientListItem = ({ client }) => {
+const ClientListItem = ({ client, handleViewProgram }) => {
   return (
     <div
       key={client.id}
       className="flex items-center justify-between p-4 border rounded-md hover:bg-gray-50 cursor-pointer"
+      onClick={()=>(handleViewProgram(client))}
     >
       <div>
         <h3 className="font-medium">{client.name}</h3>

@@ -15,7 +15,7 @@ export async function GET(request) {
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
-        if (user.role !== "admin" && user.role !== "clinic_admin") {
+        if (user.role !== "admin" && user.role !== "clinic_admin" && user.role != "coach") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 

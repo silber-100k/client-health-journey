@@ -34,9 +34,9 @@ const ProgramDetailsDialog = ({ program, isOpen, onClose }) => {
                   .replace("_", " ")
                   .replace(/\b\w/g, (l) => l.toUpperCase())} Program`}
           </DialogTitle>
-          <DialogDescription>
+          {/* <DialogDescription>
             {program.type ? program.type : program.template.type} program
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
 
         <div className="space-y-4 mt-4">

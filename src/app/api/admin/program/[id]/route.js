@@ -14,7 +14,7 @@ export async function PUT(request, { params }) {
   if (!sessionUser) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin") {
+  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role !="coach") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -59,7 +59,7 @@ export async function DELETE(request, { params }) {
   if (!sessionUser) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (sessionUser.role !== "admin") {
+  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role !="coach" ) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

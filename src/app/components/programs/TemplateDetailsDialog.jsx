@@ -29,9 +29,9 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
       <DialogContent className="sm:max-w-[600px] max-h-[700px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>{template.program_name}</DialogTitle>
-          <DialogDescription>
+          {/* <DialogDescription>
             {template.program_type}
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
         {/* <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">My Program</h1>
@@ -124,8 +124,8 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
                           .filter(([_, isEnabled]) => isEnabled)
                           .map(([goal, _], key) => (
                             <li className="flex items-start" key={key}>
-                                                <AlertCircle className="h-5 w-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                <span>{goal}</span>
+                              <AlertCircle className="h-5 w-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
+                              <span>{goal}</span>
                             </li>
                           ))
                       }
@@ -235,45 +235,42 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
                     <h3 className="text-lg font-medium mb-3">
                       Portion Guidelines
                     </h3>
-                    <div className="border rounded-lg p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="font-medium">Protein</h4>
-                          <p className="text-sm text-gray-600">
-                            {JSON.parse(template.portion_guidelines).proteinPerMeal?JSON.parse(template.portion_guidelines).proteinPerMeal:"0 "
-                            }oz per meal, {JSON.parse(template.portion_guidelines).proteinMealsPerDay?JSON.parse(template.portion_guidelines).proteinMealsPerDay:"no "
-                            }meals per day
-                          </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {JSON.parse(template?.portion_guidelines || '[]').map((guideline, index) => (
+                        <div key={index} className="border rounded-lg p-4 bg-white shadow-sm">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium text-primary-600">Meal {index + 1}</h4>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-sm text-gray-500">Protein</p>
+                                <p className="font-medium">{guideline.protein || '-'} oz</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Fruit</p>
+                                <p className="font-medium">{guideline.fruit || '-'} oz</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Vegetables</p>
+                                <p className="font-medium">{guideline.vegetables || '-'} oz</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Carbs</p>
+                                <p className="font-medium">{guideline.carbs || '-'} oz</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Fats</p>
+                                <p className="font-medium">{guideline.fats || '-'} oz</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Other</p>
+                                <p className="font-medium">{guideline.other || '-'} oz</p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium">Vegetables</h4>
-                          <p className="text-sm text-gray-600">
-                          {JSON.parse(template.portion_guidelines).vegetablesPerMeal?JSON.parse(template.portion_guidelines).vegetablesPerMeal:"0 "
-                            }oz per meal
-                          </p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Fruits</h4>
-                          <p className="text-sm text-gray-600">
-                          {JSON.parse(template.portion_guidelines).fruitsPerDay?JSON.parse(template.portion_guidelines).fruitsPerDay:"0 "
-                            }oz per day
-                          </p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Daily water intake (oz)</h4>
-                          <p className="text-sm text-gray-600">
-                          {JSON.parse(template.portion_guidelines).dailyWaterIntake?JSON.parse(template.portion_guidelines).dailyWaterIntake:"0 "
-                            }oz per day
-                          </p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Additional portion notes</h4>
-                          <p className="text-sm text-gray-600">
-                          {JSON.parse(template.portion_guidelines).additionalNotes?JSON.parse(template.portion_guidelines).additionalNotes:""
-                            }
-                          </p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>

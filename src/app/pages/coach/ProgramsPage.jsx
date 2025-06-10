@@ -43,7 +43,7 @@ export default function ProgramsPage() {
   const fetchPrograms = async () => {
     try {
       setIsProgramLoading(true);
-      const response = await fetch("/api/clinic/program");
+      const response = await fetch("/api/coach/program");
       const data = await response.json();
       setPrograms(data.programs);
       setIsProgramLoading(false);

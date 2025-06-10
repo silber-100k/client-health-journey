@@ -143,50 +143,28 @@ async function createCheckIn(
   exercise,
   exerciseTime,
   sleepHours,
-  breakfastProtein,
-  breakfastProteinPortion,
-  breakfastFruit,
-  breakfastFruitPortion,
-  breakfastVegetable,
-  breakfastVegetablePortion,
-  lunchProtein,
-  lunchProteinPortion,
-  lunchFruit,
-  lunchFruitPortion,
-  lunchVegetable,
-  lunchVegetablePortion,
-  dinnerProtein,
-  dinnerProteinPortion,
-  dinnerFruit,
-  dinnerFruitPortion,
-  dinnerVegetable,
-  dinnerVegetablePortion,
-  snacks,
-  snackPortion,
+  nutrition,
   supplements,
   notes
 ) {
-  const [checkin] = await sql`
-    INSERT INTO "CheckIn" (
-      "name", "email", "coachId", "clinic", "selectedDate", "weight", "waist", "waterIntake",
-      "energyLevel", "moodLevel", "exerciseType", "exercise", "exerciseTime", "sleepHours",
-      "breakfastProtein", "breakfastProteinPortion", "breakfastFruit", "breakfastFruitPortion",
-      "breakfastVegetable", "breakfastVegetablePortion", "lunchProtein", "lunchProteinPortion",
-      "lunchFruit", "lunchFruitPortion", "lunchVegetable", "lunchVegetablePortion",
-      "dinnerProtein", "dinnerProteinPortion", "dinnerFruit", "dinnerFruitPortion",
-      "dinnerVegetable", "dinnerVegetablePortion", "snacks", "snackPortion", "supplements", "notes"
-    ) VALUES (
-      ${name}, ${email}, ${coachId}, ${clinic}, ${selectedDate}, ${weight}, ${waist}, ${waterIntake},
-      ${energyLevel}, ${moodLevel}, ${exerciseType}, ${exercise}, ${exerciseTime}, ${sleepHours},
-      ${breakfastProtein}, ${breakfastProteinPortion}, ${breakfastFruit}, ${breakfastFruitPortion},
-      ${breakfastVegetable}, ${breakfastVegetablePortion}, ${lunchProtein}, ${lunchProteinPortion},
-      ${lunchFruit}, ${lunchFruitPortion}, ${lunchVegetable}, ${lunchVegetablePortion},
-      ${dinnerProtein}, ${dinnerProteinPortion}, ${dinnerFruit}, ${dinnerFruitPortion},
-      ${dinnerVegetable}, ${dinnerVegetablePortion}, ${snacks}, ${snackPortion}, ${supplements}, ${notes}
-    )
-    RETURNING *
-  `;
-  return checkin;
+  try {
+    const checkIn = await sql`
+      INSERT INTO "CheckIn" (
+        "name", "email", "coachId", "clinic", "selectedDate", "weight", "waist", "waterIntake",
+        "energyLevel", "moodLevel", "exerciseType", "exercise", "exerciseTime", "sleepHours",
+        "nutrition", "supplements", "notes"
+      ) VALUES (
+        ${name}, ${email}, ${coachId}, ${clinic}, ${selectedDate}, ${weight}, ${waist}, ${waterIntake},
+        ${energyLevel}, ${moodLevel}, ${exerciseType}, ${exercise}, ${exerciseTime}, ${sleepHours},
+        ${JSON.stringify(nutrition || [])}, ${supplements}, ${notes}
+      )
+      RETURNING *
+    `;
+    return checkIn[0];
+  } catch (error) {
+    console.error("Error creating check-in:", error);
+    throw error;
+  }
 }
 
 async function getCheckInsbyRange(email, startDate, endDate) {
@@ -487,6 +465,9 @@ async function updateClientNum(clinicId) {
 
 async function getclientsbycoachId(coachId) {
   try {
+    if (!coachId) {
+      return [];
+    }
     const clients = await sql`
       WITH last_checkins AS (
         SELECT 

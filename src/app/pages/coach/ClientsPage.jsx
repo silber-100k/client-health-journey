@@ -128,7 +128,7 @@ const ClientsPage = () => {
         onOpenChange={setIsAddClientDialogOpen}
         fetchClients={fetchClients}
         clientLimit={clientLimit}
-        clientCount={clients.length}
+        clientCount={clients?.length}
       />
     </div>
   );
