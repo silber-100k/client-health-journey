@@ -79,7 +79,7 @@ async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
         "isActive" = ${isActive}
     WHERE "id" = ${id}
     RETURNING *
-  `;if (role === "coach" || role === "client") {
+  `; if (role === "coach" || role === "client") {
     // Update CheckIn table
     const [dd] = await sql`
       UPDATE "CheckIn"
@@ -87,7 +87,7 @@ async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
       WHERE "email" = ${origin}
       RETURNING *
     `;
-  
+
     // Update Message table: update both sender and receiver if they match origin
     const [mes] = await sql`
       UPDATE "Message"
@@ -97,7 +97,7 @@ async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
       WHERE "sender" = ${origin} OR "receiver" = ${origin}
       RETURNING *
     `;
-  
+
     // Update Notification table
     const [No] = await sql`
       UPDATE "Notification"
@@ -106,7 +106,7 @@ async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
       RETURNING *
     `;
   }
-  
+
   if (role === "client") {
     // Update Client table (removed trailing comma)
     const [cli] = await sql`
@@ -118,7 +118,7 @@ async function updateAdminUser(id, name, email, phone, role, isActive, origin) {
       RETURNING *
     `;
   }
-  
+
 
 
   return updated || null;
@@ -157,8 +157,30 @@ async function authenticate(email, inputPassword) {
 }
 
 async function getUserById(id) {
-  const users = await sql`SELECT * FROM "User" WHERE "id" = ${id} LIMIT 1`;
-  return users[0] || null;
+  if (!id) {
+    throw new Error('User ID is required');
+  }
+
+  try {
+    const users = await sql`
+      SELECT 
+        u.*,
+        row_to_json(c) AS clinicDetail
+      FROM "User" u
+      LEFT JOIN "Clinic" c ON u."clinic" = c."id"
+      WHERE u."id" = ${id}
+      LIMIT 1
+    `;
+
+    if (!users || users.length === 0) {
+      return null;
+    }
+
+    return users[0];
+  } catch (error) {
+    console.error('Error in getUserById:', error);
+    throw new Error('Failed to fetch user');
+  }
 }
 
 async function getUserByEmail(email) {

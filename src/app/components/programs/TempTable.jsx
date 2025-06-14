@@ -78,9 +78,9 @@ const TempTable = ({
         >
           <CardContent className="p-3">
             <div className="flex justify-between items-start mb-1">
-              {/* <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
+              <span className="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
                 {template.program_type}
-              </span> */}
+              </span>
               <div className="flex gap-1">
                 <Button
                   variant="ghost"

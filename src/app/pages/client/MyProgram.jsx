@@ -30,7 +30,6 @@ const MyProgram = () => {
           <TabsTrigger value="supplements">Supplements</TabsTrigger>
           <TabsTrigger value="schedule">Schedule</TabsTrigger>
         </TabsList>
-
         <TabsContent value="overview">
           <Card>
             <CardHeader>

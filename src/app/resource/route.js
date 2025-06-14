@@ -3,18 +3,13 @@ import postgres from 'postgres';
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 
-async function seedResource() {
+async function aiReview() {
   await sql`
-    CREATE TABLE IF NOT EXISTS "Resource" (
-      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      "title" VARCHAR(255),
-      "description" VARCHAR(255),
-      "role" VARCHAR(255),
-      "type" VARCHAR(255),
-      "category" VARCHAR(255),
-      "isNew" BOOLEAN DEFAULT FALSE,  
-      "content" TEXT,
-      "uploadDate" TIMESTAMP WITH TIME ZONE DEFAULT now()
+    CREATE TABLE "AIReview" (
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "email" VARCHAR(255) NOT NULL,
+        "content" JSONB,
+        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
   `;
 }
@@ -24,7 +19,7 @@ async function seedResource() {
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
-      await seedResource();
+      await aiReview();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

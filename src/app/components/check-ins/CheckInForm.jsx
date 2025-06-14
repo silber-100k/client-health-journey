@@ -166,6 +166,7 @@ const CheckInForm = () => {
         nutrition: data.nutrition || [],
         supplements: data.supplements || "",
         notes: data.notes || "",
+        current: new Date(),
       };
 
       const response = await fetch("/api/client/checkIn", {

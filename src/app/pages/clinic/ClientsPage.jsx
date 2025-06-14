@@ -30,6 +30,7 @@ const ClientsPage = () => {
   const [clients, setClients] = useState([]);
   const [coaches, setCoaches] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const isClinicAdmin = true;
   const isCoach = false;
   const [currentCoach, setCurrentCoach] = useState("");
@@ -63,26 +64,37 @@ const ClientsPage = () => {
     }
     setIsAddClientDialogOpen(true);
   };
-  const handlechange = (e) => {
+  const handlechange = async (e) => {
     setCurrentCoach(e);
-    if (e === "all") {
-      fetchClients();
-    } else {
-      fetchClientsByCoach(e);
+    try {
+      if (e === "all") {
+        await fetchClients();
+      } else {
+        await fetchClientsByCoach(e);
+      }
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      toast.error("Failed to fetch clients");
     }
   };
 
   const fetchCoaches = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch("/api/clinic/coach");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       if (data.coaches) {
         setCoaches(data.coaches);
       } else {
-        toast.error("Failed to fetch coaches");
+        throw new Error("No coaches data received");
       }
     } catch (error) {
+      console.error("Error fetching coaches:", error);
+      setError("Failed to fetch coaches");
       toast.error("Failed to fetch coaches");
     } finally {
       setIsLoading(false);
@@ -90,38 +102,69 @@ const ClientsPage = () => {
   };
 
   const fetchClients = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
       const response = await fetch("/api/clinic/client");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setClients(data.clients);
+      if (data.clients) {
+        setClients(data.clients);
+      } else {
+        throw new Error("No clients data received");
+      }
     } catch (error) {
+      console.error("Error fetching clients:", error);
+      setError("Failed to fetch clients");
       toast.error("Failed to fetch clients");
-      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const fetchClientsByCoach = async (coachId) => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
       const response = await fetch("/api/clinic/client/bycoachId", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ coachId }),
       });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setClients(data.clients);
+      if (data.clients) {
+        setClients(data.clients);
+      } else {
+        throw new Error("No clients data received");
+      }
     } catch (error) {
+      console.error("Error fetching clients by coach:", error);
+      setError("Failed to fetch clients");
       toast.error("Failed to fetch clients");
-      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
-    fetchClients();
-    fetchCoaches();
+    const initializeData = async () => {
+      try {
+        await Promise.all([fetchClients(), fetchCoaches()]);
+      } catch (error) {
+        console.error("Error initializing data:", error);
+        setError("Failed to initialize data");
+      }
+    };
+    initializeData();
   }, []);
+console.log("clients", clients)
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

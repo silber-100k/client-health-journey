@@ -2,6 +2,40 @@ import postgres from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
+
+async function getProgrambyClientEmail(email) {
+  if (!email) {
+    throw new Error('Email is required');
+  }
+
+  const clients = await sql`
+    SELECT "programId"
+    FROM "Client"
+    WHERE "email" = ${email}
+  `;
+
+  if (!clients || clients.length === 0) {
+    throw new Error('Client not found');
+  }
+
+  const programId = clients[0].programId;
+  if (!programId) {
+    throw new Error('Program ID not found for client');
+  }
+
+  const programs = await sql`
+    SELECT *
+    FROM "Program"
+    WHERE "id" = ${programId}
+  `;
+
+  if (!programs || programs.length === 0) {
+    throw new Error('Program not found');
+  }
+
+  return programs[0];
+}
+
 async function getPrograms(clinicId) {
   // Get all programs for the clinic with template info
   const programs = await sql`
@@ -115,55 +149,7 @@ RETURNING *
 `;
   return program;
 }
-async function createProgramCoach(templateData) {
-  const [program] = await sql`
-  INSERT INTO "Program" (
-  program_name,
-  program_length,
-  program_type,
-  check_in_frequency,
-  description,
-  goals,
-  food_rules,
-  cooking_methods,
-  recommended_proteins,
-  recommended_vegetables,
-  allowed_fruits,
-  healthy_fats,
-  foods_to_avoid,
-  portion_guidelines,
-  supplements,
-  weekly_schedule,
-  lifestyle,
-  messaging_preferences,
-  "clinicId",
-  "all"
-) VALUES (
-  ${templateData.program_name},
-  ${templateData.program_length},
-  ${templateData.program_type},
-  ${templateData.check_in_frequency},
-  ${templateData.description},
-  ${JSON.stringify(templateData.goals)},
-  ${JSON.stringify(templateData.food_rules)},
-  ${JSON.stringify(templateData.cooking_methods)},
-  ${templateData.recommended_proteins},
-  ${templateData.recommended_vegetables},
-  ${templateData.allowed_fruits},
-  ${templateData.healthy_fats},
-  ${JSON.stringify(templateData.foods_to_avoid)},
-  ${JSON.stringify(templateData.portion_guidelines)},
-  ${JSON.stringify(templateData.supplements)},
-  ${JSON.stringify(templateData.weekly_schedule)},
-  ${JSON.stringify(templateData.lifestyle)},
-  ${JSON.stringify(templateData.messaging_preferences)},
-  ${templateData.clinicId},
-  'coach'
-)
-RETURNING *
-`;
-  return program;
-}
+
 async function createProgramAdmin(templateData) {
   const [program] = await sql`
       INSERT INTO "Program" (
@@ -378,5 +364,5 @@ export const programRepo = {
   getAllProgramsAdmin,
   createProgramAdmin,
   getProsForCreateClient,
-  createProgramCoach
+  getProgrambyClientEmail
 };

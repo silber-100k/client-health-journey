@@ -540,6 +540,27 @@ async function getProgressdataByRange(email, timeRange) {
   return progress;
 }
 
+async function getProgressbyClient(email, current) {
+  return await sql`
+    SELECT * FROM "CheckIn"
+    WHERE "email" = ${email}
+    AND "selectedDate" >= (DATE(${current})) - INTERVAL '6 days'
+    ORDER BY "selectedDate" ASC
+  `;
+}
+
+
+async function initialState(email) {
+  return await sql`
+    SELECT 
+      "startDate",
+      "initialWeight"
+    FROM "Client"
+    WHERE "email" = ${email}
+  `;
+}
+
+
 export const clientRepo = {
   getClients,
   getclientsbyclinicId,
@@ -564,5 +585,7 @@ export const clientRepo = {
   getPendingCheckIns,
   getCompletedProgramsCount,
   getCoachRecentActivities,
-  getWeightByClientId
+  getWeightByClientId,
+  getProgressbyClient,
+  initialState
 };

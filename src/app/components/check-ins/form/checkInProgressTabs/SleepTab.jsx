@@ -26,78 +26,70 @@ const SleepTab = ({ checkIns }) => {
         </CardHeader>
         <CardContent>
           <div className="w-full h-[300px]">
-            <ResponsiveContainer height="100%">
-              <LineChart
-                accessibilityLayer
-                data={checkIns.checkIns}
-                margin={{
-                  top: 40,
-                  left: 12,
-                  right: 12,
-                  bottom: 40,
-                }}
-                height={300}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="selectedDate"
-                  tickLine={true}
-                  axisLine={true}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    // Format date string, e.g. "2025-05-22" -> "May 22"
-                    const date = new Date(value);
-                    return date.toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      timeZone: "UTC",
-                    });
-                  }}
-                />
-                <YAxis
-                  dataKey="sleepHours"
-                  tickLine={true}
-                  axisLine={true}
-                  tickMargin={8}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                    border: "none",
-                  }}
-                  labelFormatter={(label) => {
-                    const date = new Date(label);
-                    return date.toLocaleDateString(undefined, {
-                      weekday: "short",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                />
-                <Line
-                  dataKey="sleepHours"
-                  type="natural"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                  dot={{
-                    fill: "#2563eb",
-                  }}
-                  activeDot={{
-                    r: 6,
-                  }}
-                >
-                  <LabelList
-                    position="top"
-                    offset={12}
-                    className="fill-foreground"
-                    fontSize={12}
-                  />
-                </Line>
-              </LineChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer height={300} width="100%">
+      <LineChart
+        data={checkIns.checkIns}
+        margin={{ top: 40, left: 12, right: 12, bottom: 40 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis
+          dataKey="selectedDate"
+          tickLine={true}
+          axisLine={true}
+          tickMargin={8}
+          tickFormatter={(value) => {
+            const date = new Date(value);
+            return date.toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              timeZone: "UTC", // Ensures consistent date formatting in UTC
+            });
+          }}
+        />
+        <YAxis
+          dataKey="sleepHours"
+          tickLine={true}
+          axisLine={true}
+          tickMargin={8}
+          tickFormatter={(value) => `${value}`}
+        />
+        <Tooltip
+          contentStyle={{
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+            border: "none",
+            backgroundColor: "white",
+            padding: "10px",
+          }}
+          labelFormatter={(label) => {
+            if (!label) return "";
+            const date = new Date(label);
+            return date.toLocaleDateString(undefined, {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              timeZone: "UTC", // Keep tooltip label in UTC for clarity
+            });
+          }}
+        />
+        <Line
+          dataKey="sleepHours"
+          type="natural"
+          stroke="#2563eb"
+          strokeWidth={2}
+          dot={{ fill: "#2563eb" }}
+          activeDot={{ r: 6 }}
+        >
+          <LabelList
+            position="top"
+            offset={12}
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Line>
+      </LineChart>
+    </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

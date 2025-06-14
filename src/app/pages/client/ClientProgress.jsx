@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import {
   Card,
@@ -26,20 +26,98 @@ import {
   DialogOverlay,
 } from "@/app/components/ui/dialog";
 import { useAuth } from "@/app/context/AuthContext";
+import { toast } from "sonner";
+
 export default function HealthTracker() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isOpen, setIsOpen] = useState(false);
   const {user} = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [checkIns, setCheckIns] = useState([]);
+
+  const fetchCheckInsbyClient = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/client/progress", {
+        method: "POST",
+        body: JSON.stringify({ clientId: user?.id, current: new Date() }),
+      });
+      const data = await response.json();
+      if (data.status) {
+        setCheckIns(data.progress);
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+  
+  useEffect(()=> {
+    fetchCheckInsbyClient();
+  },[user])
+  console.log("checkIn",checkIns)
+  const portionRule = {};
+  const currentPortion = {};
+  const meals = (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).map((item, idx) => {
+    const mealString = [
+      item.protein,
+      item.fruit,
+      item.vegetables,
+      item.carbs,
+      item.fats,
+      item.other
+    ].join(', ');
+    const portion = {
+      proteinPortion: item.proteinPortion,
+      fruitPortion: item.fruitPortion,
+      vegetablesPortion: item.vegetablesPortion,
+      carbsPortion: item.carbsPortion,
+      fatsPortion: item.fatsPortion,
+      otherPortion: item.otherPortion
+    };
+    return { mealString,portion };
+  });
+  (JSON.parse(checkIns?.program?.portion_guidelines || "[]")).forEach(item => {
+    for (const [key, value] of Object.entries(item)) {
+      const num = value ? Number(value) : 0;
+      portionRule[key] = (portionRule[key] || 0) + num;
+    }
+  });
+  (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).forEach(item => {
+    for (const [key, value] of Object.entries(item)) {
+      const num = value ? Number(value) : 0;
+      currentPortion[key] = (currentPortion[key] || 0) + num;
+    }
+  });
+
+  const portionsArray = checkIns?.progressData?.map(entry => {
+    const currentPortion = {};
+    // Parse the nutrition JSON string for this entry
+    (JSON.parse(entry?.nutrition || "[]")).forEach(item => {
+      for (const [key, value] of Object.entries(item)) {
+        const num = value ? Number(value) : 0;
+        currentPortion[key] = (currentPortion[key] || 0) + num;
+      }
+    });
+    return currentPortion;
+  });
+
+  const weightTrend = checkIns?.progressData?.map(item => item.weight);
+
+  console.log("checkIns",checkIns)
   const Nutrient = ({ value, label, color }) => {
     return (
       <div className={`p-4 rounded-md ${color}`}>
-        <div className="text-xl font-bold">{value}g</div>
+        <div className="text-xl font-bold">{value} oz</div>
         <div className="text-sm text-muted-foreground">{label}</div>
       </div>
     );
   };
-  const showDetails = () => {
+  const [mealData,setmeal] = useState({});
+  const showDetails = (macros) => {
     setIsOpen(true);
+    setmeal(macros);
   };
   // Tab Button Component
   const TabButton = ({ tab, icon: Icon, label, isActive }) => (
@@ -57,17 +135,17 @@ export default function HealthTracker() {
   );
   function getMacroIcon(label) {
     switch (label) {
-      case "Water":
-        return <Droplet className="w-3 h-3  text-blue-400" />;
       case "Protein":
+        return <Target className="w-3 h-3  text-blue-400" />;
+      case "Fruit":
         return <Target className="w-3 h-3 text-blue-500" />;
-      case "Carbs":
+      case "Vegetables":
         return <Target className="w-3 h-3 text-orange-500" />;
-      case "Fat":
+      case "Carbs":
         return <Target className="w-3 h-3 text-purple-500" />;
-      case "Calories":
+      case "Fats":
         return <Activity className="w-3 h-3 text-red-500" />;
-      case "Fiber":
+      case "Other":
         return <CheckCircle className="w-3 h-3 text-green-500" />;
       default:
         return null;
@@ -75,13 +153,13 @@ export default function HealthTracker() {
   }
   function getMealIcon(meal) {
     switch (meal) {
-      case "Breakfast":
+      case "Meal 1":
         return <>🥗</>;
-      case "Lunch":
+      case "Meal 2":
         return <>🥙</>;
-      case "Dinner":
+      case "Meal 3":
         return <>🍝</>;
-      case "Snack":
+      case "Meal 4":
         return <>🥗</>;
       default:
         return null;
@@ -89,7 +167,7 @@ export default function HealthTracker() {
   }
 
   // Macro Bar Component
-  const MacroBar = ({ label, current, total, unit = "g" }) => (
+  const MacroBar = ({ label, current, total, unit = "oz" }) => (
     <div className="flex items-center justify-between py-2">
       <div className="flex items-center gap-2">
         <div>{getMacroIcon(label)}</div>
@@ -97,6 +175,7 @@ export default function HealthTracker() {
       </div>
       <span className="text-sm font-medium">
         {current}/{total}
+        &nbsp;
         {unit}
       </span>
     </div>
@@ -105,10 +184,7 @@ export default function HealthTracker() {
   // Meal Card Component
   const MealCard = ({
     meal,
-    time,
     items,
-    calories,
-    protein,
     macros,
     color,
     review,
@@ -117,36 +193,35 @@ export default function HealthTracker() {
     <>
       <Card
         className="p-4 space-y-3 hover:cursor-pointer"
-        onClick={showDetails}
+        onClick={()=>showDetails(macros)}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold">{meal}</h3>
-            <p className="text-sm text-gray-500">{time}</p>
             <p className="text-sm text-gray-700 mt-1">{items}</p>
           </div>
           <div className="text-right">
             <div>{getMealIcon(meal)}</div>
-            <p className="text-sm font-medium">{calories} cal</p>
-            <p className="text-sm font-medium">{protein}g protein</p>
+            <p className="text-sm font-medium">{Math.floor(28.3495*(macros.proteinPortion*4+macros.carbsPortion*4+macros.fatsPortion*9))} cal</p>
+            <p className="text-sm font-medium">{macros.proteinPortion}oz protein</p>
           </div>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 bg-blue-100 rounded p-2 text-center">
             <p className="text-xs text-blue-600">Protein</p>
             <p className="text-sm font-medium text-blue-700">
-              {macros.protein}g
+              {macros.proteinPortion} oz
             </p>
           </div>
           <div className="flex-1 bg-orange-100 rounded p-2 text-center">
             <p className="text-xs text-orange-600">Carbs</p>
             <p className="text-sm font-medium text-orange-700">
-              {macros.carbs}g
+              {macros.carbsPortion} oz
             </p>
           </div>
           <div className="flex-1 bg-purple-100 rounded p-2 text-center">
             <p className="text-xs text-purple-600">Fat</p>
-            <p className="text-sm font-medium text-purple-700">{macros.fat}g</p>
+            <p className="text-sm font-medium text-purple-700">{macros.fatsPortion} oz</p>
           </div>
         </div>
         <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
@@ -154,40 +229,50 @@ export default function HealthTracker() {
         </div>
       </Card>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogOverlay className="bg-gray-100/30" /> {/* Light gray with 30% opacity */}
-        <DialogContent className="w-full max-w-md shadow-lg">
+        <DialogOverlay className="bg-gray-100/30" />
+        <DialogContent
+          className="w-full max-w-md shadow-lg"
+          aria-describedby="meal-dialog-desc"
+        >
           <DialogHeader>
             <DialogTitle className="flex flex-row items-center justify-between pb-2">
               <div>
-                <CardTitle className="text-xl font-medium">Breakfast</CardTitle>
-                <p className="text-sm text-muted-foreground">8:30 AM</p>
+                <CardTitle className="text-xl font-medium">{meal}</CardTitle>
               </div>
             </DialogTitle>
           </DialogHeader>
+
+          {/* Visually hidden description for accessibility */}
+          <div id="meal-dialog-desc" className="sr-only">
+            Nutrition breakdown and AI analysis for your selected meal.
+          </div>
+
           <div>
             <h3 className="font-medium mb-2">Nutrition Breakdown:</h3>
             <div className="grid grid-cols-2 gap-3">
-              <Nutrient value={25} label="Protein" color="bg-blue-50 text-blue-600" />
-              <Nutrient value={22} label="Carbs" color="bg-orange-50 text-orange-600" />
-              <Nutrient value={15} label="Fat" color="bg-purple-50 text-purple-600" />
-              <Nutrient value={6} label="Fiber" color="bg-green-50 text-green-600" />
+              <Nutrient value={mealData.proteinPortion} label="Protein" color="bg-blue-50 text-blue-600" />
+              <Nutrient value={mealData.carbsPortion} label="Carbs" color="bg-orange-50 text-orange-600" />
+              <Nutrient value={mealData.fatsPortion} label="Fat" color="bg-purple-50 text-purple-600" />
+              <Nutrient value={mealData.vegetablesPortion} label="vegetables" color="bg-green-50 text-green-600" />
             </div>
           </div>
 
           <div>
             <h3 className="font-medium mb-2">AI Analysis:</h3>
             <p className="text-sm text-gray-600">
-              Excellent protein start to your day! The probiotics in Greek
-              yogurt support gut health.
+              Excellent protein start to your day! The probiotics in Greek yogurt support gut health.
             </p>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-md text-center">
-            <div className="text-2xl font-bold text-orange-500">320</div>
+            <div className="text-2xl font-bold text-orange-500">
+              {Math.floor(28.3495 * (mealData.proteinPortion * 4 + mealData.carbsPortion * 4 + mealData.fatsPortion * 9))}
+            </div>
             <div className="text-sm text-gray-500">Total Calories</div>
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 
@@ -197,7 +282,7 @@ export default function HealthTracker() {
     description,
     calories,
     protein,
-    macros,
+    mealData,
     ingredients,
   }) => (
     <Card className="p-4 flex flex-col gap-y-1">
@@ -212,15 +297,15 @@ export default function HealthTracker() {
       <div className="flex gap-2">
         <div className="flex-1 bg-blue-100 rounded p-2 text-center">
           <p className="text-xs text-blue-600">Protein</p>
-          <p className="text-sm font-medium text-blue-700">{macros.protein}g</p>
+          <p className="text-sm font-medium text-blue-700">g</p>
         </div>
         <div className="flex-1 bg-orange-100 rounded p-2 text-center">
           <p className="text-xs text-orange-600">Carbs</p>
-          <p className="text-sm font-medium text-orange-700">{macros.carbs}g</p>
+          <p className="text-sm font-medium text-orange-700">g</p>
         </div>
         <div className="flex-1 bg-purple-100 rounded p-2 text-center">
           <p className="text-xs text-purple-600">Fat</p>
-          <p className="text-sm font-medium text-purple-700">{macros.fat}g</p>
+          <p className="text-sm font-medium text-purple-700">g</p>
         </div>
       </div>
       <div>
@@ -234,31 +319,74 @@ export default function HealthTracker() {
   );
 
   // Trend Chart Component
-  const TrendChart = ({ title, color, data }) => (
-    <Card className="pl-2 pr-2 pt-4 pb-4">
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">{title}</h4>
-        <div className="flex gap-1 h-16 items-end">
-          {data.map((value, index) => (
-            <div
-              key={index}
-              className={`flex-1 ${color} rounded-sm`}
-              style={{ height: `${(value / Math.max(...data)) * 100}%` }}
-            />
-          ))}
+  const TrendChart = ({ title, color, data }) => {
+    // Process and validate data
+    const processedData = React.useMemo(() => {
+      if (!Array.isArray(data)) {
+        return Array(7).fill(null);
+      }
+
+      // Convert undefined to null and ensure 7 days
+      const normalizedData = data.map(value => 
+        value === undefined ? null : Number(value)
+      );
+
+      // Pad or trim to 7 days
+      while (normalizedData.length < 7) {
+        normalizedData.push(null);
+      }
+      return normalizedData.slice(0, 7);
+    }, [data]);
+
+    // Calculate max value excluding nulls
+    const maxValue = React.useMemo(() => {
+      const validValues = processedData.filter(value => value !== null);
+      if (validValues.length === 0) return 1;
+      return Math.max(...validValues);
+    }, [processedData]);
+
+    // Get day labels
+    const dayLabels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+
+    return (
+      <Card className="pl-2 pr-2 pt-4 pb-4">
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">{title}</h4>
+          <div className="flex gap-1 h-16 items-end">
+            {processedData.map((value, index) => (
+              <div
+                key={index}
+                className={`flex-1 ${value === null ? 'bg-gray-100' : color} rounded-sm transition-all duration-300 relative group`}
+                style={{ 
+                  height: value === null ? '4px' : `${(value / maxValue) * 100}%`,
+                  minHeight: value !== null && value > 0 ? '14px' : '0'
+                }}
+              >
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {value === null ? 'No data' : value}
+                </div>
+                
+                {/* Bar label */}
+                {value !== null && value > 0 && (
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">
+                    {value}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between text-xs text-gray-500">
+            {dayLabels.map((day, index) => (
+              <span key={day} className="w-8 text-center">
+                {day}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>Mon</span>
-          <span>Tue</span>
-          <span>Wed</span>
-          <span>Thu</span>
-          <span>Fri</span>
-          <span>Sat</span>
-          <span>Sun</span>
-        </div>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -272,7 +400,12 @@ export default function HealthTracker() {
               <span className="text-2xl">👋</span>
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Weight Loss Phase 1 • Started Jan 15, 2025
+               Started {new Date(checkIns?.start?.[0]?.startDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        timeZone: 'UTC'
+                      })}             
             </p>
           </CardHeader>
 
@@ -284,16 +417,38 @@ export default function HealthTracker() {
               <div className="text-xs text-gray-500">Weekly Compliance</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500">142 lbs</div>
-              <div className="text-xs text-gray-500">Current Weight</div>
+              <div className="text-2xl font-bold text-blue-500">{checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight}/
+                {checkIns?.start?.[0]?.initialWeight} lbs
+              </div>
+              <div className="text-xs text-gray-500">Current/Initial</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-700">135 lbs</div>
               <div className="text-xs text-gray-500">Goal Weight</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-500">-1.5 lbs</div>
-              <div className="text-xs text-gray-500">This Week</div>
+              <div 
+              className={`${
+                  checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                    checkIns?.start?.[0]?.initialWeight >
+                  0
+                    ? "text-[#e90f0f]"
+                    : "text-[#16A34A]"
+                } text-2xl font-bold`}>
+                {checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                  checkIns?.start?.[0]?.initialWeight >
+                0
+                  ? `+${
+                      checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                      checkIns?.start?.[0]?.initialWeight
+                    }`
+                  : `-${
+                      checkIns?.start?.[0]?.initialWeight -
+                      checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight
+                    }`}
+                     &nbsp;lbs
+                    </div>
+              <div className="text-xs text-gray-500">Current</div>
             </div>
           </div>
         </Card>
@@ -374,58 +529,39 @@ export default function HealthTracker() {
             <Card className="p-4">
               <h2 className="font-semibold mb-4">Today's Macros</h2>
               <div className="space-y-2">
-                <MacroBar label="Water" current={6} total={8} unit=" glasses" />
-                <MacroBar label="Protein" current={78} total={85} />
-                <MacroBar label="Carbs" current={135} total={150} />
-                <MacroBar label="Fat" current={61} total={65} />
+                {/* <MacroBar label="Water" current={6} total={8} unit=" glasses" /> */}
+                <MacroBar label="Protein" current={currentPortion?.proteinPortion} total={portionRule?.protein} />
+                <MacroBar label="Fruit" current={currentPortion?.fruitPortion} total={portionRule?.fruit} />
+                <MacroBar label="Vegetables" current={currentPortion?.vegetablesPortion} total={portionRule?.vegetables} />
                 <MacroBar
-                  label="Calories"
-                  current={1455}
-                  total={1500}
-                  unit=""
+                  label="Carbs"
+                  current={currentPortion?.carbsPortion}
+                  total={portionRule?.carbs}
+                  unit="oz"
                 />
-                <MacroBar label="Fiber" current={18} total={25} />
+                <MacroBar label="Fats" current={currentPortion?.fatsPortion} total={portionRule?.fats} />
+                <MacroBar label="Other" current={currentPortion?.otherPortion} total={portionRule?.other} />
+
               </div>
             </Card>
           </div>
         )}
         {activeTab === "meals" && (
           <div className="space-y-4">
-            <MealCard
-              meal="Breakfast"
-              time="8:30 AM"
-              items="Greek yogurt, Blueberries, Almonds"
-              calories={320}
-              protein={25}
-              macros={{ protein: 25, carbs: 22, fat: 15 }}
-              color="text-green-700"
-              bgColor="bg-green-50"
-              review="Excellent protein start to your day! The probiotics in Greek yogurt
-        support gut health."
-            />
-            <MealCard
-              meal="Lunch"
-              time="12:45 PM"
-              items="Grilled chicken wrap, Mixed greens, Hummus"
-              calories={485}
-              protein={35}
-              macros={{ protein: 35, carbs: 38, fat: 18 }}
-              color="text-yellow-700"
-              bgColor="bg-yellow-50"
-              review="Great lean protein choice! Consider adding more vegetables next time. protein start to your day! The probiotics in Greek yogurt
-        support gut health."
-            />
-            <MealCard
-              meal="Dinner"
-              time="7:15 PM"
-              items="Pasta, Alfredo sauce, Side salad"
-              calories={650}
-              protein={18}
-              macros={{ protein: 18, carbs: 75, fat: 28 }}
-              color="text-red-700"
-              bgColor="bg-red-50"
-              review="Try swapping regular pasta for zucchini noodles to cut calories while keeping that creamy flavor you love!"
-            />
+            {
+              meals?.map((val,key)=>(
+              <MealCard
+                key={key}
+                meal={`Meal ${key+1}`}
+                items={val.mealString}
+                macros={val.portion}
+                color="text-green-700"
+                bgColor="bg-green-50"
+                review="Excellent protein start to your day! The probiotics in Greek yogurt
+          support gut health."
+              />))
+            }
+            
           </div>
         )}
         {activeTab === "trends" && (
@@ -434,30 +570,28 @@ export default function HealthTracker() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-500">78g</div>
+                  <div className="text-2xl font-bold text-blue-500">{Math.floor((portionsArray?.reduce((sum, item) => sum + item.proteinPortion, 0) || 0) / (portionsArray?.length || 1))} oz</div>
                   <div className="text-xs text-gray-500">Avg Daily Protein</div>
-                  <div className="text-xs text-gray-500">5 day avg week</div>
+                  <div className="text-xs text-gray-500">7 day avg week</div>
                 </div>
               </Card>
               <Card>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-500">142g</div>
+                  <div className="text-2xl font-bold text-orange-500">{Math.floor((portionsArray?.reduce((sum, item) => sum + item.carbsPortion, 0) || 0) / (portionsArray?.length || 1))} oz</div>
                   <div className="text-xs text-gray-500">Avg Daily Carbs</div>
                   <div className="text-xs text-gray-500">7 day avg week</div>
                 </div>
               </Card>
               <Card>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-500">49g</div>
+                  <div className="text-2xl font-bold text-purple-500">{Math.floor((portionsArray?.reduce((sum, item) => sum + item.fatsPortion, 0) || 0) / (portionsArray?.length || 1))} oz</div>
                   <div className="text-xs text-gray-500">Avg Daily Fat</div>
-                  <div className="text-xs text-gray-500">5g avg last week</div>
                 </div>
               </Card>
               <Card>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-500">24g</div>
-                  <div className="text-xs text-gray-500">Avg Daily Fiber</div>
-                  <div className="text-xs text-gray-500">3g avg last week</div>
+                  <div className="text-2xl font-bold text-green-500">{Math.floor((portionsArray?.reduce((sum, item) => sum + item.vegetablesPortion, 0) || 0) / (portionsArray?.length || 1))} oz</div>
+                  <div className="text-xs text-gray-500">Avg Daily Vegetables</div>
                 </div>
               </Card>
             </div>
@@ -466,32 +600,33 @@ export default function HealthTracker() {
               <TrendChart
                 title="Weight Trend"
                 color="bg-blue-400"
-                data={[142, 141.5, 141, 140.5, 140, 139.5, 139]}
+                data={weightTrend}
+
               />
               <TrendChart
                 title="Protein Trend"
                 color="bg-blue-500"
-                data={[75, 80, 78, 85, 82, 79, 88]}
+                data={portionsArray?.map(item => item.proteinPortion)}
               />
               <TrendChart
                 title="Carbs Trend"
                 color="bg-orange-400"
-                data={[140, 135, 150, 145, 138, 142, 148]}
+                data={portionsArray?.map(item => item.carbsPortion)}
               />
               <TrendChart
                 title="Fat Trend"
                 color="bg-purple-400"
-                data={[45, 50, 48, 52, 49, 47, 51]}
+                data={portionsArray?.map(item => item.fatsPortion)}
               />
               <TrendChart
-                title="Fiber Trend"
+                title="Vegetables Trend"
                 color="bg-green-400"
-                data={[20, 22, 25, 23, 28, 24, 26]}
+                data={portionsArray?.map(item => item.vegetablesPortion)}
               />
               <TrendChart
-                title="Compliance Trend"
+                title="Fruit Trend"
                 color="bg-indigo-400"
-                data={[8, 9, 7, 8.5, 9, 8, 8.5]}
+                data={portionsArray?.map(item => item.fruitPortion)}
               />
             </div>
           </div>
