@@ -34,33 +34,108 @@ export async function POST(request) {
                     {
                         type: "text",
                         text: `
-You are a food nutrition analysis AI. For the provided food image(s), analyze the foods and estimate the nutrition portions using the following rules:
+     You are a professional nutritionist and food analysis expert. Analyze the food image and provide detailed nutritional information in JSON format.
 
-- For "proteinPortion", report the total pure protein mass in ounces (not the total weight of the protein foods; estimate the actual protein mass by multiplying the typical protein percentage for each food by its weight).
-- For "carbsPortion", report the total pure carbohydrate mass in ounces (not the total weight of the carbohydrate foods; estimate the actual carbohydrate mass by multiplying the typical carbohydrate percentage for each food by its weight).
-- For "fatsPortion", report the total pure fat mass in ounces (not the total weight of the fat foods; estimate the actual fat mass by multiplying the typical fat percentage for each food by its weight).
-- For "vegetablesPortion", "fruitPortion", and "otherPortion", report the total edible portion in ounces (excluding inedible parts like skin, bone, peel, etc.).
-- If a food cannot be identified, use "" as the description and 0 for the portion.
-- For multiple images, sum up the nutrition portions from all images, category by category.
-- Do not include any explanation or text outside the JSON. Output the JSON object only.
-
-Return the result in this exact format:
+CRITICAL REQUIREMENTS:
+1. You MUST respond with valid JSON only - no markdown, no explanations, no code blocks
+2. All numeric values must be actual numbers, not strings
+3. Include ALL the fields specified in the schema below
+4. BE CONSISTENT - same foods should get similar nutritional values
+5. Use standard portion sizes and established nutritional databases for consistency
+Required JSON Schema:
 {
-    "protein": "combined list of all protein foods",
-    "proteinPortion": total protein mass in ounces,
-    "carbs": "combined list of all carbohydrate foods",
-    "carbsPortion": total carbohydrate mass in ounces,
-    "fats": "combined list of all fat foods",
-    "fatsPortion": total fat mass in ounces,
-    "vegetables": "combined list of all vegetables",
-    "vegetablesPortion": total edible portion in ounces of all vegetables,
-    "fruit": "combined list of all fruits",
-    "fruitPortion": total edible portion in ounces of all fruits,
-    "other": "combined list of any other foods not categorized above",
-    "otherPortion": total edible portion in ounces of all other foods
+ "protein": "combined list of all protein foods",
+                        "proteinPortion": total protein mass in ounces,
+                        "carbs": "combined list of all carbohydrate foods",
+                        "carbsPortion": total carbohydrate mass in ounces,
+                        "fats": "combined list of all fat foods",
+                        "fatsPortion": total fat mass in ounces,
+                        "vegetables": "combined list of all vegetables",
+                        "vegetablesPortion": total edible portion in ounces of all vegetables,
+                        "fruit": "combined list of all fruits",
+                        "fruitPortion": total edible portion in ounces of all fruits,
+                        "other": "combined list of any other foods not categorized above",
+                        "otherPortion": total edible portion in ounces of all other foods
+  "description": "string - detailed description of the food",
+  "calories": number,
+  "fiber": number,
+  "sugar": number,
+  "sodium": number,
+  "vitaminA": number,
+  "vitaminC": number,
+  "vitaminD": number,
+  "vitaminE": number,
+  "vitaminK": number,
+  "vitaminB1": number,
+  "vitaminB2": number,
+  "vitaminB3": number,
+  "vitaminB6": number,
+  "vitaminB12": number,
+  "folate": number,
+  "calcium": number,
+  "iron": number,
+  "magnesium": number,
+  "phosphorus": number,
+  "potassium": number,
+  "zinc": number,
+  "confidence": number,
+  "foodItems": [
+    {
+      "name": "string",
+      "portion": "string",
+      "calories": number,
+      "protein": number,
+      "carbs": number,
+      "fat": number
+    }
+  ],
+  "plateBalance": {
+    "protein": number,
+    "carbs": number,
+    "fruits": number,
+    "vegetables": number,
+    "fats": number
+  },
+  "micronutrientSources": [
+    {
+      "nutrient": "string",
+      "amount": "string",
+      "unit": "string",
+      "sources": ["string"],
+      "benefits": "string"
+    }
+  ]
 }
+CONSISTENCY GUIDELINES:
+- Use USDA nutritional data as your reference
+- For common foods, stick to standard serving sizes
+- Round calories to nearest 10, protein/carbs/fat to nearest 5g
+- Be consistent with portion size estimates (e.g., chicken breast = 6oz, apple = medium)
 
+MICRONUTRIENT ANALYSIS REQUIREMENTS:
+- ALWAYS estimate all vitamins and minerals based on visible food items
+- Use standard nutritional values for common foods from USDA database
+- Provide realistic estimates for portion sizes shown
+- Include micronutrient sources array with detailed breakdown
+- Focus on significant nutrient contributors (>5% daily value)
+- For fruits/vegetables: emphasize vitamin C, folate, potassium
+- For proteins: emphasize iron, B vitamins, zinc
+- For dairy: emphasize calcium, vitamin D, B12
 
+UNITS TO USE:
+- Calories: kcal
+- Macronutrients (protein, carbs, fat, fiber): grams (g)
+- Sugar, sodium, calcium, iron, magnesium, phosphorus, potassium: milligrams (mg)
+- Vitamin A, folate, vitamin D, vitamin K, vitamin B12: micrograms (mcg)
+- Vitamin C, vitamin E, B vitamins (B1,B2,B3,B6), zinc: milligrams (mg)
+
+EXAMPLE MICRONUTRIENTS FOR COMMON FOODS:
+- Chicken breast (6oz): iron=1.5mg, vitaminB6=1.2mg, vitaminB12=0.8mcg
+- Broccoli (1 cup): vitaminC=80mg, folate=60mcg, vitaminK=220mcg
+- Apple (medium): vitaminC=8mg, fiber=4g, potassium=200mg
+- Salmon (4oz): vitaminD=15mcg, vitaminB12=4mcg, iron=1mg
+
+Provide accurate nutritional analysis based on visual assessment of the food items, portions, and preparation methods visible in the image.
                           `
                     },
                     ...base64Images.map(base64 => ({
