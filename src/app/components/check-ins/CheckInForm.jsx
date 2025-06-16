@@ -58,6 +58,7 @@ const checkInSchema = z.object({
     fatsPortion: z.string().optional().transform((val) => val ? parseFloat(val) : null),
     other: z.string().optional(),
     otherPortion: z.string().optional().transform((val) => val ? parseFloat(val) : null),
+    images: z.array(z.string()).optional().default([]),
   })),
   supplements: z.string().optional().default(""),
   notes: z.string().optional().default(""),

@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Button } from "../../../components/ui/button";
 import { Textarea } from "../../../components/ui/textarea";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload, Image as ImageIcon, Search } from "lucide-react";
+import Image from "next/image";
+import { toast } from "sonner";
 
 const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
+  const [uploadingImages, setUploadingImages] = useState({});
+  const [analyzingImages, setAnalyzingImages] = useState({});
+
   const addNutrition = () => {
     const currentNutrition = getValues("nutrition") || [];
     setValue("nutrition", [
@@ -23,6 +28,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
         fatsPortion: "",
         other: "",
         otherPortion: "",
+        images: [],
       },
     ], { shouldValidate: true, shouldDirty: true });
   };
@@ -31,6 +37,98 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
     const currentNutrition = getValues("nutrition") || [];
     const newNutrition = currentNutrition.filter((_, i) => i !== index);
     setValue("nutrition", newNutrition, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleImageUpload = async (e, index) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingImages(prev => ({ ...prev, [index]: true }));
+
+    try {
+      const currentNutrition = getValues("nutrition");
+      const updatedNutrition = [...currentNutrition];
+      updatedNutrition[index] = {
+        ...updatedNutrition[index],
+        images: [...(updatedNutrition[index].images || []), ...files.map(file => URL.createObjectURL(file))],
+      };
+
+      setValue("nutrition", updatedNutrition, { shouldValidate: true, shouldDirty: true });
+      toast.success("Images uploaded successfully!");
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images');
+    } finally {
+      setUploadingImages(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const analyzeImages = async (index) => {
+    const currentNutrition = getValues("nutrition");
+    const images = currentNutrition[index].images;
+    
+    if (!images || images.length === 0) {
+      toast.error('No images to analyze');
+      return;
+    }
+
+    setAnalyzingImages(prev => ({ ...prev, [index]: true }));
+
+    try {
+      const formData = new FormData();
+      // Convert image URLs back to files
+      const imagePromises = images.map(async (imageUrl) => {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        return new File([blob], 'image.jpg', { type: 'image/jpeg' });
+      });
+
+      const imageFiles = await Promise.all(imagePromises);
+      imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch('/api/client/analyze-food-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to analyze images');
+
+      const result = await response.json();
+      
+      const updatedNutrition = [...currentNutrition];
+      updatedNutrition[index] = {
+        ...updatedNutrition[index],
+        protein: result.protein,
+        proteinPortion: result.proteinPortion,
+        vegetables: result.vegetables,
+        vegetablesPortion: result.vegetablesPortion,
+        carbs: result.carbs,
+        carbsPortion: result.carbsPortion,
+        fats: result.fats,
+        fatsPortion: result.fatsPortion,
+        fruit: result.fruit,
+        fruitPortion: result.fruitPortion,
+        other: result.other,
+        otherPortion: result.otherPortion,
+      };
+
+      setValue("nutrition", updatedNutrition, { shouldValidate: true, shouldDirty: true });
+      toast.success("Food analysis completed successfully!");
+    } catch (error) {
+      console.error('Error analyzing images:', error);
+      toast.error('Failed to analyze images');
+    } finally {
+      setAnalyzingImages(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const removeImage = (nutritionIndex, imageIndex) => {
+    const currentNutrition = getValues("nutrition");
+    const updatedNutrition = [...currentNutrition];
+    updatedNutrition[nutritionIndex].images = updatedNutrition[nutritionIndex].images.filter((_, i) => i !== imageIndex);
+    setValue("nutrition", updatedNutrition, { shouldValidate: true, shouldDirty: true });
   };
 
   return (
@@ -55,6 +153,70 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               <Trash2 className="h-4 w-4" />
             </Button>
 
+            {/* Image Upload Section */}
+            <div className="mb-4">
+              <Label>Food Images</Label>
+              <div className="mt-2">
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleImageUpload(e, index)}
+                    className="hidden"
+                    id={`food-images-${index}`}
+                  />
+                  <Label
+                    htmlFor={`food-images-${index}`}
+                    className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Images
+                  </Label>
+                  {uploadingImages[index] && (
+                    <span className="text-sm text-gray-500">Uploading images...</span>
+                  )}
+                  {item.images && item.images.length > 0 && (
+                    <Button
+                      type="button"
+                      onClick={() => analyzeImages(index)}
+                      disabled={analyzingImages[index]}
+                      className="flex items-center gap-2"
+                    >
+                      <Search className="h-4 w-4" />
+                      {analyzingImages[index] ? 'Analyzing...' : 'Analyze Images'}
+                    </Button>
+                  )}
+                </div>
+                
+                {/* Image Preview Grid */}
+                {item.images && item.images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-4 gap-4">
+                    {item.images.map((imageUrl, imageIndex) => (
+                      <div key={imageIndex} className="relative group">
+                        <Image
+                          src={imageUrl}
+                          alt={`Food image ${imageIndex + 1}`}
+                          width={100}
+                          height={100}
+                          className="rounded-md object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index, imageIndex)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Protein</Label>
@@ -66,20 +228,22 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                 <Input
                   {...register(`nutrition.${index}.proteinPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
 
               <div>
-                <Label>Fruit</Label>
+                <Label>Fruits</Label>
                 <Textarea
                   {...register(`nutrition.${index}.fruit`)}
-                  placeholder="What fruit did you have?"
+                  placeholder="What fruits did you have? (e.g., apple, banana, orange)"
                   className="mb-2"
                 />
                 <Input
                   {...register(`nutrition.${index}.fruitPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
@@ -94,20 +258,22 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                 <Input
                   {...register(`nutrition.${index}.vegetablesPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
 
               <div>
-                <Label>Carbs</Label>
+                <Label>Carbohydrates (Grains, Pasta, etc.)</Label>
                 <Textarea
                   {...register(`nutrition.${index}.carbs`)}
-                  placeholder="What carbs did you have?"
+                  placeholder="What carbohydrates did you have? (e.g., rice, bread, pasta)"
                   className="mb-2"
                 />
                 <Input
                   {...register(`nutrition.${index}.carbsPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
@@ -122,6 +288,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                 <Input
                   {...register(`nutrition.${index}.fatsPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
@@ -136,6 +303,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                 <Input
                   {...register(`nutrition.${index}.otherPortion`)}
                   type="number"
+                  step="0.01"
                   placeholder="Portion (oz)"
                 />
               </div>
