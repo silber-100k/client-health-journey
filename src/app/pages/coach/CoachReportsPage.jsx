@@ -23,31 +23,38 @@ const CoachReportsPage = () => {
   const [programs, setPrograms] = useState(0);
   const [checkIns, setCheckIns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [checkInLoading, setCheckInLoading] = useState(false);
   const [historicalData, sethistoricalData] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState("month");
   const [progressData, setProgressData] = useState([]);
+  const [checkInData, setCheckInData] = useState([]);
 
   const fetchActiveClients = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/coach/reports/activeClients");
       const data = await response.json();
       if (data.status) {
+        setIsLoading(false);
         toast.success("Fetched successfully");
         setActiveClients(data.activeClients);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
+      setIsLoading(false);
       toast.error("Unable to get data");
     }
   };
 
   const Totalclients = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/coach/client");
       const data = await response.json();
       if (data.status) {
+        setIsLoading(false);
         toast.success("Fetched successfully");
         setTotalClients(data.clients.length);
         setClients(data.clients);
@@ -55,80 +62,95 @@ const CoachReportsPage = () => {
         toast.error(data.message);
       }
     } catch (error) {
+      setIsLoading(false);
       toast.error("Unable to get data");
     }
   };
 
   const fetchPrograms = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/coach/reports/programs");
       const data = await response.json();
       if (data.status) {
+        setIsLoading(false);
         toast.success("Fetched successfully");
         setPrograms(data.numprograms);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
+      setIsLoading(false);
       toast.error("Unable to get data");
     }
   };
 
   const fetchCheckIns = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/coach/reports/checkins");
       const data = await response.json();
       if (data.status) {
+        setIsLoading(false);
         toast.success("Fetched successfully");
         setCheckIns(data.checkIns);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
+      setIsLoading(false);
       toast.error("Unable to get data");
     }
   };
 
-  const fetchHistoricalData = async () => {
-    try {
-      const response = await fetch("/api/coach/reports/historicalData");
-      const data = await response.json();
-      if (data.status) {
-        toast.success("Fetched successfully");
-        sethistoricalData(data.historicalData);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error("Unable to get data");
-    }
-  };
+  // const fetchHistoricalData = async () => {
+  //   try {
+  //     const response = await fetch("/api/coach/reports/historicalData");
+  //     const data = await response.json();
+  //     if (data.status) {
+  //       toast.success("Fetched successfully");
+  //       sethistoricalData(data.historicalData);
+  //     } else {
+  //       toast.error(data.message);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Unable to get data");
+  //   }
+  // };
+
+
 
   useEffect(() => {
-    setIsLoading(true);
     fetchActiveClients();
     Totalclients();
     fetchPrograms();
     fetchCheckIns();
-    setIsLoading(false);
-    fetchHistoricalData();
+    // fetchHistoricalData();
   }, []);
 
   useEffect(() => {
-    const fetchProgressData = async () => {
-      const response = await fetch(`/api/coach/reports/progress?clientId=${selectedClient}&timeRange=${selectedTimeRange}`);
-      const data = await response.json();
-      if (data.status) {
-        setProgressData(data.progress);
-      } else {
-        toast.error(data.message);
+    const fetchCheckInsbyClient = async () => {
+      try {
+        setCheckInLoading(true);
+        const response = await fetch("/api/client/progress/byClientId", {
+          method: "POST",
+          body: JSON.stringify({ clientId: selectedClient, current: new Date() }),
+        });
+        const data = await response.json();
+        if (data.status) {
+          setCheckInData(data.progress);
+        }
+        setCheckInLoading(false);
+      } catch (error) {
+        setCheckInLoading(false);
+        console.log(error);
       }
-    }
-    if (selectedClient && selectedTimeRange) {
-      fetchProgressData();
+    };
+    if (selectedClient) {
+      fetchCheckInsbyClient();
     }
   }, [selectedClient, selectedTimeRange]);
-
+console.log("selected", checkInData)
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -213,7 +235,7 @@ const CoachReportsPage = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
+              {/* <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue placeholder="Time range" />
                 </SelectTrigger>
@@ -223,12 +245,18 @@ const CoachReportsPage = () => {
                   <SelectItem value="quarter">Last Quarter</SelectItem>
                   <SelectItem value="year">Last Year</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <CoachReport/>
+          {selectedClient?
+          (<CoachReport checkIns={checkInData} loading={checkInLoading}/>
+
+          ):(
+              ""
+          )  
+          }
         </CardContent>
       </Card>
     </div>

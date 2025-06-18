@@ -92,8 +92,7 @@ You are a world-class digital health coach AI. Your task is to analyze a clientâ
 - Specific meal swap suggestions aligned with program portion guidelines.
 - Positive reinforcement if client is doing well.
 - Calculate a compliance score (0 to 10) based on weekly check-in data adherence to the program.
-- Provide a structured JSON output including the following fields, formatted with a dash "-" at the beginning of each sentence and each sentence on a new line:
-- json
+IMPORTANT: Respond with ONLY a valid JSON object in this exact format(not including any other string line "json"):
 {
   "weeklyTrend": string,
   "todaySummary": string,
@@ -102,10 +101,12 @@ You are a world-class digital health coach AI. Your task is to analyze a clientâ
   "mealReview": [string],  // Each item in this array is a single sentence reviewing one meal (labeled as "Meal 1", "Meal 2", etc.), considering its protein, carbohydrates, fats, and vegetables. The number of meal reviews must match the number of meals in the client's check-in data.
   "mealRecommendation": [
     {
-      "proteinPortion": string,
-      "carbsPortion": string,
-      "fatsPortion": string,
-      "foodnames": string
+      "proteinPortion": number,
+      "carbsPortion": number,
+      "fatsPortion": number,
+      "foodnames": string,
+      "description":string,
+      "ingredients":string
     }
   ],
   "message": string
@@ -119,8 +120,6 @@ You are a world-class digital health coach AI. Your task is to analyze a clientâ
 - Ensure recommendations vary each time for freshness.
 - End with a motivational message encouraging the client to keep progressing.
 All checkIn review and recommendation must be based on program totally.
-4. Formatting:
-Please provide the output strictly as a JSON object with the structure above, formatted exactly as specified.
     `;
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -128,7 +127,7 @@ Please provide the output strictly as a JSON object with the structure above, fo
       max_tokens: 700,
     });
     const aiReview = completion.choices[0].message.content || '';
-    const saveReview = await AIReviewRepo.createAIReview(email, aiReview);
+    const saveReview = await AIReviewRepo.createOrUpdateAIReview(email, aiReview);
     console.log("aiReview", aiReview);
     return NextResponse.json({ status: true, checkin });
   } catch (error) {

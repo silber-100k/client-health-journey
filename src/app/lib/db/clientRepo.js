@@ -560,6 +560,15 @@ async function initialState(email) {
   `;
 }
 
+async function getEmailById(id) {
+  const result = await sql`
+    SELECT "email"
+    FROM "Client"
+    WHERE "id" = ${id}
+  `;
+  // Assuming 'sql' returns an array of rows
+  return result[0]?.email || null;
+}
 
 export const clientRepo = {
   getClients,
@@ -587,5 +596,6 @@ export const clientRepo = {
   getCoachRecentActivities,
   getWeightByClientId,
   getProgressbyClient,
-  initialState
+  initialState,
+  getEmailById
 };

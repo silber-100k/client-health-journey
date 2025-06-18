@@ -2,14 +2,33 @@ import postgres from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
-async function createAIReview(email, aiReview) {
-    const [AIReview] = await sql`
+async function createOrUpdateAIReview(email, aiReview) {
+  // Check if an AIReview already exists for this email
+  const existing = await sql`
+    SELECT * FROM "AIReview" WHERE "email" = ${email}
+  `;
+
+  let result;
+  if (existing.length > 0) {
+    // Update existing record
+    [result] = await sql`
+      UPDATE "AIReview"
+      SET "content" = ${aiReview}
+      WHERE "email" = ${email}
+      RETURNING *
+    `;
+  } else {
+    // Insert new record
+    [result] = await sql`
       INSERT INTO "AIReview" ("email", "content")
       VALUES (${email}, ${aiReview})
       RETURNING *
     `;
-    return AIReview;
   }
+
+  return result;
+}
+
 
 async function getReviewbyClientEmail(email) {
   const Review = await sql`
@@ -21,6 +40,6 @@ async function getReviewbyClientEmail(email) {
 }
 
 export const AIReviewRepo = {
-    createAIReview,
+    createOrUpdateAIReview,
     getReviewbyClientEmail
   };

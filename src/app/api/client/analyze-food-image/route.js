@@ -5,6 +5,62 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Helper function to deduplicate string lists
+const deduplicateList = (listString) => {
+    if (!listString) return "";
+    // Split by comma and filter out empty strings and "none"
+    const items = listString.split(',')
+        .map(item => item.trim())
+        .filter(item => item.length > 0 && item.toLowerCase() !== 'none');
+    return [...new Set(items)].join(', ');
+};
+
+// Helper function to combine nutrition data
+const combineNutritionData = (dataArray) => {
+    const combined = {
+        proteinList: "",
+        protein: 0,
+        carbsList: "",
+        carbs: 0,
+        fatList: "",
+        fat: 0,
+        vegetablesList: "",
+        vegetables: 0,
+        fruitList: "",
+        fruit: 0,
+        otherList: "",
+        other: 0
+    };
+
+    dataArray.forEach(data => {
+        // Sum up numerical values
+        combined.protein += parseFloat(data.protein) || 0;
+        combined.carbs += parseFloat(data.carbs) || 0;
+        combined.fat += parseFloat(data.fat) || 0;
+        combined.vegetables += parseFloat(data.vegetables) || 0;
+        combined.fruit += parseFloat(data.fruit) || 0;
+        combined.other += parseFloat(data.other) || 0;
+
+        // Combine and deduplicate string lists
+        if (data.proteinList) combined.proteinList = deduplicateList([combined.proteinList, data.proteinList].join(', '));
+        if (data.carbsList) combined.carbsList = deduplicateList([combined.carbsList, data.carbsList].join(', '));
+        if (data.fatList) combined.fatList = deduplicateList([combined.fatList, data.fatList].join(', '));
+        if (data.vegetablesList) combined.vegetablesList = deduplicateList([combined.vegetablesList, data.vegetablesList].join(', '));
+        if (data.fruitList) combined.fruitList = deduplicateList([combined.fruitList, data.fruitList].join(', '));
+        if (data.otherList) combined.otherList = deduplicateList([combined.otherList, data.otherList].join(', '));
+    });
+
+    // Round all numerical values to 2 decimal places
+    combined.protein = Math.round(combined.protein * 100) / 100;
+    combined.carbs = Math.round(combined.carbs * 100) / 100;
+    combined.fat = Math.round(combined.fat * 100) / 100;
+    combined.vegetables = Math.round(combined.vegetables * 100) / 100;
+    combined.fruit = Math.round(combined.fruit * 100) / 100;
+    combined.other = Math.round(combined.other * 100) / 100;
+
+    return combined;
+};
+
 export async function POST(request) {
     try {
         const formData = await request.formData();
@@ -17,187 +73,94 @@ export async function POST(request) {
             );
         }
 
-        // Convert images to base64
-        const imagePromises = images.map(async (image) => {
+        // Process each image separately
+        const analysisPromises = images.map(async (image) => {
             const bytes = await image.arrayBuffer();
             const buffer = Buffer.from(bytes);
-            return buffer.toString('base64');
-        });
+            const base64Image = buffer.toString('base64');
 
-        const base64Images = await Promise.all(imagePromises);
-
-        // Prepare the messages for OpenAI
-        const messages = [
-            {
-                role: "user",
-                content: [
-                    {
-                        type: "text",
-                        text: `
-     You are a professional nutritionist and food analysis expert. Analyze the food image and provide detailed nutritional information in JSON format.
-
-CRITICAL REQUIREMENTS:
-1. You MUST respond with valid JSON only - no markdown, no explanations, no code blocks
-2. All numeric values must be actual numbers, not strings
-3. Include ALL the fields specified in the schema below
-4. BE CONSISTENT - same foods should get similar nutritional values
-5. Use standard portion sizes and established nutritional databases for consistency
-Required JSON Schema:
-{
- "protein": "combined list of all protein foods",
-                        "proteinPortion": total protein mass in ounces,
-                        "carbs": "combined list of all carbohydrate foods",
-                        "carbsPortion": total carbohydrate mass in ounces,
-                        "fats": "combined list of all fat foods",
-                        "fatsPortion": total fat mass in ounces,
-                        "vegetables": "combined list of all vegetables",
-                        "vegetablesPortion": total edible portion in ounces of all vegetables,
-                        "fruit": "combined list of all fruits",
-                        "fruitPortion": total edible portion in ounces of all fruits,
-                        "other": "combined list of any other foods not categorized above",
-                        "otherPortion": total edible portion in ounces of all other foods
-  "description": "string - detailed description of the food",
-  "calories": number,
-  "fiber": number,
-  "sugar": number,
-  "sodium": number,
-  "vitaminA": number,
-  "vitaminC": number,
-  "vitaminD": number,
-  "vitaminE": number,
-  "vitaminK": number,
-  "vitaminB1": number,
-  "vitaminB2": number,
-  "vitaminB3": number,
-  "vitaminB6": number,
-  "vitaminB12": number,
-  "folate": number,
-  "calcium": number,
-  "iron": number,
-  "magnesium": number,
-  "phosphorus": number,
-  "potassium": number,
-  "zinc": number,
-  "confidence": number,
-  "foodItems": [
-    {
-      "name": "string",
-      "portion": "string",
-      "calories": number,
-      "protein": number,
-      "carbs": number,
-      "fat": number
-    }
-  ],
-  "plateBalance": {
-    "protein": number,
-    "carbs": number,
-    "fruits": number,
-    "vegetables": number,
-    "fats": number
-  },
-  "micronutrientSources": [
-    {
-      "nutrient": "string",
-      "amount": "string",
-      "unit": "string",
-      "sources": ["string"],
-      "benefits": "string"
-    }
-  ]
-}
-CONSISTENCY GUIDELINES:
-- Use USDA nutritional data as your reference
-- For common foods, stick to standard serving sizes
-- Round calories to nearest 10, protein/carbs/fat to nearest 5g
-- Be consistent with portion size estimates (e.g., chicken breast = 6oz, apple = medium)
-
-MICRONUTRIENT ANALYSIS REQUIREMENTS:
-- ALWAYS estimate all vitamins and minerals based on visible food items
-- Use standard nutritional values for common foods from USDA database
-- Provide realistic estimates for portion sizes shown
-- Include micronutrient sources array with detailed breakdown
-- Focus on significant nutrient contributors (>5% daily value)
-- For fruits/vegetables: emphasize vitamin C, folate, potassium
-- For proteins: emphasize iron, B vitamins, zinc
-- For dairy: emphasize calcium, vitamin D, B12
-
-UNITS TO USE:
-- Calories: kcal
-- Macronutrients (protein, carbs, fat, fiber): grams (g)
-- Sugar, sodium, calcium, iron, magnesium, phosphorus, potassium: milligrams (mg)
-- Vitamin A, folate, vitamin D, vitamin K, vitamin B12: micrograms (mcg)
-- Vitamin C, vitamin E, B vitamins (B1,B2,B3,B6), zinc: milligrams (mg)
-
-EXAMPLE MICRONUTRIENTS FOR COMMON FOODS:
-- Chicken breast (6oz): iron=1.5mg, vitaminB6=1.2mg, vitaminB12=0.8mcg
-- Broccoli (1 cup): vitaminC=80mg, folate=60mcg, vitaminK=220mcg
-- Apple (medium): vitaminC=8mg, fiber=4g, potassium=200mg
-- Salmon (4oz): vitaminD=15mcg, vitaminB12=4mcg, iron=1mg
-
-Provide accurate nutritional analysis based on visual assessment of the food items, portions, and preparation methods visible in the image.
-                          `
-                    },
-                    ...base64Images.map(base64 => ({
-                        type: "image_url",
-                        image_url: {
-                            url: `data:image/jpeg;base64,${base64}`
+            const messages = [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: `
+                                Analyze this food image and provide detailed nutritional information. 
+                                IMPORTANT: Respond with ONLY a valid JSON object in this exact format:
+                                {
+                                "food_name": "specific food name",
+                                "description": "string - detailed description of the food",
+                                "calories": number,
+                                "protein": number,
+                                "proteinList": "string- combined list of all protein foods",
+                                "carbs": number,
+                                "carbsList": "string- combined list of all carbohydrates foods",
+                                "fat": number,
+                                "fatList": "string- combined list of all fats foods",
+                                "vegetables": number,
+                                "vegetablesList": "string- combined list of all vegetables foods",
+                                "fruit": number,
+                                "fruitList": "string- combined list of all fruits foods",
+                                "other": number,
+                                "otherList": "string- combined list of all other foods",
+                                "fiber": number,
+                                "sugar": number,
+                                "sodium": number,
+                                "vitamin_c": number,
+                                "iron": number,
+                                "calcium": number,
+                                "vitamin_a": number,
+                                "vitamin_d": number,
+                                "vitamin_e": number,
+                                "vitamin_k": number,
+                                "thiamine": number,
+                                "riboflavin": number,
+                                "niacin": number,
+                                "vitamin_b6": number,
+                                "folate": number,
+                                "vitamin_b12": number,
+                                "potassium": number,
+                                "magnesium": number,
+                                "zinc": number,
+                                "selenium": number,
+                                "micronutrient_sources": [
+                                    {"name": "Vitamin C", "amount": "25mg", "source": "bell peppers"},
+                                    {"name": "Iron", "amount": "1.2mg", "source": "chicken breast"}
+                                ]
+                                }
+                                Provide realistic nutritional values based on standard serving sizes. Include all micronutrients even if trace amounts (use 0 if none).
+                              `
+                        },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${base64Image}`
+                            }
                         }
-                    }))
-                ]
-            }
-        ];
+                    ]
+                }
+            ];
 
-        // Call OpenAI API
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: messages,
-            max_tokens: 800,
-            response_format: { type: "json_object" }
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: messages,
+                max_tokens: 2000,
+                temperature: 0.1,
+                response_format: { type: "json_object" }
+            });
+
+            const responseText = completion.choices[0].message.content;
+            return JSON.parse(responseText);
         });
 
-        // Parse the response
-        const responseText = completion.choices[0].message.content;
-        let nutritionData;
-        try {
-            nutritionData = JSON.parse(responseText);
+        // Wait for all image analyses to complete
+        const analysisResults = await Promise.all(analysisPromises);
 
-            // Ensure all portions are numbers
-            nutritionData.proteinPortion = parseFloat(nutritionData.proteinPortion) || 0;
-            nutritionData.carbsPortion = parseFloat(nutritionData.carbsPortion) || 0;
-            nutritionData.fatsPortion = parseFloat(nutritionData.fatsPortion) || 0;
-            nutritionData.vegetablesPortion = parseFloat(nutritionData.vegetablesPortion) || 0;
-            nutritionData.fruitPortion = parseFloat(nutritionData.fruitPortion) || 0;
-            nutritionData.otherPortion = parseFloat(nutritionData.otherPortion) || 0;
+        // Combine all results
+        const combinedNutritionData = combineNutritionData(analysisResults);
 
-            // Round all portions to 2 decimal places
-            nutritionData.proteinPortion = Math.round(nutritionData.proteinPortion * 100) / 100;
-            nutritionData.carbsPortion = Math.round(nutritionData.carbsPortion * 100) / 100;
-            nutritionData.fatsPortion = Math.round(nutritionData.fatsPortion * 100) / 100;
-            nutritionData.vegetablesPortion = Math.round(nutritionData.vegetablesPortion * 100) / 100;
-            nutritionData.fruitPortion = Math.round(nutritionData.fruitPortion * 100) / 100;
-            nutritionData.otherPortion = Math.round(nutritionData.otherPortion * 100) / 100;
-
-        } catch (error) {
-            console.error('Error parsing OpenAI response:', error);
-            // Return a default structure if parsing fails
-            nutritionData = {
-                protein: "",
-                proteinPortion: 0,
-                carbs: "",
-                carbsPortion: 0,
-                fats: "",
-                fatsPortion: 0,
-                vegetables: "",
-                vegetablesPortion: 0,
-                fruit: "",
-                fruitPortion: 0,
-                other: "",
-                otherPortion: 0
-            };
-        }
-
-        return NextResponse.json(nutritionData);
+        return NextResponse.json(combinedNutritionData);
     } catch (error) {
         console.error('Error analyzing food images:', error);
         return NextResponse.json(

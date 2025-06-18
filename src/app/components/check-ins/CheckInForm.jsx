@@ -129,7 +129,12 @@ const CheckInForm = () => {
     };
 
     const currentTabRequiredFields = requiredFields[currentTab];
-    const missingFields = currentTabRequiredFields.filter(field => !data[field]);
+    const missingFields = currentTabRequiredFields.filter(field => {
+      // For nutrition tab, we don't need to check any fields
+      if (currentTab === 'nutrition') return false;
+      // For other tabs, check if the field is empty
+      return !data[field];
+    });
 
     if (missingFields.length > 0) {
       const fieldNames = {
@@ -141,7 +146,7 @@ const CheckInForm = () => {
       };
 
       const missingFieldNames = missingFields.map(field => fieldNames[field]).join(", ");
-      toast.error(`Please fill in the required fields: ${missingFieldNames}`);
+       toast.error(`Please fill in the required fields: ${missingFieldNames}`);
       return;
     }
 
@@ -214,6 +219,7 @@ const CheckInForm = () => {
   const onError = (errors) => {
     const firstError = Object.values(errors)[0];
     if (firstError) {
+      console.log(firstError)
       toast.error(firstError.message || "Please fill in all required fields");
     }
   };

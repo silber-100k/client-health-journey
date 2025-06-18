@@ -97,21 +97,24 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
       const result = await response.json();
       
+      // Convert grams to ounces (divide by 28.35)
+      const convertToOunces = (grams) => ((grams || 0) / 28.35).toFixed(2);
+      
       const updatedNutrition = [...currentNutrition];
       updatedNutrition[index] = {
         ...updatedNutrition[index],
-        protein: result.protein,
-        proteinPortion: result.proteinPortion,
-        vegetables: result.vegetables,
-        vegetablesPortion: result.vegetablesPortion,
-        carbs: result.carbs,
-        carbsPortion: result.carbsPortion,
-        fats: result.fats,
-        fatsPortion: result.fatsPortion,
-        fruit: result.fruit,
-        fruitPortion: result.fruitPortion,
-        other: result.other,
-        otherPortion: result.otherPortion,
+        protein: result.proteinList || "",
+        proteinPortion: convertToOunces(result.protein),
+        vegetables: result.vegetablesList || "",
+        vegetablesPortion: convertToOunces(result.vegetables),
+        carbs: result.carbsList || "",
+        carbsPortion: convertToOunces(result.carbs),
+        fats: result.fatList || "",
+        fatsPortion: convertToOunces(result.fat),
+        fruit: result.fruitList || "",
+        fruitPortion: convertToOunces(result.fruit),
+        other: result.otherList || "",
+        otherPortion: convertToOunces(result.other),
       };
 
       setValue("nutrition", updatedNutrition, { shouldValidate: true, shouldDirty: true });
