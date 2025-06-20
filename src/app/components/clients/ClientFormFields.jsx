@@ -117,6 +117,29 @@ const ClientFormFields = ({
 
       <FormField
         control={form.control}
+        name="goalWeight"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Goal Weight</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="Goal weight in pounds"
+                {...field}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value ? parseFloat(e.target.value) : undefined
+                  )
+                }
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="goals"
         render={() => (
           <FormItem>

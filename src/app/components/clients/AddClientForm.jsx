@@ -32,6 +32,7 @@ const AddClientForm = ({
       notes: "",
       coachId: "",
       initialWeight: "",
+      goalWeight:"",
       weightDate: new Date().toISOString().split("T")[0],
       goals: [],
     },

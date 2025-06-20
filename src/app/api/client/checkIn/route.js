@@ -118,6 +118,7 @@ IMPORTANT: Respond with ONLY a valid JSON object in this exact format(not includ
 - Use emojis and icons to make feedback engaging and clear.
 - Mention any major differences between check-in data and program targets explicitly(for example, the number of meals in today_Review_and_Recommendation).
 - Ensure recommendations vary each time for freshness.
+- the calories in checkIn data should be smaller than the each calories in program's portionGuidelines
 - End with a motivational message encouraging the client to keep progressing.
 All checkIn review and recommendation must be based on program totally.
     `;

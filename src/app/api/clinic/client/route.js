@@ -44,7 +44,7 @@ export async function POST(request) {
     }
     let clinic = user.clinic;
 
-    let { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals } = await request.json();
+    let { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals, goalWeight } = await request.json();
     // programId = new mongoose.Types.ObjectId(programId);
     // coachId = new mongoose.Types.ObjectId(coachId);
     // clinic = new mongoose.Types.ObjectId(clinic);
@@ -54,11 +54,11 @@ export async function POST(request) {
       return NextResponse.json({ status: false, message: "Invalid request" });
     }
 
-    if(!coachId || !programId){
+    if (!coachId || !programId) {
       return NextResponse.json({ status: false, message: "Select Coach and Program" });
     }
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals);
+    const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals, goalWeight);
     await userRepo.createClientUser(
       name,
       email,

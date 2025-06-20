@@ -26,7 +26,7 @@ export async function GET() {
     let clientLimit = 0;
     const subscriptionTier = await subscriptionRepo.getSubscriptionTier(user.clinic);
     if (subscriptionTier && subscriptionTier.isActive && subscriptionTier.endDate >= new Date()) {
-      const plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);  
+      const plan = SubscriptionPlan.find(plan => plan.id === subscriptionTier.planId);
       clientLimit = plan?.clientLimit;
     }
     const clients = await clientRepo.getclientsbycoachId(coachId);
@@ -54,13 +54,13 @@ export async function POST(request) {
     }
     const clinic = user.clinic;
 
-    const { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals } = await request.json();
+    const { name, email, phone, programId, programCategory, startDate, notes, coachId, weightDate, initialWeight, goals, goalWeight } = await request.json();
 
     if (!name || !email) {
       return NextResponse.json({ status: false, message: "Invalid request" });
     }
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals);
+    const client = await clientRepo.createClient(name, email, phone, programId, programCategory, startDate, notes, coachId, clinic, weightDate, initialWeight, goals, goalWeight);
     await userRepo.createClientUser(
       name,
       email,

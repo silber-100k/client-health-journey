@@ -162,7 +162,7 @@ export async function POST(request) {
 
         return NextResponse.json(combinedNutritionData);
     } catch (error) {
-        console.error('Error analyzing food images:', error);
+        console.log('Error analyzing food images:', error);
         return NextResponse.json(
             { error: 'Failed to analyze food images' },
             { status: 500 }

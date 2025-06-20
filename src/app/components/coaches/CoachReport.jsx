@@ -540,7 +540,7 @@ export default function CoachReport({checkIns,loading}) {
                   <div className="text-xs text-gray-500">Current/Initial</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-700">135 lbs</div>
+                  <div className="text-2xl font-bold text-gray-700">{checkIns?.start?.[0]?.goalWeight}</div>
                   <div className="text-xs text-gray-500">Goal Weight</div>
                 </div>
                 <div className="text-center">
@@ -746,6 +746,12 @@ export default function CoachReport({checkIns,loading}) {
                     color="#2563eb"
                     matrix = "weight"
                     data={weightTrend}
+                  />
+                  <TrendChart
+                    title="Calories Trend"
+                    color="#1da95e"
+                    matrix = "calories"
+                    data={portionsArray}
                   />
                   <TrendChart
                     title="Protein Trend"

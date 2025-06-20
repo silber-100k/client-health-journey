@@ -267,6 +267,10 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
                                 <p className="text-sm text-gray-500">Other</p>
                                 <p className="font-medium">{guideline.other || '-'} oz</p>
                               </div>
+                              <div className="col-span-2">
+                                <p className="text-sm text-gray-500">Calories</p>
+                                <p className="font-medium">{guideline.calories || '-'} cal</p>
+                              </div>
                             </div>
                           </div>
                         </div>

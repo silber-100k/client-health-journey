@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Button } from "../../../components/ui/button";
@@ -10,6 +10,23 @@ import { toast } from "sonner";
 const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
   const [uploadingImages, setUploadingImages] = useState({});
   const [analyzingImages, setAnalyzingImages] = useState({});
+
+  // Live calories calculation
+  useEffect(() => {
+    const nutrition = getValues("nutrition") || [];
+    const updatedNutrition = nutrition.map((item) => {
+      const protein = parseFloat(item.proteinPortion) || 0;
+      const carbs = parseFloat(item.carbsPortion) || 0;
+      const fats = parseFloat(item.fatsPortion) || 0;
+      const calories = 28.35 * (4 * protein + 4 * carbs + 9 * fats);
+      return {
+        ...item,
+        calories: calories ? calories.toFixed(2) : '0',
+      };
+    });
+    setValue("nutrition", updatedNutrition, { shouldValidate: false, shouldDirty: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.nutrition?.length, formData.nutrition?.map(i => `${i.proteinPortion}-${i.carbsPortion}-${i.fatsPortion}`).join(",")]);
 
   const addNutrition = () => {
     const currentNutrition = getValues("nutrition") || [];
@@ -308,6 +325,21 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                   type="number"
                   step="0.01"
                   placeholder="Portion (oz)"
+                />
+              </div>
+
+              {/* Calories Field */}
+              <div>
+                <Label>Calories</Label>
+                <Input
+                  {...register(`nutrition.${index}.calories`)}
+                  type="number"
+                  step="0.01"
+                  placeholder="Calories"
+                  value={item.calories || ''}
+                  readOnly
+                  tabIndex={-1}
+                  style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
                 />
               </div>
             </div>

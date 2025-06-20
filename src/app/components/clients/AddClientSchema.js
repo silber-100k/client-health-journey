@@ -6,7 +6,7 @@ export const formSchema = z.object({
   phone: z.string().optional(),
   programId: z.string().min(1, { message: 'Please select a program.' }),
   programCategory: z.string().optional(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { 
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   notes: z.string().optional(),
@@ -16,6 +16,7 @@ export const formSchema = z.object({
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   goals: z.array(z.enum(['weight_loss', 'skin_tightening', 'build_muscle', 'improve_health'])).default([]),
+  goalWeight: z.number().optional(),
 });
 
 export const formSchema2 = z.object({
@@ -24,7 +25,7 @@ export const formSchema2 = z.object({
   phone: z.string().optional(),
   programId: z.string().min(1, { message: 'Please select a program.' }),
   programCategory: z.string().optional(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { 
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   notes: z.string().optional(),
@@ -34,6 +35,7 @@ export const formSchema2 = z.object({
     message: 'Please enter a valid date in YYYY-MM-DD format.'
   }),
   goals: z.array(z.enum(['weight_loss', 'skin_tightening', 'build_muscle', 'improve_health'])).default([]),
+  goalWeight: z.number().optional(),
 });
 
 
@@ -42,4 +44,4 @@ export const clientGoals = [
   { id: 'skin_tightening', label: 'Skin Tightening' },
   { id: 'build_muscle', label: 'Build Muscle' },
   { id: 'improve_health', label: 'Improve Overall Health' }
-] ;
+];

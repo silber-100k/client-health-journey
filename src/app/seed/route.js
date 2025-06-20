@@ -167,6 +167,7 @@ async function seedClient() {
         "clinic" UUID REFERENCES "Clinic"("id"),
         "weightDate" DATE,
         "initialWeight" NUMERIC,
+        "goalWeight" NUMERIC,
         "lastCheckIn" DATE,
         "goals" TEXT[]
     );

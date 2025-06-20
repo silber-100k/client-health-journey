@@ -274,7 +274,7 @@ export default function ProgramDetailsCard({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[600px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Create Program</DialogTitle>
           <DialogDescription>
@@ -645,6 +645,7 @@ export default function ProgramDetailsCard({
                       <TableHead>Carbs(oz)</TableHead>
                       <TableHead>Fats(oz)</TableHead>
                       <TableHead>Other(oz)</TableHead>
+                      <TableHead>Calories</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -725,6 +726,20 @@ export default function ProgramDetailsCard({
                           <FormField
                             control={control}
                             name={`portionGuidelines.${index}.other`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.calories`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>

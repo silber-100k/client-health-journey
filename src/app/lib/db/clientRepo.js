@@ -89,7 +89,8 @@ async function createClient(
   clinic,
   weightDate,
   initialWeight,
-  goals
+  goals,
+  goalWeight
 ) {
   // Check if client exists
   const existingClient = await sql`
@@ -104,10 +105,10 @@ async function createClient(
   const [client] = await sql`
     INSERT INTO "Client" (
       "name", "email", "phone", "programId", "programCategory", "startDate", "notes",
-      "coachId", "clinic", "weightDate", "initialWeight", "goals"
+      "coachId", "clinic", "weightDate", "initialWeight", "goals", "goalWeight"
     ) VALUES (
       ${name}, ${email}, ${phone}, ${programId}, ${programCategory}, ${startDate}, ${notes},
-      ${coachId}, ${clinic}, ${weightDate}, ${initialWeight}, ${goals}
+      ${coachId}, ${clinic}, ${weightDate}, ${initialWeight}, ${goals}, ${goalWeight}
     )
     RETURNING *
   `;
@@ -181,7 +182,7 @@ async function getCheckInsbyRange(email, startDate, endDate) {
 
 async function getWeightByClientId(clientId, email) {
   const initialWeight = await sql`
-    SELECT "initialWeight" FROM "Client" WHERE "id" = ${clientId}
+    SELECT "initialWeight", "goalWeight" FROM "Client" WHERE "id" = ${clientId}
   `;
   const currentWeight = await sql`
   SELECT "weight" FROM "CheckIn"
@@ -191,6 +192,7 @@ async function getWeightByClientId(clientId, email) {
   `;
   return {
     initialWeight: initialWeight[0]?.initialWeight || 0,
+    goalWeight: initialWeight[0]?.goalWeight || 0,
     currentWeight: currentWeight[0]?.weight || 0
   }
 
@@ -554,7 +556,8 @@ async function initialState(email) {
   return await sql`
     SELECT 
       "startDate",
-      "initialWeight"
+      "initialWeight",
+      "goalWeight"
     FROM "Client"
     WHERE "email" = ${email}
   `;

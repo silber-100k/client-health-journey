@@ -126,7 +126,7 @@ const CoachReportsPage = () => {
   const handlechange2 = (date) => {
     setEndDate(date);
   };
-
+console.log("checkIn",checkIns)
   return (
     <div>
       <div className="flex items-center gap-4">

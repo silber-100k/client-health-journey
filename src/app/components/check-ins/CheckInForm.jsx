@@ -152,6 +152,18 @@ const CheckInForm = () => {
 
     setIsSubmitting(true);
     try {
+      // Calculate calories for each nutrition entry
+      const nutritionWithCalories = (data.nutrition || []).map((entry) => {
+        const protein = parseFloat(entry.proteinPortion) || 0;
+        const carbs = parseFloat(entry.carbsPortion) || 0;
+        const fats = parseFloat(entry.fatsPortion) || 0;
+        const calories = 28.35 * (4 * protein + 4 * carbs + 9 * fats);
+        return {
+          ...entry,
+          calories: calories ? calories.toFixed(2) : '0',
+        };
+      });
+
       // Ensure all required fields have values and proper types
       const formData = {
         ...data,
@@ -169,7 +181,7 @@ const CheckInForm = () => {
         exercise: data.exercise || "",
         exerciseTime: data.exerciseTime || null,
         sleepHours: data.sleepHours || 0,
-        nutrition: data.nutrition || [],
+        nutrition: nutritionWithCalories,
         supplements: data.supplements || "",
         notes: data.notes || "",
         current: new Date(),

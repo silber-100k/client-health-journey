@@ -79,8 +79,7 @@ const NutritionWeightTab = ({ checkIns }) => {
             </div>
             <div>
               <div className="text-[#6B7280] text-[14px]">Goal Weight</div>
-              <div className="text-[#020817] font-bold text-[20px]">weight</div>
-              <div className="text-[#6B7280] text-[14px]">30 lbs to go</div>
+              <div className="text-[#020817] font-bold text-[20px]">{checkIns?.weight?.goalWeight}</div>
             </div>
           </div>
         </div>

@@ -97,6 +97,7 @@ const formSchema = z.object({
     carbs: z.string().optional(),
     fats: z.string().optional(),
     other: z.string().optional(),
+    calories: z.string().optional(),
   })),
   supplements: z.array(z.object({
     name: z.string().min(1, "Required"),
@@ -222,7 +223,7 @@ export default function EditProgramDialogue({
     const currentGuidelines = getValues("portionGuidelines");
     setValue("portionGuidelines", [
       ...currentGuidelines,
-      { protein: "", fruit: "", vegetables: "", carbs: "", fats: "", other: "" },
+      { protein: "", fruit: "", vegetables: "", carbs: "", fats: "", other: "", calories: "" },
     ]);
   };
 
@@ -267,7 +268,7 @@ export default function EditProgramDialogue({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[600px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Edit Template</DialogTitle>
           <DialogDescription>
@@ -644,6 +645,7 @@ export default function EditProgramDialogue({
                       <TableHead>Carbs(oz)</TableHead>
                       <TableHead>Fats(oz)</TableHead>
                       <TableHead>Other(oz)</TableHead>
+                      <TableHead>Calories</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -724,6 +726,20 @@ export default function EditProgramDialogue({
                           <FormField
                             control={control}
                             name={`portionGuidelines.${index}.other`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.calories`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>

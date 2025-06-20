@@ -90,14 +90,15 @@ const formSchema = z.object({
     artificialSweeteners: z.boolean().optional(),
     cookingOils: z.boolean().optional(),
   }).partial(),
-  portionGuidelines: z.object({
-    proteinPerMeal: z.string().optional(),
-    proteinMealsPerDay: z.string().optional(),
-    vegetablesPerMeal: z.string().optional(),
-    fruitsPerDay: z.string().optional(),
-    dailyWaterIntake: z.string().optional(),
-    additionalNotes: z.string().optional(),
-  }).partial(),
+  portionGuidelines: z.array(z.object({
+    protein: z.string().optional(),
+    fruit: z.string().optional(),
+    vegetables: z.string().optional(),
+    carbs: z.string().optional(),
+    fats: z.string().optional(),
+    other: z.string().optional(),
+    calories: z.string().optional(),
+  })),
   supplements: z.array(z.object({
     name: z.string().min(1, "Required"),
     purpose: z.string().min(1, "Required"),
@@ -145,7 +146,7 @@ export function TemplateDialogue({
       allowedFruits: "",
       healthyFats: "",
       foodsToAvoid: {},
-      portionGuidelines: {},
+      portionGuidelines: [],
       supplements: [],
       weeklySchedule: [],
       lifestyle: {},
@@ -216,7 +217,7 @@ export function TemplateDialogue({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Add New Template</DialogTitle>
           <DialogDescription>
@@ -583,96 +584,144 @@ export function TemplateDialogue({
               <CardHeader>
                 <CardTitle>Portion Guidelines</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.proteinPerMeal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Protein per meal (oz)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.proteinMealsPerDay"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Protein meals per day</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.vegetablesPerMeal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Vegetables per meal (cups)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.fruitsPerDay"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fruits per day (servings)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.dailyWaterIntake"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Daily water intake (oz)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="portionGuidelines.additionalNotes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Additional Notes</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Meal timing, fasting windows, etc."
-                            className="resize-none"
-                            rows={3}
-                            {...field}
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Protein(oz)</TableHead>
+                      <TableHead>Fruit(oz)</TableHead>
+                      <TableHead>Vegetables(oz)</TableHead>
+                      <TableHead>Carbs(oz)</TableHead>
+                      <TableHead>Fats(oz)</TableHead>
+                      <TableHead>Other(oz)</TableHead>
+                      <TableHead>Calories</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {watch("portionGuidelines").map((guideline, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.protein`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.fruit`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.vegetables`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.carbs`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.fats`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.other`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={control}
+                            name={`portionGuidelines.${index}.calories`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const current = getValues("portionGuidelines");
+                              setValue("portionGuidelines", current.filter((_, i) => i !== index), { shouldValidate: true, shouldDirty: true });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <Button type="button" onClick={() => {
+                  const current = getValues("portionGuidelines");
+                  setValue("portionGuidelines", [...current, { protein: "", fruit: "", vegetables: "", carbs: "", fats: "", other: "", calories: "" }]);
+                }} className="mt-4">
+                  <Plus className="mr-2 h-4 w-4" /> Add Portion Guidelines
+                </Button>
               </CardContent>
             </Card>
 
