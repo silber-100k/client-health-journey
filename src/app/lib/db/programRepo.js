@@ -351,6 +351,13 @@ async function deleteProgram(id) {
   return deleted || null;
 }
 
+async function getProgrambyId(id) {
+  const [program] = await sql`
+    SELECT * FROM "Program" WHERE "id" = ${id}
+  `;
+  return program || null;
+}
+
 export const programRepo = {
   getTemplates,
   getPrograms,
@@ -364,5 +371,6 @@ export const programRepo = {
   getAllProgramsAdmin,
   createProgramAdmin,
   getProsForCreateClient,
-  getProgrambyClientEmail
+  getProgrambyClientEmail,
+  getProgrambyId
 };

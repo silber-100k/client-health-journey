@@ -125,7 +125,7 @@ All checkIn review and recommendation must be based on program totally.
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 700,
+      max_tokens: 2000,
     });
     const aiReview = completion.choices[0].message.content || '';
     const saveReview = await AIReviewRepo.createOrUpdateAIReview(email, aiReview);
