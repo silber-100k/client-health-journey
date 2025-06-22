@@ -61,16 +61,23 @@ const combineNutritionData = (dataArray) => {
     return combined;
 };
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '25mb',
-        },
-    },
-};
+// Next.js 13+ App Router configuration
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 seconds timeout
 
 export async function POST(request) {
     try {
+        // Check content length before processing
+        const contentLength = request.headers.get('content-length');
+        const maxSize = 25 * 1024 * 1024; // 25MB
+
+        if (contentLength && parseInt(contentLength) > maxSize) {
+            return NextResponse.json(
+                { error: 'Request too large. Maximum file size is 25MB.' },
+                { status: 413 }
+            );
+        }
+
         const formData = await request.formData();
         const images = formData.getAll('images');
 
@@ -79,6 +86,16 @@ export async function POST(request) {
                 { error: 'No images provided' },
                 { status: 400 }
             );
+        }
+
+        // Check individual file sizes
+        for (const image of images) {
+            if (image.size > 10 * 1024 * 1024) { // 10MB per file
+                return NextResponse.json(
+                    { error: `File ${image.name} is too large. Maximum size per file is 10MB.` },
+                    { status: 413 }
+                );
+            }
         }
 
         // Process each image separately
@@ -172,6 +189,15 @@ export async function POST(request) {
         return NextResponse.json(combinedNutritionData);
     } catch (error) {
         console.log('Error analyzing food images:', error);
+
+        // Handle specific error types
+        if (error.message?.includes('413') || error.message?.includes('Request Entity Too Large')) {
+            return NextResponse.json(
+                { error: 'File size too large. Please compress your images before uploading.' },
+                { status: 413 }
+            );
+        }
+
         return NextResponse.json(
             { error: 'Failed to analyze food images' },
             { status: 500 }

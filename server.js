@@ -18,7 +18,13 @@ const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const httpServer = http.createServer(handler);
+  const httpServer = http.createServer({
+    maxHeaderSize: 64 * 1024, // 64KB header size limit
+  }, handler);
+
+  // Set body size limit for large file uploads
+  httpServer.maxHeaderSize = 64 * 1024; // 64KB
+  httpServer.maxConnections = 1000;
 
   const io = new Server(httpServer, {
     cors: {

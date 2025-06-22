@@ -12,6 +12,9 @@ const nextConfig = {
     STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
   },
   staticPageGenerationTimeout: 1000,
+  experimental: {
+    serverComponentsExternalPackages: ['sharp'],
+  },
   async headers() {
     return [
       {
@@ -24,6 +27,12 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  serverRuntimeConfig: {
+    maxBodySize: '25mb',
+  },
+  publicRuntimeConfig: {
+    maxFileSize: '10mb',
   },
 };
 
