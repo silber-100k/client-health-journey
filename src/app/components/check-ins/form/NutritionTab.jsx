@@ -162,8 +162,23 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
   const analyzeImages = async (index) => {
     const filesToAnalyze = imageFiles[index];
+    const currentNutrition = getValues("nutrition");
+    const currentItem = currentNutrition[index];
+    
+    console.log('Analyze Images Debug:', {
+      index,
+      filesToAnalyze,
+      currentItem,
+      imageFiles: imageFiles,
+      hasImages: currentItem?.images?.length > 0
+    });
     
     if (!filesToAnalyze || filesToAnalyze.length === 0) {
+      // Fallback: check if there are images in the nutrition data
+      if (currentItem?.images && currentItem.images.length > 0) {
+        toast.error('Images are uploaded but file references are missing. Please re-upload the images.');
+        return;
+      }
       toast.error('No images to analyze. Please upload images first.');
       return;
     }
@@ -185,7 +200,6 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
       const result = await response.json();
       
-      const currentNutrition = getValues("nutrition");
       const updatedNutrition = [...currentNutrition];
       updatedNutrition[index] = {
         ...updatedNutrition[index],
@@ -273,7 +287,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                   {uploadingImages[index] && (
                     <span className="text-sm text-gray-500">Processing images...</span>
                   )}
-                  {item.images && item.images.length > 0 && (
+                  {item.images && item.images.length > 0 && imageFiles[index] && imageFiles[index].length > 0 && (
                     <Button
                       type="button"
                       onClick={() => analyzeImages(index)}
