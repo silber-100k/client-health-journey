@@ -169,8 +169,8 @@ const calculateCalories = (protein, carbs, fat) => {
     const proteinCal = Number(protein || 0) * 4;
     const carbsCal = Number(carbs || 0) * 4;
     const fatCal = Number(fat || 0) * 9;
-    const totalCal = proteinCal + carbsCal + fatCal;
-    return Math.round(totalCal * 28.35) || 0;
+    const totalCal = 28.35*(proteinCal + carbsCal + fatCal);
+    return Math.round(totalCal) || 0;
   } catch (error) {
     console.error("Error calculating calories:", error);
     return 0;
@@ -264,7 +264,7 @@ export default function HealthTracker() {
   const Nutrient = ({ value, label, color }) => {
     return (
       <div className={`p-4 rounded-md ${color}`}>
-        <div className="text-xl font-bold">{value} oz</div>
+        <div className="text-xl font-bold">{value} g</div>
         <div className="text-sm text-muted-foreground">{label}</div>
       </div>
     );
@@ -322,7 +322,7 @@ export default function HealthTracker() {
   }
 
   // Macro Bar Component
-  const MacroBar = ({ label, current, total, unit = "oz" }) => (
+  const MacroBar = ({ label, current, total, unit = "g" }) => (
     <div className="flex items-center justify-between py-2">
       <div className="flex items-center gap-2">
         <div>{getMacroIcon(label)}</div>
@@ -357,26 +357,26 @@ export default function HealthTracker() {
           </div>
           <div className="text-right">
             <div>{getMealIcon(meal)}</div>
-            <p className="text-sm font-medium">{Math.floor(28.3495*(macros.proteinPortion*4+macros.carbsPortion*4+macros.fatsPortion*9))} cal</p>
-            <p className="text-sm font-medium">{macros.proteinPortion}oz protein</p>
+            <p className="text-sm font-medium">{Math.floor((macros.proteinPortion*4+macros.carbsPortion*4+macros.fatsPortion*9))} cal</p>
+            <p className="text-sm font-medium">{macros.proteinPortion}g protein</p>
           </div>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 bg-blue-100 rounded p-2 text-center">
             <p className="text-xs text-blue-600">Protein</p>
             <p className="text-sm font-medium text-blue-700">
-              {macros.proteinPortion} oz
+              {macros.proteinPortion} g
             </p>
           </div>
           <div className="flex-1 bg-orange-100 rounded p-2 text-center">
             <p className="text-xs text-orange-600">Carbs</p>
             <p className="text-sm font-medium text-orange-700">
-              {macros.carbsPortion} oz
+              {macros.carbsPortion} g
             </p>
           </div>
           <div className="flex-1 bg-purple-100 rounded p-2 text-center">
             <p className="text-xs text-purple-600">Fat</p>
-            <p className="text-sm font-medium text-purple-700">{macros.fatsPortion} oz</p>
+            <p className="text-sm font-medium text-purple-700">{macros.fatsPortion} g</p>
           </div>
         </div>
         <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
@@ -412,16 +412,16 @@ export default function HealthTracker() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <h3 className="font-medium mb-2">AI Analysis:</h3>
             <p className="text-sm text-gray-600">
-              Excellent protein start to your day! The probiotics in Greek yogurt support gut health.
+            {review}
             </p>
-          </div>
+          </div> */}
 
           <div className="bg-gray-50 p-4 rounded-md text-center">
             <div className="text-2xl font-bold text-orange-500">
-              {Math.floor(28.3495 * (mealData.proteinPortion * 4 + mealData.carbsPortion * 4 + mealData.fatsPortion * 9))}
+              {Math.floor((mealData.proteinPortion * 4 + mealData.carbsPortion * 4 + mealData.fatsPortion * 9))}
             </div>
             <div className="text-sm text-gray-500">Total Calories</div>
           </div>
@@ -447,26 +447,26 @@ export default function HealthTracker() {
       </div>
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium">{calories} cal</span>
-        <span className="text-sm font-medium">{protein} oz protein</span>
+        <span className="text-sm font-medium">{protein} g protein</span>
       </div>
       <div className="flex gap-2">
         <div className="flex-1 bg-blue-100 rounded p-2 text-center">
           <p className="text-xs text-blue-600">Protein</p>
-          <p className="text-sm font-medium text-blue-700">{macros?.protein} oz</p>
+          <p className="text-sm font-medium text-blue-700">{macros?.protein} g</p>
         </div>
         <div className="flex-1 bg-orange-100 rounded p-2 text-center">
           <p className="text-xs text-orange-600">Carbs</p>
-          <p className="text-sm font-medium text-orange-700">{macros?.carbs} oz</p>
+          <p className="text-sm font-medium text-orange-700">{macros?.carbs} g</p>
         </div>
         <div className="flex-1 bg-purple-100 rounded p-2 text-center">
           <p className="text-xs text-purple-600">Fat</p>
-          <p className="text-sm font-medium text-purple-700">{macros?.fat} oz</p>
+          <p className="text-sm font-medium text-purple-700">{macros?.fat} g</p>
         </div>
       </div>
-      {/* <div>
+      <div>
         <p className="text-sm font-medium mb-1">Ingredients:</p>
         <p className="text-sm text-gray-600">{ingredients}</p>
-      </div> */}
+      </div>
       {/* <Button className="w-full bg-blue-600 hover:bg-blue-700">
         Get Full Recipe
       </Button> */}
@@ -614,7 +614,7 @@ export default function HealthTracker() {
                   <div className="text-xs text-gray-500">Current/Initial</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-700">{checkIns?.start?.[0]?.goalWeight}</div>
+                  <div className="text-2xl font-bold text-gray-700">{checkIns?.start?.[0]?.goalWeight} lbs</div>
                   <div className="text-xs text-gray-500">Goal Weight</div>
                 </div>
                 <div className="text-center">
@@ -709,17 +709,17 @@ export default function HealthTracker() {
                 <Card className="p-4">
                   <h2 className="font-semibold mb-4">Today's Macros</h2>
                   <div className="space-y-2">
-                    <MacroBar label="Protein" current={currentPortion?.proteinPortion} total={portionRule?.protein} />
-                    <MacroBar label="Fruit" current={currentPortion?.fruitPortion} total={portionRule?.fruit} />
-                    <MacroBar label="Vegetables" current={currentPortion?.vegetablesPortion} total={portionRule?.vegetables} />
+                    <MacroBar label="Protein" current={currentPortion?.proteinPortion} total={Math.floor(28.35*portionRule?.protein)} />
+                    <MacroBar label="Fruit" current={currentPortion?.fruitPortion} total={Math.floor(28.35*portionRule?.fruit)} />
+                    <MacroBar label="Vegetables" current={currentPortion?.vegetablesPortion} total={Math.floor(28.35*portionRule?.vegetables)} />
                     <MacroBar
                       label="Carbs"
-                      current={Number(currentPortion?.carbsPortion?.toFixed(2))}
-                      total={portionRule?.carbs}
-                      unit="oz"
+                      current={Number(currentPortion?.carbsPortion?.toFixed(0))}
+                      total={Math.floor(28.35*portionRule?.carbs)}
+                      unit="g"
                     />
-                    <MacroBar label="Fats" current={currentPortion?.fatsPortion} total={portionRule?.fats} />
-                    <MacroBar label="Other" current={currentPortion?.otherPortion} total={portionRule?.other} />
+                    <MacroBar label="Fats" current={currentPortion?.fatsPortion} total={Math.floor(28.35*portionRule?.fats)} />
+                    <MacroBar label="Other" current={currentPortion?.otherPortion} total={Math.floor(28.35*portionRule?.other)} />
                   </div>
                 </Card>
               </div>
@@ -785,7 +785,7 @@ export default function HealthTracker() {
                   <Card>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-500">{Number((portionsArray?.reduce((sum, item) => {const val = Number(item.proteinPortion);
-    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} oz</div>
+    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} g</div>
                       <div className="text-xs text-gray-500">Avg Daily Protein</div>
                       <div className="text-xs text-gray-500">7 day avg week</div>
                     </div>
@@ -793,7 +793,7 @@ export default function HealthTracker() {
                   <Card>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-orange-500">{Number((portionsArray?.reduce((sum, item) => {const val = Number(item.carbsPortion);
-    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} oz</div>
+    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} g</div>
                       <div className="text-xs text-gray-500">Avg Daily Carbs</div>
                       <div className="text-xs text-gray-500">7 day avg week</div>
                     </div>
@@ -801,14 +801,14 @@ export default function HealthTracker() {
                   <Card>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-500">{Number((portionsArray?.reduce((sum, item) => {const val = Number(item.fatsPortion);
-    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} oz</div>
+    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} g</div>
                       <div className="text-xs text-gray-500">Avg Daily Fat</div>
                     </div>
                   </Card>
                   <Card>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-500">{Number((portionsArray?.reduce((sum, item) => {const val = Number(item.vegetablesPortion);
-    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} oz</div>
+    return sum + (isNaN(val) ? 0 : val)}, 0) / (portionsArray?.length || 1)).toFixed(1))} g</div>
                       <div className="text-xs text-gray-500">Avg Daily Vegetables</div>
                     </div>
                   </Card>
@@ -876,11 +876,11 @@ export default function HealthTracker() {
                         value.carbsPortion,
                         value.fatsPortion
                       )}
-                      protein={Number(value.proteinPortion) || 0}
+                      protein={Number(28.35*value.proteinPortion) || 0}
                       macros={{
-                        protein: Number(value.proteinPortion) || 0,
-                        carbs: Number(value.carbsPortion) || 0,
-                        fat: Number(value.fatsPortion) || 0
+                        protein: Number(28.35*value.proteinPortion) || 0,
+                        carbs: Number(28.35*value.carbsPortion) || 0,
+                        fat: Number(28.35*value.fatsPortion) || 0
                       }}
                       ingredients={value.ingredients || ""}
                     />

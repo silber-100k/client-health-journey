@@ -34,12 +34,12 @@ const combineNutritionData = (dataArray) => {
 
     dataArray.forEach(data => {
         // Sum up numerical values
-        combined.protein += parseFloat(data.protein) || 0;
-        combined.carbs += parseFloat(data.carbs) || 0;
-        combined.fat += parseFloat(data.fat) || 0;
-        combined.vegetables += parseFloat(data.vegetables) || 0;
-        combined.fruit += parseFloat(data.fruit) || 0;
-        combined.other += parseFloat(data.other) || 0;
+        combined.protein += (data.protein) || 0;
+        combined.carbs += (data.carbs) || 0;
+        combined.fat += (data.fat) || 0;
+        combined.vegetables += (data.vegetables) || 0;
+        combined.fruit += (data.fruit) || 0;
+        combined.other += (data.other) || 0;
 
         // Combine and deduplicate string lists
         if (data.proteinList) combined.proteinList = deduplicateList([combined.proteinList, data.proteinList].join(', '));
@@ -51,14 +51,22 @@ const combineNutritionData = (dataArray) => {
     });
 
     // Round all numerical values to 2 decimal places
-    combined.protein = Math.round(combined.protein * 100) / 100;
-    combined.carbs = Math.round(combined.carbs * 100) / 100;
-    combined.fat = Math.round(combined.fat * 100) / 100;
-    combined.vegetables = Math.round(combined.vegetables * 100) / 100;
-    combined.fruit = Math.round(combined.fruit * 100) / 100;
-    combined.other = Math.round(combined.other * 100) / 100;
+    // combined.protein = Math.round(combined.protein * 100) / 100;
+    // combined.carbs = Math.round(combined.carbs * 100) / 100;
+    // combined.fat = Math.round(combined.fat * 100) / 100;
+    // combined.vegetables = Math.round(combined.vegetables * 100) / 100;
+    // combined.fruit = Math.round(combined.fruit * 100) / 100;
+    // combined.other = Math.round(combined.other * 100) / 100;
 
     return combined;
+};
+
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '25mb',
+        },
+    },
 };
 
 export async function POST(request) {
@@ -145,17 +153,19 @@ export async function POST(request) {
             const completion = await openai.chat.completions.create({
                 model: "gpt-4o-mini",
                 messages: messages,
-                max_tokens: 15000,
+                max_tokens: 2000,
+                temperature: 0.1,
                 response_format: { type: "json_object" }
             });
 
             const responseText = completion.choices[0].message.content;
+            console.log("result", responseText)
+
             return JSON.parse(responseText);
         });
 
         // Wait for all image analyses to complete
         const analysisResults = await Promise.all(analysisPromises);
-
         // Combine all results
         const combinedNutritionData = combineNutritionData(analysisResults);
 

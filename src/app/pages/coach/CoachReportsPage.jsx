@@ -25,7 +25,7 @@ const CoachReportsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [historicalData, sethistoricalData] = useState([]);
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedClient, setSelectedClient] = useState("");
   const [selectedTimeRange, setSelectedTimeRange] = useState("month");
   const [progressData, setProgressData] = useState([]);
   const [checkInData, setCheckInData] = useState([]);
