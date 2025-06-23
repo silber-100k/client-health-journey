@@ -11,11 +11,11 @@ import imageCompression from "browser-image-compression";
 // Image compression and optimization helper functions
 const compressImage = async (file, options = {}) => {
   const defaultOptions = {
-    maxSizeMB: 1, // Compress to max 1MB
-    maxWidthOrHeight: 1000, // Max width or height
+    maxSizeMB: 0.15, // Compress to max 150KB (0.15MB)
+    maxWidthOrHeight: 800, // Max width or height 800px
     useWebWorker: true, // Use web worker for better performance
     fileType: 'image/jpeg', // Convert to JPEG
-    quality: 0.9, // 90% quality
+    quality: 0.8, // 80% quality
     ...options
   };
 
@@ -29,7 +29,7 @@ const compressImage = async (file, options = {}) => {
 };
 
 const validateImageFile = (file) => {
-  const maxSize = 20 * 1024 * 1024; // 20MB
+  const maxSize = 20 * 1024 * 1024; // 20MB (original file size limit)
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   
   if (!allowedTypes.includes(file.type)) {
@@ -117,7 +117,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
         // Compress image if it's large
         let processedFile = file;
-        if (file.size > 2 * 1024 * 1024) { // Compress if larger than 2MB
+        if (file.size > 500 * 1024) { // Compress if larger than 500KB
           try {
             processedFile = await compressImage(file);
             const originalSize = (file.size / 1024 / 1024).toFixed(1);
