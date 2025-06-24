@@ -32,7 +32,7 @@ const CoachesTable = ({
   });
   return (
     <div className="overflow-x-auto">
-      <Table>
+      <Table className="min-w-[600px] text-xs sm:text-sm">
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>

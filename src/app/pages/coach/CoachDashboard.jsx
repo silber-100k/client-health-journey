@@ -115,7 +115,7 @@ const CoachDashboard = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-6xl mx-auto space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">
           Welcome, {user?.name || "Coach"}
@@ -125,7 +125,7 @@ const CoachDashboard = () => {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <Card
           className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
           onClick={() => router.push("/coach/clients")}

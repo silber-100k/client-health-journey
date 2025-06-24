@@ -45,7 +45,7 @@ export const EditCoachDialog = ({
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px] w-full max-w-[95vw] p-4 sm:p-6 overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Coach</DialogTitle>
             <DialogDescription>

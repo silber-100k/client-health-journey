@@ -153,7 +153,7 @@ const CoachReportsPage = () => {
 console.log("selected", checkInData)
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 px-2 sm:px-4 md:px-6">
         <Skeleton className="h-8 w-64 mb-4" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Skeleton className="h-32 w-full" />
@@ -167,7 +167,7 @@ console.log("selected", checkInData)
   }
 
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Client Reports</h1>
         <p className="text-gray-500">Overview of your clients' performance</p>
@@ -218,7 +218,7 @@ console.log("selected", checkInData)
       </div>
 
       {/* Check-ins Chart */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-x-auto">
         <CardHeader className="space-y-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl">Client Progress</CardTitle>

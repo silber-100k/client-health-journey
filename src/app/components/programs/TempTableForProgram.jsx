@@ -44,11 +44,11 @@ const TempTableForProgram = ({
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {Templates.map((template) => (
         <Card
           key={template.id}
-          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-150 ${
+          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-150 w-full ${
             selectedTemplate?.id === template.id
               ? "ring-2 ring-green-500 bg-green-50"
               : ""

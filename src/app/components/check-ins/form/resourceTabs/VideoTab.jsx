@@ -10,19 +10,19 @@ export default function VideoTab() {
   const isAdmin = user?.role === "admin";
   console.log(trigger);
   return (
-    <div className="container mx-auto py-8">
+    <div className="w-full max-w-3xl mx-auto px-2 py-4">
       {isAdmin ? (
         <>
-          <h1 className="text-2xl font-bold mb-8">Video Management</h1>
+          <h1 className="text-2xl font-bold mb-4">Video Management</h1>
           <UploadVideo setTrigger={setTrigger} />
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Uploaded Videos</h2>
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-2">Uploaded Videos</h2>
             <VideoList trigger={trigger} />
           </div>
         </>
       ) : (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Uploaded Videos</h2>
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Uploaded Videos</h2>
           <VideoList trigger={trigger} />
         </div>
       )}

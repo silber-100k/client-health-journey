@@ -150,7 +150,7 @@ const AddClientForm = ({
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 px-1 sm:px-0">
           {createError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -236,11 +236,9 @@ const AddClientForm = ({
             isCoachesLoading={isCoachesLoading}
           />
 
-          <DialogFooter className="pt-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
+            <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancel</Button>
+            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
               {isPending ? "Adding..." : "Add Client"}
             </Button>
           </DialogFooter>

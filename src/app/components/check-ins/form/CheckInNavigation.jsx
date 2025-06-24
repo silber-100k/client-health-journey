@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '../../../components/ui/button';
 
@@ -25,12 +24,13 @@ const CheckInNavigation = ({
   };
   
   return (
-    <div className="mt-8 flex justify-between">
+    <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between w-full">
       <Button 
         type="button" 
         variant="outline" 
         onClick={handlePrevious}
         disabled={currentTab === "measurements" || isSubmitting}
+        className="w-full sm:w-auto"
       >
         Previous
       </Button>
@@ -40,6 +40,7 @@ const CheckInNavigation = ({
           type="button" 
           onClick={handleNext}
           disabled={isSubmitting}
+          className="w-full sm:w-auto"
         >
           Next
         </Button>
@@ -48,6 +49,7 @@ const CheckInNavigation = ({
           type="button"
           onClick={onSubmit}
           disabled={isSubmitting}
+          className="w-full sm:w-auto"
         >
           {isSubmitting ? (
             <span className="flex items-center">

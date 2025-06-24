@@ -7,7 +7,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-import { Bell, Settings, LogOut } from "lucide-react";
+import { Bell, Settings, LogOut, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import { signOut } from "next-auth/react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-const TopBar = () => {
+const TopBar = ({ onMenuClick }) => {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -48,6 +48,16 @@ const TopBar = () => {
     <header className="bg-white border-b border-gray-200 px-4 py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
+          {/* Hamburger menu for mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden mr-2"
+            onClick={onMenuClick}
+          >
+            <Menu size={24} />
+            <span className="sr-only">Open menu</span>
+          </Button>
           {theme.logo ? (
             <img
               src={theme.logo}

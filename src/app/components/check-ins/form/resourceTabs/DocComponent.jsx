@@ -11,9 +11,9 @@ import { FileText, Download, Eye, FolderOpen } from "lucide-react";
 const DocEditComponent = ({ text }) => {
   return (
     <>
-      <Card className="cursor-pointer hover:shadow-md transition-shadow">
+      <Card className="cursor-pointer hover:shadow-md transition-shadow w-full">
         <a href={text.content} target="_blank" rel="noopener noreferrer">
-          <CardContent className="p-4">
+          <CardContent className="p-4 px-2">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <FileText className="text-primary h-6 w-6" />

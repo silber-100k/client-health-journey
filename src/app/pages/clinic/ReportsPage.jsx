@@ -115,7 +115,7 @@ const ReportsPage = () => {
   const dashboardDescription = "Overview of your clinic performance";
 
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{dashboardTitle}</h1>
         <p className="text-gray-500">{dashboardDescription}</p>
@@ -176,11 +176,11 @@ const ReportsPage = () => {
         </Card>
       </div>
 
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-x-auto">
         <CardHeader className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
             <CardTitle className="text-xl">Client Progress</CardTitle>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
               <Select onValueChange={(value) => setSelectedClient(value)} defaultValue={selectedClient}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Select a client" />

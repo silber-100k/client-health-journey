@@ -48,13 +48,13 @@ export const CoachForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <FormLabel htmlFor="name" className="text-right">
+              <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                <FormLabel htmlFor="name" className="sm:text-right">
                   Name <span className="text-red-500">*</span>
                 </FormLabel>
-                <div className="col-span-3">
+                <div className="sm:col-span-3 w-full">
                   <FormControl>
-                    <Input id="name" {...field} />
+                    <Input id="name" {...field} className="w-full" />
                   </FormControl>
                   <FormMessage className="text-red-500 text-sm mt-1" />
                 </div>
@@ -68,13 +68,13 @@ export const CoachForm = ({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <FormLabel htmlFor="email" className="text-right">
+              <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                <FormLabel htmlFor="email" className="sm:text-right">
                   Email <span className="text-red-500">*</span>
                 </FormLabel>
-                <div className="col-span-3">
+                <div className="sm:col-span-3 w-full">
                   <FormControl>
-                    <Input id="email" type="email" {...field} />
+                    <Input id="email" type="email" {...field} className="w-full" />
                   </FormControl>
                   <FormMessage className="text-red-500 text-sm mt-1" />
                 </div>
@@ -88,13 +88,13 @@ export const CoachForm = ({
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <FormLabel htmlFor="phoneNumber" className="text-right">
+              <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                <FormLabel htmlFor="phoneNumber" className="sm:text-right">
                   Phone
                 </FormLabel>
-                <div className="col-span-3">
+                <div className="sm:col-span-3 w-full">
                   <FormControl>
-                    <Input id="phoneNumber" type="text" {...field} />
+                    <Input id="phoneNumber" type="text" {...field} className="w-full" />
                   </FormControl>
                   <FormMessage className="text-red-500 text-sm mt-1" />
                 </div>
@@ -103,11 +103,11 @@ export const CoachForm = ({
           )}
         />
 
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-6">
-          <Button variant="outline" onClick={onCancel}>
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-6 gap-2 sm:gap-0">
+          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
             {isSubmitting ? "Saving..." : submitButtonText}
           </Button>
         </div>

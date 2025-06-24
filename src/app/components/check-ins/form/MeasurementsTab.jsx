@@ -12,9 +12,9 @@ import {
 
 const MeasurementsTab = ({ register, errors, formData, setValue }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2">
       <div>
-        <Label htmlFor="weight">Weight (lbs)</Label>
+        <Label htmlFor="weight" className="mb-2">Weight (lbs)</Label>
         <Input
           {...register("weight")}
           type="number"
@@ -24,34 +24,34 @@ const MeasurementsTab = ({ register, errors, formData, setValue }) => {
           <span className="text-red-500 text-sm">{errors.weight.message}</span>
         )}
       </div>
-      <div>
-        <Label htmlFor="waist">Waist</Label>
-        <Input
-          {...register("waist")}
-          type="number"
-          placeholder="Enter your current waist"
-        />
-      </div>
-
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <Label htmlFor="waterIntake">Water Intake (oz)</Label>
-          <div className="flex items-center text-primary-600">
-            <Droplets size={16} className="mr-1" />
-            <span className="font-medium">{formData.waterIntake} oz</span>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="waist" className="mb-2">Waist</Label>
+          <Input
+            {...register("waist")}
+            type="number"
+            placeholder="Enter your current waist"
+          />
         </div>
-        <Input
-          {...register("waterIntake")}
-          type="number"
-        />
-        {errors.waterIntake && (
-          <span className="text-red-500 text-sm">{errors.waterIntake.message}</span>
-        )}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <Label htmlFor="waterIntake" className="mb-2">Water Intake (oz)</Label>
+            <div className="flex items-center text-primary-600">
+              <Droplets size={16} className="mr-1" />
+              <span className="font-medium">{formData.waterIntake} oz</span>
+            </div>
+          </div>
+          <Input
+            {...register("waterIntake")}
+            type="number"
+          />
+          {errors.waterIntake && (
+            <span className="text-red-500 text-sm">{errors.waterIntake.message}</span>
+          )}
+        </div>
       </div>
-
       <div>
-        <Label htmlFor="exerciseType">Exercise Type</Label>
+        <Label htmlFor="exerciseType" className="mb-2">Exercise Type</Label>
         <Select
           value={formData.exerciseType}
           onValueChange={(value) => setValue("exerciseType", value)}
@@ -72,10 +72,9 @@ const MeasurementsTab = ({ register, errors, formData, setValue }) => {
           </SelectContent>
         </Select>
       </div>
-
       {formData.exerciseType === "steps" ? (
         <div>
-          <Label htmlFor="exercise">Daily Steps</Label>
+          <Label htmlFor="exercise" className="mb-2">Daily Steps</Label>
           <Input
             {...register("exercise")}
             type="number"
@@ -88,7 +87,7 @@ const MeasurementsTab = ({ register, errors, formData, setValue }) => {
       ) : (
         <div className="space-y-4">
           <div>
-            <Label htmlFor="exercise">Exercise Description</Label>
+            <Label htmlFor="exercise" className="mb-2">Exercise Description</Label>
             <Textarea
               {...register("exercise")}
               placeholder="Describe your exercise"
@@ -98,7 +97,7 @@ const MeasurementsTab = ({ register, errors, formData, setValue }) => {
             )}
           </div>
           <div>
-            <Label htmlFor="exerciseTime">Duration (minutes)</Label>
+            <Label htmlFor="exerciseTime" className="mb-2">Duration (minutes)</Label>
             <Input
               {...register("exerciseTime")}
               type="number"

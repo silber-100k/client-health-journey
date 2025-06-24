@@ -3,7 +3,7 @@ import CheckInForm from "../../components/check-ins/CheckInForm";
 
 const CheckIn = () => {
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Check-in</h1>
         <p className="text-gray-500">

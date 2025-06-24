@@ -134,8 +134,8 @@ const AdminDashboard = () => {
 
   const isClinicAdmin = false;
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="px-2 sm:px-4 md:px-6">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-500">
@@ -162,8 +162,8 @@ const AdminDashboard = () => {
         isClinicAdmin={isClinicAdmin}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+        <div className="lg:col-span-2 overflow-x-auto">
           <ClinicsTable
             dashboardStats={dashboardStats}
             isLoading={isLoadingStats}

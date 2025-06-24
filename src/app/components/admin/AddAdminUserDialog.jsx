@@ -101,7 +101,7 @@ export function AddAdminUserDialog({
         setOpen(isOpen);
       }}
     >
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="w-full max-w-xs sm:max-w-[500px] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Add Admin User</DialogTitle>
           <DialogDescription>
@@ -117,7 +117,7 @@ export function AddAdminUserDialog({
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
             <FormField
               control={form.control}
               name="email"

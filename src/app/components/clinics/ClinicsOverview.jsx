@@ -22,19 +22,19 @@ const ClinicsOverview = ({
   isLoading,
 }) => {
   return (
-    <div>
+    <div className="px-2 sm:px-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clinic Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Clinic Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Manage clinics, their coaches, and billing information.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
-            className="flex items-center justify-center"
+            className="flex items-center justify-center w-full sm:w-auto"
             title="Refresh clinics"
             onClick={fetchClinics}
             disabled={isLoading}
@@ -42,7 +42,7 @@ const ClinicsOverview = ({
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </Button>
           <Button
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
             onClick={onAddClinic}
             disabled={isLoading}
           >
@@ -52,9 +52,9 @@ const ClinicsOverview = ({
         </div>
       </div>
 
-      <Card>
+      <Card className="w-full max-w-full">
         <CardHeader>
-          <CardTitle>All Clinics</CardTitle>
+          <CardTitle className="text-base sm:text-lg">All Clinics</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (

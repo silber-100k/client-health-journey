@@ -159,14 +159,14 @@ const RecentCheckIns = ({ limit = 5 }) => {
     );
   }
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2">
       {checkIns.map((checkIn) => (
         <Link
           key={checkIn.id}
           href={`/check-in/${checkIn.id}`}
           className="block"
         >
-          <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors">
             <Avatar className="h-8 w-8">
               <AvatarImage
                 src={`https://api.dicebear.com/7.x/initials/svg?seed=${checkIn.name}`}
@@ -175,7 +175,7 @@ const RecentCheckIns = ({ limit = 5 }) => {
               <AvatarFallback>{checkIn.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
                 <h4 className="font-medium text-sm">{checkIn.name}</h4>
                 <span className="text-xs text-gray-500">
                   {formatDate(checkIn.selectedDate)}

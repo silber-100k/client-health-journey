@@ -14,12 +14,12 @@ const SupplementsTab = ({ register, errors, formData, setValue }) => {
   const programSupplements = [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2">
       {loading ? (
         <p className="text-sm text-gray-500">Loading your supplements...</p>
       ) : programSupplements.length > 0 ? (
         <div>
-          <Card>
+          <Card className="w-full">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Supplements Taken Today</CardTitle>
             </CardHeader>
@@ -30,11 +30,12 @@ const SupplementsTab = ({ register, errors, formData, setValue }) => {
         </div>
       ) : (
         <div>
-          <Label htmlFor="supplements">Supplements Taken Today</Label>
+          <Label htmlFor="supplements" className="mb-2">Supplements Taken Today</Label>
           <Textarea
             {...register("supplements")}
             placeholder="List supplements and time taken (e.g., Multivitamin - morning, Magnesium - evening)"
             rows={4}
+            className="w-full"
           />
           {errors.supplements && (
             <span className="text-red-500 text-sm">{errors.supplements.message}</span>
@@ -43,11 +44,12 @@ const SupplementsTab = ({ register, errors, formData, setValue }) => {
       )}
 
       <div>
-        <Label htmlFor="notes">Additional Notes</Label>
+        <Label htmlFor="notes" className="mb-2">Additional Notes</Label>
         <Textarea
           {...register("notes")}
           placeholder="Any additional notes about your progress for this day?"
           rows={3}
+          className="w-full"
         />
         {errors.notes && (
           <span className="text-red-500 text-sm">{errors.notes.message}</span>

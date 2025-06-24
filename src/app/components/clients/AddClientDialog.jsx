@@ -17,7 +17,7 @@ const AddClientDialog = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-full sm:max-w-[500px] max-h-[90vh] overflow-y-auto px-2 sm:px-6 py-4">
         <DialogHeader>
           <DialogTitle>Add New Client</DialogTitle>
           <DialogDescription>

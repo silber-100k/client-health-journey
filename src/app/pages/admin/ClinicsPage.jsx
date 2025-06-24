@@ -69,7 +69,7 @@ const ClinicsPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="px-2 sm:px-4 md:px-6 py-6">
       {/* <h1 className="text-2xl font-bold mb-6">
         {isClinicAdmin ? "Clinic Management" : "Clinics Management"}
       </h1> */}

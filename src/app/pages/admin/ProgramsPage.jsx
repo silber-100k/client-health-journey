@@ -93,7 +93,7 @@ export default function ProgramsPage() {
   };
 console.log(Programs)
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 px-2 sm:px-4 md:px-6 py-4">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <EditProgramDialogue
@@ -113,7 +113,7 @@ console.log(Programs)
             <CardHeader className="text-2xl font-semibold">
             All Programs
             </CardHeader>
-          <Card className="max-h-[250px] overflow-y-scroll p-3">
+          <Card className="max-h-[250px] overflow-y-scroll p-3 overflow-x-auto">
           <ProgramTable 
         Programs={Programs} 
         isProgramLoading={isProgramLoading} 
@@ -133,7 +133,7 @@ console.log(Programs)
           </CardHeader>
           <CardContent className="p-6 pt-0">
             <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg p-6 text-white">
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <Card  className="bg-white/10 border-2 border-white/20 hover:border-white/40 cursor-pointer transition-all hover:bg-blue-50 transition-colors hover: cursor-pointer"
                 onClick={() => setCurrentStep("Existing_Template")}
                 >
@@ -168,7 +168,7 @@ console.log(Programs)
               Failed to load Templates. Please try again.
             </div>
           ) : Templates && Templates.length > 0 ? (
-            <Card className="max-h-[300px] overflow-y-scroll p-3">
+            <Card className="max-h-[300px] overflow-y-scroll p-3 overflow-x-auto">
             <TempTableForProgram
               Templates={Templates}
               isTemplateLoading={false}

@@ -88,13 +88,13 @@ export default function VideoList({ trigger }) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="px-2">Loading...</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-2">
       {videos?.map((video) => (
-        <div key={video.id} className="border rounded-lg p-4">
+        <div key={video.id} className="border rounded-lg p-4 w-full">
           <video
             controls
             className="w-full rounded-lg mb-2"
@@ -102,15 +102,15 @@ export default function VideoList({ trigger }) {
           >
             Your browser does not support the video tag.
           </video>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{video.title}</span>
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <span className="text-sm text-gray-600 w-full sm:w-auto">{video.title}</span>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => handleDownload(video.content, video.title, video.id)}
                 disabled={downloadingId === video.id || deletingId === video.id}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto"
               >
                 {downloadingId === video.id ? (
                   <>
@@ -126,25 +126,25 @@ export default function VideoList({ trigger }) {
               </Button>
               {isAdmin?(
                 <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(video.id)}
-                disabled={downloadingId === video.id || deletingId === video.id}
-                className="flex items-center gap-2"
-              >
-                {deletingId === video.id ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4" />
-                    <span>Delete</span>
-                  </>
-                )}
-              </Button>):("")}
-              
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(video.id)}
+                  disabled={downloadingId === video.id || deletingId === video.id}
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  {deletingId === video.id ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      <span>Delete</span>
+                    </>
+                  )}
+                </Button>
+              ):null}
             </div>
           </div>
         </div>

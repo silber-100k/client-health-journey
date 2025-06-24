@@ -25,7 +25,7 @@ const ProgramDetailsDialog = ({ program, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {program.name
@@ -40,7 +40,7 @@ const ProgramDetailsDialog = ({ program, isOpen, onClose }) => {
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gray-500" />
               <span>Duration: {formatDuration(program.duration)}</span>

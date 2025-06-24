@@ -54,15 +54,14 @@ const ClinicSignUpPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-2 sm:p-4">
       <div className="w-full max-w-4xl">
-        <div className="flex items-center mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 gap-2 sm:gap-0">
           <Button variant="ghost" className="mr-2" onClick={() => router.push("/")}>
             <ArrowLeft size={16} className="mr-2" />
             Back to home
           </Button>
         </div>
-
         <Card className="w-full">
           {/* <div className="px-6 pt-4">
             <SignupDemoNotice />

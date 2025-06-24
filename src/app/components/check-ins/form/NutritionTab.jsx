@@ -243,13 +243,15 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-medium">Nutrition</h3>
-          <Button type="button" onClick={addNutrition}>
-            <Plus className="mr-2 h-4 w-4" /> Add Nutrition Entry
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button type="button" onClick={addNutrition} className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" /> Add Nutrition Entry
+            </Button>
+          </div>
         </div>
         
         {(formData.nutrition || []).map((item, index) => (
@@ -266,7 +268,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
             {/* Image Upload Section */}
             <div className="mb-4">
-              <Label>Food Images</Label>
+              <Label className="mb-2">Food Images</Label>
               <div className="mt-2">
                 <div className="flex items-center gap-4">
                   <Input
@@ -330,7 +332,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label>Protein</Label>
+                <Label className="mb-2">Protein</Label>
                 <Textarea
                   {...register(`nutrition.${index}.protein`)}
                   placeholder="What protein did you have?"
@@ -345,7 +347,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               </div>
 
               <div>
-                <Label>Fruits</Label>
+                <Label className="mb-2">Fruits</Label>
                 <Textarea
                   {...register(`nutrition.${index}.fruit`)}
                   placeholder="What fruits did you have? (e.g., apple, banana, orange)"
@@ -360,7 +362,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               </div>
 
               <div>
-                <Label>Vegetables</Label>
+                <Label className="mb-2">Vegetables</Label>
                 <Textarea
                   {...register(`nutrition.${index}.vegetables`)}
                   placeholder="What vegetables did you have?"
@@ -375,7 +377,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               </div>
 
               <div>
-                <Label>Carbohydrates (Grains, Pasta, etc.)</Label>
+                <Label className="mb-2">Carbohydrates (Grains, Pasta, etc.)</Label>
                 <Textarea
                   {...register(`nutrition.${index}.carbs`)}
                   placeholder="What carbohydrates did you have? (e.g., rice, bread, pasta)"
@@ -390,7 +392,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               </div>
 
               <div>
-                <Label>Fats</Label>
+                <Label className="mb-2">Fats</Label>
                 <Textarea
                   {...register(`nutrition.${index}.fats`)}
                   placeholder="What fats did you have?"
@@ -405,7 +407,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
               </div>
 
               <div>
-                <Label>Other</Label>
+                <Label className="mb-2">Other</Label>
                 <Textarea
                   {...register(`nutrition.${index}.other`)}
                   placeholder="Any other food items?"
@@ -421,7 +423,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
               {/* Calories Field */}
               <div>
-                <Label>Calories</Label>
+                <Label className="mb-2">Calories</Label>
                 <Input
                   {...register(`nutrition.${index}.calories`)}
                   type="number"

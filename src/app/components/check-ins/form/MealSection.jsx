@@ -11,7 +11,7 @@ const MealSection = ({ title, register, errors, formData, setValue, prefix }) =>
   const mealId = mealType.toLowerCase();
 
   return (
-    <div className="space-y-4 mb-6">
+    <div className="space-y-4 mb-6 px-2">
       <h3 className="font-medium text-lg">{title}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

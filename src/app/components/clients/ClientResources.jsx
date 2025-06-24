@@ -43,25 +43,25 @@ const ClientResources = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
+      <Card className="w-full max-w-full">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <FileText size={20} className="text-primary" />
             Resources & Documents
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             Documents and resources shared by your coach
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-2 sm:px-4">
           {isLoading ? (
             <div className="space-y-2">
               {Array(3)
                 .fill(0)
                 .map((_, i) => (
-                  <div key={i} className="flex justify-between items-center">
+                  <div key={i} className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
                     <Skeleton className="h-5 w-32" />
                     <div className="flex space-x-4">
                       <Skeleton className="h-5 w-8" />
@@ -74,16 +74,16 @@ const ClientResources = () => {
           ) : (
             <>
               <Tabs defaultValue="all" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="guides">Guides</TabsTrigger>
-                  <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
-                  <TabsTrigger value="protocols">Protocols</TabsTrigger>
-                  <TabsTrigger value="wellness">Wellness</TabsTrigger>
+                <TabsList className="mb-4 w-full flex flex-col sm:flex-row gap-2 sm:gap-0">
+                  <TabsTrigger value="all" className="w-full sm:w-auto">All</TabsTrigger>
+                  <TabsTrigger value="guides" className="w-full sm:w-auto">Guides</TabsTrigger>
+                  <TabsTrigger value="nutrition" className="w-full sm:w-auto">Nutrition</TabsTrigger>
+                  <TabsTrigger value="protocols" className="w-full sm:w-auto">Protocols</TabsTrigger>
+                  <TabsTrigger value="wellness" className="w-full sm:w-auto">Wellness</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="all">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {resources.map((resource) => (
                       <ResourceCard
                         key={resource.id}
@@ -97,7 +97,7 @@ const ClientResources = () => {
                 {["guides", "nutrition", "protocols", "wellness"].map(
                   (category) => (
                     <TabsContent key={category} value={category}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                         {resources
                           .filter((r) => r.category === category)
                           .map((resource) => (
@@ -117,17 +117,17 @@ const ClientResources = () => {
         </CardContent>
       </Card>
       {selectedResource && (
-        <Card>
+        <Card className="w-full max-w-full">
           <CardHeader>
-            <CardTitle>{selectedResource.title}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-base sm:text-lg">{selectedResource.title}</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
               Uploaded on{" "}
               {selectedResource.uploadDate
                 ? format(selectedResource.uploadDate, "MMMM d, yyyy")
                 : ""}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-4">
             {selectedResource.type === "Doc" ? (
               <GoogleDocViewer selectedResource={selectedResource} />
             ) : (
@@ -143,25 +143,25 @@ const ClientResources = () => {
 const ResourceCard = ({ resource, onClick }) => {
   return (
     <Card
-      className="cursor-pointer hover:shadow-md transition-shadow"
+      className="cursor-pointer hover:shadow-md transition-shadow w-full max-w-full"
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg mb-2 sm:mb-0">
             <FileText className="text-primary h-6 w-6" />
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-medium">{resource.title}</h3>
+              <h3 className="font-medium text-sm sm:text-base">{resource.title}</h3>
               {resource.isNew && (
                 <Badge variant="secondary" className="h-5 text-xs">
                   New
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">
               {resource.description}
             </p>
           </div>

@@ -487,7 +487,7 @@ export default function HealthTracker() {
             <div className="w-full h-[200px] overflow-x-auto">
               <div
                 style={{
-                  minWidth: `${data?.length * 40}px`,
+                  minWidth: `${data?.length * 30}px`,
                   height: "100%",
                 }}
               >
@@ -543,7 +543,7 @@ export default function HealthTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
       <div className="max-w-4xl mx-auto space-y-6">
         {loading ? (
           <>
@@ -876,11 +876,11 @@ export default function HealthTracker() {
                         value.carbsPortion,
                         value.fatsPortion
                       )}
-                      protein={Number(28.35*value.proteinPortion) || 0}
+                      protein={Number(28.35*value.proteinPortion).toFixed(1) || 0}
                       macros={{
-                        protein: Number(28.35*value.proteinPortion) || 0,
-                        carbs: Number(28.35*value.carbsPortion) || 0,
-                        fat: Number(28.35*value.fatsPortion) || 0
+                        protein: Number(28.35*value.proteinPortion).toFixed(1) || 0,
+                        carbs: Number(28.35*value.carbsPortion).toFixed(1) || 0,
+                        fat: Number(28.35*value.fatsPortion).toFixed(1) || 0
                       }}
                       ingredients={value.ingredients || ""}
                     />

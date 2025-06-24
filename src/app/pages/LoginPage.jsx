@@ -74,9 +74,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-2 sm:px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white p-8 rounded-lg shadow-md">
+        <div className="bg-white p-4 sm:p-8 rounded-lg shadow-md">
           <LoginHeader />
           <Tabs
             defaultValue="login"
@@ -87,11 +87,10 @@ const LoginPage = () => {
               }
             }}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Register Your Clinic</TabsTrigger>
             </TabsList>
-
             <TabsContent value="login" className="mt-4">
               <LoginFormFields
                 onSubmit={onSubmit}

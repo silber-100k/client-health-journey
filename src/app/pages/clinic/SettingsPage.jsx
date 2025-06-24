@@ -169,14 +169,14 @@ const SettingsPage = () => {
   };
 
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-gray-500">Manage your account preferences</p>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-4">
+        <TabsList className="grid w-full max-w-md grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -185,7 +185,7 @@ const SettingsPage = () => {
 
         {/* Profile Tab */}
         <TabsContent value="profile">
-          <Card>
+          <Card className="w-full max-w-xl mx-auto">
             <CardHeader>
               <CardTitle>Profile Settings</CardTitle>
               <CardDescription>

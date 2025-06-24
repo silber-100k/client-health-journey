@@ -118,7 +118,7 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-full sm:max-w-[600px] max-h-[90vh] overflow-y-auto px-2 sm:px-6 py-4">
         <DialogHeader>
           <DialogTitle>Edit Clinic</DialogTitle>
           <DialogDescription>Edit the clinic details.</DialogDescription>
@@ -131,11 +131,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="clinicName"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       Name <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -149,11 +149,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="clinicEmail"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       Email <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} type="email" />
                       </FormControl>
@@ -167,11 +167,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="clinicPhone"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       Phone <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} type="tel" />
                       </FormControl>
@@ -184,11 +184,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="primaryContact"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right whitespace-nowrap">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right whitespace-nowrap">
                       Primary Contact <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input
                           {...field}
@@ -205,11 +205,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="streetAddress"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right whitespace-nowrap">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right whitespace-nowrap">
                       Street Address <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -223,11 +223,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="city"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       City <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -241,11 +241,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="state"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       State <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -259,11 +259,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="zipCode"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       ZIP Code <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -277,11 +277,11 @@ const EditClinicDialog = ({ open, setOpen, clinic, fetchClinics }) => {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel className="text-right">
+                  <FormItem className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                    <FormLabel className="sm:text-right">
                       Admin Email <span className="text-red-500">*</span>
                     </FormLabel>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <FormControl>
                         <Input {...field} type="email" />
                       </FormControl>

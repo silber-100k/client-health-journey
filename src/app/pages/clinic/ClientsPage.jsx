@@ -166,10 +166,10 @@ const ClientsPage = () => {
   }, []);
 console.log("clients", clients)
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2 sm:gap-0">
         <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" disabled={isLoading} onClick={fetchClients}>
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
             Refresh
@@ -191,7 +191,7 @@ console.log("clients", clients)
         </AlertDescription>
       </Alert>
 
-      <Card>
+      <Card className="w-full overflow-x-auto">
         <CardHeader>
           <CardTitle>
             {isCoach

@@ -217,11 +217,11 @@ export function TemplateDialogue({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Template</DialogTitle>
+          <DialogTitle>Template</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new Template.
+            Create or edit a template below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

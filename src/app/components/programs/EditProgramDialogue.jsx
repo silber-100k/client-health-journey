@@ -268,11 +268,11 @@ export default function EditProgramDialogue({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] max-h-[90vh] p-4 sm:p-8 overflow-y-auto overflow-x-auto">
         <DialogHeader>
-          <DialogTitle>Edit Template</DialogTitle>
+          <DialogTitle>Edit Program</DialogTitle>
           <DialogDescription>
-            Update the template details below.
+            Update the details for this program.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

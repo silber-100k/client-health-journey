@@ -43,8 +43,8 @@ const ClientsPage = () => {
     fetchClients();
   }, []);
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="px-2 sm:px-4 md:px-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2 sm:gap-0">
         <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
         <div className="flex gap-2">
         <Button
@@ -64,7 +64,7 @@ const ClientsPage = () => {
         </div>
       </div>
 
-      <Card>
+      <Card className="overflow-x-auto">
         <CardHeader>
           <CardTitle>{isCoach ? "Your Clients" : "All Clients"}</CardTitle>
         </CardHeader>

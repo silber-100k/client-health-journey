@@ -90,12 +90,12 @@ const DocEditComponent = ({ text, getAllTexts }) => {
   return (
     <>
       <Card
-        className="cursor-pointer hover:shadow-md transition-shadow"
+        className="cursor-pointer hover:shadow-md transition-shadow w-full"
         onClick={() => {
           setIsOpen(true);
         }}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-4 px-2">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
               <FileText className="text-primary h-6 w-6" />
@@ -118,7 +118,7 @@ const DocEditComponent = ({ text, getAllTexts }) => {
         </CardContent>
       </Card>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-xs sm:max-w-[500px] p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="w-full">
             <DialogTitle className="break-words whitespace-pre-line">
               {text.title}
@@ -147,7 +147,7 @@ const DocEditComponent = ({ text, getAllTexts }) => {
         </DialogContent>
       </Dialog>
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="sm:max-w-[1000px] max-h-[100vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-xs sm:max-w-[500px] p-4 sm:p-6 max-h-[100vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit document</DialogTitle>
             <DialogDescription>Edit the document.</DialogDescription>

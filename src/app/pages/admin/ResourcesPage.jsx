@@ -16,7 +16,7 @@ import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/app/components/ui/tabs"
 const ResourcesPage = () => {
  
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Resources</h1>
         <p className="text-gray-500">
@@ -25,14 +25,14 @@ const ResourcesPage = () => {
       </div>
 
  <Tabs defaultValue="video">
-          <TabsList className="mt-6 mb-6 w-full flex">
-            <TabsTrigger value="video" className="flex-1">
+          <TabsList className="mt-6 mb-6 grid grid-cols-1 sm:grid-cols-3 w-full">
+            <TabsTrigger value="video">
               Training Videos &nbsp; <Video size={20} className="text-blue-500" />
             </TabsTrigger>
-            <TabsTrigger value="document" className="flex-1">
+            <TabsTrigger value="document">
               Documents & Forms &nbsp; <FileText size={20} className="text-green-500" />
             </TabsTrigger>
-            <TabsTrigger value="tutorial" className="flex-1">
+            <TabsTrigger value="tutorial">
               Tutorials & Guides &nbsp; <BookOpen size={20} className="text-amber-500" />
             </TabsTrigger>
           </TabsList>

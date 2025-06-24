@@ -10,23 +10,23 @@ import { Scale, BarChart2 } from "lucide-react";
 
 const QuickActions = () => {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Quick Actions</CardTitle>
+    <Card className="w-full max-w-full">
+      <CardHeader className="pb-2 px-2 sm:px-4">
+        <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <Button asChild variant="outline" className="h-20 flex flex-col">
+      <CardContent className="px-2 sm:px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <Button asChild variant="outline" className="h-16 sm:h-20 flex flex-col w-full">
             <Link href="/client/check-in">
               <Scale className="h-5 w-5 mb-1" />
-              <span>Check-In</span>
+              <span className="text-xs sm:text-base">Check-In</span>
             </Link>
           </Button>
 
-          <Button asChild variant="outline" className="h-20 flex flex-col">
+          <Button asChild variant="outline" className="h-16 sm:h-20 flex flex-col w-full">
             <Link href="/client/program">
               <BarChart2 className="h-5 w-5 mb-1" />
-              <span>My Program</span>
+              <span className="text-xs sm:text-base">My Program</span>
             </Link>
           </Button>
         </div>

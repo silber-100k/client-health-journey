@@ -78,10 +78,10 @@ const CoachesPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
         <h1 className="text-3xl font-bold">Coaches</h1>
-        <div className="flex space-x-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
             size="icon"
@@ -101,20 +101,16 @@ const CoachesPage = () => {
           </Button>
         </div>
       </div>
-
-      {
-        <Alert className="bg-primary-50 border-primary-200">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertTitle>Clinic Admin View</AlertTitle>
-          <AlertDescription>
-            You are viewing coaches for {user?.name || "your clinic"} only. As a
-            clinic administrator, you can manage all coaches and clients within
-            your clinic.
-          </AlertDescription>
-        </Alert>
-      }
-
-      <Card>
+      <Alert className="bg-primary-50 border-primary-200">
+        <AlertCircle className="h-4 w-4 text-primary" />
+        <AlertTitle>Clinic Admin View</AlertTitle>
+        <AlertDescription>
+          You are viewing coaches for {user?.name || "your clinic"} only. As a
+          clinic administrator, you can manage all coaches and clients within
+          your clinic.
+        </AlertDescription>
+      </Alert>
+      <Card className="w-full overflow-x-auto">
         <CardHeader>
           <CardTitle>Manage Coaches</CardTitle>
           <CardDescription>
@@ -127,7 +123,6 @@ const CoachesPage = () => {
             setFilterText={setFilterText}
             count={filteredCoaches.length}
           />
-
           <CoachesTable
             coaches={filteredCoaches}
             onEdit={handleEditCoach}
@@ -136,13 +131,11 @@ const CoachesPage = () => {
           />
         </CardContent>
       </Card>
-
       <AddCoachDialog
         open={isAddCoachDialogOpen}
         setOpen={setIsAddCoachDialogOpen}
         fetchCoaches={fetchCoaches}
       />
-
       {selectedCoach && (
         <>
           <EditCoachDialog
@@ -151,14 +144,12 @@ const CoachesPage = () => {
             setOpen={setIsEditCoachDialogOpen}
             fetchCoaches={fetchCoaches}
           />
-
           <DeleteCoachDialog
             selectedCoach={selectedCoach}
             open={isDeleteCoachDialogOpen}
             setOpen={setIsDeleteCoachDialogOpen}
             fetchCoaches={fetchCoaches}
           />
-
           <ResetCoachPasswordDialog
             selectedCoach={selectedCoach}
             open={isResetPasswordCoachDialogOpen}

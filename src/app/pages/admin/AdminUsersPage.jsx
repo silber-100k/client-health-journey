@@ -79,8 +79,8 @@ const AdminUsersPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="px-2 sm:px-4 md:px-6 py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <h1 className="text-3xl font-bold">Admin Users</h1>
         <div className="flex space-x-2">
           <Button
@@ -100,7 +100,7 @@ const AdminUsersPage = () => {
         </div>
       </div>
 
-      <Card>
+      <Card className="overflow-x-auto">
         <CardHeader>
           <CardTitle>Manage Admin Users</CardTitle>
           <CardDescription>

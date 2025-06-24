@@ -55,7 +55,7 @@ const DeleteClinicDialog = ({
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-full max-w-full sm:max-w-[425px] px-2 sm:px-6 py-4">
                 <DialogHeader>
                     <DialogTitle>Delete Clinic</DialogTitle>
                     <DialogDescription>
@@ -80,7 +80,7 @@ const DeleteClinicDialog = ({
 
                     {clinic && clinic.clients > 0 && (
                         <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
-                            <p className="text-sm text-amber-800">
+                            <p className="text-xs sm:text-sm text-amber-800">
                                 <strong>Warning:</strong> This clinic has {clinic.coaches[0]?.count} active{" "}
                                 {clinic.coaches[0]?.count === 1 ? "coach" : "coaches"}, {clinic.clients[0]?.count} active{" "}
                                 {clinic.clients[0]?.count === 1 ? "client" : "clients"}. You will need to
@@ -90,11 +90,12 @@ const DeleteClinicDialog = ({
                     )}
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                     <Button
                         variant="outline"
                         onClick={() => setOpen(false)}
                         disabled={isDeleting}
+                        className="w-full sm:w-auto"
                     >
                         Cancel
                     </Button>
@@ -102,6 +103,7 @@ const DeleteClinicDialog = ({
                         variant="destructive"
                         onClick={handleDelete}
                         disabled={isDeleting}
+                        className="w-full sm:w-auto"
                     >
                         {isDeleting ? (
                             <>

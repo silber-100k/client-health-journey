@@ -103,7 +103,7 @@ const ReportsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 px-2 sm:px-4 md:px-6">
         <Skeleton className="h-8 w-64 mb-4" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Skeleton className="h-32 w-full" />
@@ -121,7 +121,7 @@ const ReportsPage = () => {
   const dashboardDescription = "Overview of your clinic performance";
 
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{dashboardTitle}</h1>
         <p className="text-gray-500">{dashboardDescription}</p>
@@ -186,7 +186,7 @@ const ReportsPage = () => {
       </div>
 
       {/* Revenue Chart */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-x-auto">
         <CardHeader>
           <CardTitle className="text-[24px]">
             Your System Monthly Revenue

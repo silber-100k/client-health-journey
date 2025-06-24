@@ -238,7 +238,7 @@ const CheckInForm = () => {
 
   if (!user) {
     return (
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl w-full px-2 sm:px-4 py-4 mx-auto">
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">Please Log In</CardTitle>
@@ -252,49 +252,20 @@ const CheckInForm = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Card>
+    <div className="w-full max-w-3xl mx-auto px-0 sm:px-0 py-4">
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-xl">Daily Check-in</CardTitle>
-          <div className="mt-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4" />
-                  {format(formData.selectedDate, "MMMM d, yyyy")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={formData.selectedDate}
-                  onSelect={(date) => date && handleDateChange(date)}
-                  initialFocus
-                  disabled={(date) => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    sevenDaysAgo.setHours(0, 0, 0, 0);
-
-                    return date > today || date < sevenDaysAgo;
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+          <CardTitle>Client Check-In</CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <CardContent className="p-1">
+          <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6 w-full">
             <Tabs value={currentTab} className="w-full">
               <CheckInFormTabs
                 currentTab={currentTab}
                 onTabChange={setCurrentTab}
               />
-
               <div>
-                <TabsContent value="measurements" className="space-y-6">
+                <TabsContent value="measurements" className="space-y-6 w-full">
                   <MeasurementsTab
                     register={register}
                     errors={errors}
@@ -302,8 +273,7 @@ const CheckInForm = () => {
                     setValue={setValue}
                   />
                 </TabsContent>
-
-                <TabsContent value="wellness" className="space-y-6">
+                <TabsContent value="wellness" className="space-y-6 w-full">
                   <WellnessTab
                     register={register}
                     errors={errors}
@@ -311,8 +281,7 @@ const CheckInForm = () => {
                     setValue={setValue}
                   />
                 </TabsContent>
-
-                <TabsContent value="nutrition" className="space-y-6">
+                <TabsContent value="nutrition" className="space-y-6 w-full">
                   <NutritionTab
                     register={register}
                     errors={errors}
@@ -321,8 +290,7 @@ const CheckInForm = () => {
                     getValues={getValues}
                   />
                 </TabsContent>
-
-                <TabsContent value="supplements" className="space-y-6">
+                <TabsContent value="supplements" className="space-y-6 w-full">
                   <SupplementsTab
                     register={register}
                     errors={errors}
@@ -330,7 +298,6 @@ const CheckInForm = () => {
                     setValue={setValue}
                   />
                 </TabsContent>
-
                 <CheckInNavigation
                   currentTab={currentTab}
                   setCurrentTab={setCurrentTab}

@@ -54,7 +54,7 @@ const ResetPwdDialog = ({
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-full max-w-full sm:max-w-[425px] px-2 sm:px-6 py-4">
                 <DialogHeader>
                     <DialogTitle>Reset Password</DialogTitle>
                     <DialogDescription>
@@ -77,17 +77,19 @@ const ResetPwdDialog = ({
                     </p>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                     <Button
                         variant="outline"
                         onClick={() => setOpen(false)}
                         disabled={isDeleting}
+                        className="w-full sm:w-auto"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleResetPwd}
                         disabled={isDeleting}
+                        className="w-full sm:w-auto"
                     >
                         {isDeleting ? (
                             <>

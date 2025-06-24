@@ -146,8 +146,8 @@ const AdminActivitiesPage = () => {
   };
 
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Activities</h1>
           <p className="text-gray-500">
@@ -165,9 +165,8 @@ const AdminActivitiesPage = () => {
           <span>Refresh</span>
         </Button>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 gap-y-4 w-full">
+        <div className="lg:col-span-2 overflow-x-auto">
           <Card>
             <CardHeader>
               <CardTitle>Recent Activities</CardTitle>
@@ -224,30 +223,8 @@ const AdminActivitiesPage = () => {
             </CardContent>
           </Card>
         </div>
-
-        <div>
-          {isLoading ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Activity Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center pb-2 border-b"
-                    >
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-4 w-8" />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            renderActivitySummary()
-          )}
+        <div className="w-full">
+          {renderActivitySummary()}
         </div>
       </div>
     </div>

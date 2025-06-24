@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import ProgramOverviewTab from '../../components/programs/tabs/ProgramOverviewTab';
 import GuidelinesTab from '../../components/programs/tabs/GuidelinesTab';
@@ -27,27 +26,24 @@ const ProgramDetailsContent = () => {
     },
   ]
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 py-4 w-full max-w-3xl mx-auto">
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="flex flex-wrap gap-2 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="guidelines">Guidelines</TabsTrigger>
           <TabsTrigger value="supplements">Supplements</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 w-full">
           <ProgramOverviewTab />
         </TabsContent>
-        
-        <TabsContent value="guidelines">
+        <TabsContent value="guidelines" className="w-full">
           <GuidelinesTab 
             loading={loading} 
             programType={programType} 
             programCategory={programCategory} 
           />
         </TabsContent>
-        
-        <TabsContent value="supplements">
+        <TabsContent value="supplements" className="w-full">
           <SupplementsTab 
             supplements={supplements} 
             programType={programType} 

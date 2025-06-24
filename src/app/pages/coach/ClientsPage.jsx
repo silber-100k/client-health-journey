@@ -81,10 +81,10 @@ const ClientsPage = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2 sm:gap-0">
         <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" onClick={handleRefresh}>
             <motion.svg
               animate={controls}
@@ -104,7 +104,6 @@ const ClientsPage = () => {
           </Button>
         </div>
       </div>
-
       <Alert className="mb-6 bg-primary-50 border-primary-200">
         <AlertCircle className="h-4 w-4 text-primary" />
         <AlertTitle>Coach View</AlertTitle>
@@ -113,8 +112,7 @@ const ClientsPage = () => {
           includes clients assigned to all coaches in your clinic.
         </AlertDescription>
       </Alert>
-
-      <Card>
+      <Card className="w-full overflow-x-auto">
         <CardHeader>
           <CardTitle>Your Clients</CardTitle>
         </CardHeader>
@@ -122,7 +120,6 @@ const ClientsPage = () => {
           <CoachClientList clients={clients} />
         </CardContent>
       </Card>
-
       <AddClientDialog
         open={isAddClientDialogOpen}
         onOpenChange={setIsAddClientDialogOpen}

@@ -128,15 +128,15 @@ const CoachReportsPage = () => {
   };
 console.log("checkIn",checkIns)
   return (
-    <div>
-      <div className="flex items-center gap-4">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-6 py-4">
+      <div className="flex flex-col md:flex-row flex-wrap gap-2 md:gap-4 items-start md:items-center mb-4">
         <Select
           value={selectedClient}
           onValueChange={(value) => setSelectedClient(value)}
           defaultValue={selectedClient}
           disabled={isLoading === true}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full md:w-[200px]">
             <SelectValue placeholder="Select a client" />
           </SelectTrigger>
           <SelectContent>
@@ -151,10 +151,10 @@ console.log("checkIn",checkIns)
           defaultValue={selectedTimeRange}
           onValueChange={(value) => setSelectedTimeRange(value)}
         >
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full md:w-[150px]">
             <SelectValue placeholder="Time range" />
           </SelectTrigger>
-          <SelectContent className="w-[180px]">
+          <SelectContent className="w-full md:w-[180px]">
             <SelectItem value="week">Last 7 days</SelectItem>
             <SelectItem value="month">Last 30 days</SelectItem>
             <SelectItem value="quarter">Last 3 months</SelectItem>
@@ -167,7 +167,7 @@ console.log("checkIn",checkIns)
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full md:w-auto"
               disabled={selectedTimeRange !== "custom"}
             >
               <CalendarIcon className="h-4 w-4" />
@@ -193,7 +193,7 @@ console.log("checkIn",checkIns)
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full md:w-auto"
               disabled={selectedTimeRange !== "custom"}
             >
               <CalendarIcon className="h-4 w-4" />
@@ -222,17 +222,17 @@ console.log("checkIn",checkIns)
       </div>
       {!isLoading ? (
         <Tabs defaultValue="Nutrition">
-          <TabsList className="mt-6 mb-6 w-full">
-            <TabsTrigger value="Nutrition" className="w-[25%]">
+          <TabsList className="mt-6 mb-6 grid grid-cols-2 sm:grid-cols-4 w-full">
+            <TabsTrigger value="Nutrition">
               Nutrition & Weight
             </TabsTrigger>
-            <TabsTrigger value="Sleep" className="w-[25%]">
+            <TabsTrigger value="Sleep">
               Sleep
             </TabsTrigger>
-            <TabsTrigger value="Exercise" className="w-[25%]">
+            <TabsTrigger value="Exercise">
               Exercise
             </TabsTrigger>
-            <TabsTrigger value="Mood" className="w-[25%]">
+            <TabsTrigger value="Mood">
               Mood
             </TabsTrigger>
           </TabsList>

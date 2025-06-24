@@ -38,7 +38,7 @@ const ActivityList = ({ activities, isLoading, isError }) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 gap-2">
         <CardTitle className="text-lg">Recent Activities</CardTitle>
         <Button
           variant="outline"
@@ -48,7 +48,7 @@ const ActivityList = ({ activities, isLoading, isError }) => {
           View All
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         {isLoading ? (
           <div className="space-y-4">
             {Array(3)

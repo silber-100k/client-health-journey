@@ -64,11 +64,11 @@ const ProgramTable = ({
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {Programs.map((Program, index) => (
         <Card
           key={Program.id}
-          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 ${
+          className={`bg-white cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 w-full ${
             selectedProgram?.id === Program.id
               ? "ring-2 ring-blue-500 bg-blue-50"
               : ""

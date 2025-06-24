@@ -39,24 +39,24 @@ const LatestStats = () => {
   const weightTrend = "down";
   const waterProgress = 12;
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center gap-2">
+    <Card className="w-full max-w-full">
+      <CardHeader className="pb-2 px-2 sm:px-4">
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
           <BarChart2 className="h-4 w-4" />
           Latest Stats
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-2 sm:px-4">
         {checkIns.length>0 ? (
           <>
             {checkIns[0].weight && (
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">Weight</span>
+                  <span className="text-xs sm:text-sm text-gray-600">Weight</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{checkIns[0].weight} lbs</span>
+                  <span className="font-medium text-sm sm:text-base">{checkIns[0].weight} lbs</span>
                   {weightTrend === "down" && (
                     <ArrowDown className="h-4 w-4 text-green-500" />
                   )}
@@ -68,12 +68,12 @@ const LatestStats = () => {
             )}
 
             {checkIns[0].sleepHours && (
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2">
                 <div className="flex items-center gap-2">
                   <Moon className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">Sleep</span>
+                  <span className="text-xs sm:text-sm text-gray-600">Sleep</span>
                 </div>
-                <span className="font-medium">
+                <span className="font-medium text-sm sm:text-base">
                   {checkIns[0].sleepHours} hrs
                 </span>
               </div>
@@ -81,12 +81,12 @@ const LatestStats = () => {
 
             {checkIns[0].waterIntake && (
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-1 gap-1 sm:gap-2">
                   <div className="flex items-center gap-2">
                     <Droplets className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Water Intake</span>
+                    <span className="text-xs sm:text-sm text-gray-600">Water Intake</span>
                   </div>
-                  <span className="text-sm">
+                  <span className="text-xs sm:text-sm">
                     {checkIns[0].waterIntake} glasses
                   </span>
                 </div>
@@ -104,7 +104,7 @@ const LatestStats = () => {
             </div>
           </>
         ) : (
-          <div className="text-sm text-gray-500 py-2">
+          <div className="text-xs sm:text-sm text-gray-500 py-2">
             No check-ins recorded yet. Start tracking your progress!
           </div>
         )}

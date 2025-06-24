@@ -12,6 +12,7 @@ import TempTableForProgram from "../../components/programs/TempTableForProgram";
 import TemplateDetailsDialog from "../../components/programs/TemplateDetailsDialog";
 import  EditProgramDialogue  from "@/app/components/programs/EditProgramDialogue";
 import ProgramTable from "@/app/components/programs/ProgramTable"
+import { DialogContent } from "@/app/components/ui/dialog"
 
 export default function ProgramsPage() {
   const [currentStep, setCurrentStep] = useState("")
@@ -93,7 +94,7 @@ export default function ProgramsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 w-full max-w-5xl mx-auto">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <EditProgramDialogue
@@ -131,9 +132,9 @@ export default function ProgramsPage() {
           <CardHeader className="text-2xl font-semibold">
             Create New Programs
           </CardHeader>
-          <CardContent className="p-6 pt-0">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg p-6 text-white">
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <CardContent className="p-2 sm:p-6 pt-0">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg p-4 sm:p-6 text-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                 <Card  className="bg-white/10 border-2 border-white/20 hover:border-white/40 cursor-pointer transition-all hover:bg-blue-50 transition-colors hover: cursor-pointer"
                 onClick={() => setCurrentStep("Existing_Template")}
                 >
@@ -157,10 +158,10 @@ export default function ProgramsPage() {
                 <>
                 <h3 className="font-semibold mb-4">Select a Template</h3>
                 {isTemplateLoading ? (
-              <div className="flex h-[200px] w-full space-x-3">
-              <Skeleton className="h-full w-1/3" />
-              <Skeleton className="h-full w-1/3" />
-              <Skeleton className="h-full w-1/3" />
+              <div className="flex flex-col md:flex-row h-[200px] w-full space-y-3 md:space-y-0 md:space-x-3">
+              <Skeleton className="h-full w-full md:w-1/3" />
+              <Skeleton className="h-full w-full md:w-1/3" />
+              <Skeleton className="h-full w-full md:w-1/3" />
               </div>
      
           ) : isTemplateError ? (
@@ -192,5 +193,5 @@ export default function ProgramsPage() {
           <ProgramDetailsCard open = {open} setOpen = {setOpen} selectedTemplate={selectedTemplate} fetchPrograms={fetchPrograms}/>
       </div>
     </div>
-  )
+  );
 }

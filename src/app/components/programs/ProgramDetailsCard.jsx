@@ -274,11 +274,11 @@ export default function ProgramDetailsCard({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] max-h-[80vh] p-4 sm:p-8 overflow-y-auto overflow-x-auto">
         <DialogHeader>
-          <DialogTitle>Create Program</DialogTitle>
+          <DialogTitle>Program Details</DialogTitle>
           <DialogDescription>
-            Program details below.
+            View the details for this program.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -636,135 +636,111 @@ export default function ProgramDetailsCard({
                 <CardTitle>Portion Guidelines</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Protein(oz)</TableHead>
-                      <TableHead>Fruit(oz)</TableHead>
-                      <TableHead>Vegetables(oz)</TableHead>
-                      <TableHead>Carbs(oz)</TableHead>
-                      <TableHead>Fats(oz)</TableHead>
-                      <TableHead>Other(oz)</TableHead>
-                      <TableHead>Calories</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {watch("portionGuidelines").map((guideline, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.protein`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.fruit`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.vegetables`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.carbs`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.fats`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.other`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`portionGuidelines.${index}.calories`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => removePortionGuidelines(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Button type="button" onClick={addPortionGuidelines} className="mt-4">
+                {watch("portionGuidelines").map((guideline, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-2 relative">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => removePortionGuidelines(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.protein`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Protein (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.fruit`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fruit (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.vegetables`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vegetables (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.carbs`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Carbs (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.fats`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fats (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.other`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Other (oz)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`portionGuidelines.${index}.calories`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Calories</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                ))}
+                <Button type="button" onClick={addPortionGuidelines} className="mt-4 w-full">
                   <Plus className="mr-2 h-4 w-4" /> Add Portion Guidelines
                 </Button>
               </CardContent>
@@ -775,91 +751,73 @@ export default function ProgramDetailsCard({
               <CardHeader>
                 <CardTitle>Supplements</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Purpose</TableHead>
-                      <TableHead>Dosage</TableHead>
-                      <TableHead>Timing</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {watch("supplements").map((supplement, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`supplements.${index}.name`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`supplements.${index}.purpose`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`supplements.${index}.dosage`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={control}
-                            name={`supplements.${index}.timing`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => removeSupplement(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Button type="button" onClick={addSupplement} className="mt-4">
+              <CardContent className="space-y-4">
+                {watch("supplements").map((supplement, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-2 relative">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeSupplement(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <FormField
+                      control={control}
+                      name={`supplements.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`supplements.${index}.purpose`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Purpose</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`supplements.${index}.dosage`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dosage</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`supplements.${index}.timing`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Timing</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                ))}
+                <Button type="button" onClick={addSupplement} className="mt-4 w-full">
                   <Plus className="mr-2 h-4 w-4" /> Add Supplement
                 </Button>
               </CardContent>

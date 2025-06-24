@@ -26,8 +26,8 @@ const ClinicsTable = ({
   onResetPassword,
 }) => {
   return (
-    <div className="overflow-x-auto">
-      <Table>
+    <div className="w-full overflow-x-auto">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>Clinic</TableHead>

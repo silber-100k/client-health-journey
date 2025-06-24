@@ -364,7 +364,7 @@ const ClientMessages = () => {
   }, [unread]);
     console.log("unreadc",unread );
   return (
-    <>
+    <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <div
@@ -422,15 +422,15 @@ const ClientMessages = () => {
         </div>
       ) : null}
 
-      <Card className="h-[calc(100vh-220px)] flex flex-col">
-        <CardHeader className="pb-3">
+      <Card className="flex-1 flex flex-col h-0 p-2 sm:p-4">
+        <CardHeader className="px-2 sm:px-4 pb-3">
           <CardTitle className="flex items-center gap-2">
             <MessageSquare size={20} className="text-primary" />
             Messages
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-y-auto mb-4">
+        <CardContent className="px-2 sm:px-4 mb-4 flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="space-y-2">
@@ -452,59 +452,61 @@ const ClientMessages = () => {
                       </div>
                     </div>
                   )}
-                  <div
-                    className={`flex ${
-                      msg.from === user.email ? "justify-end" : "justify-start"
-                    }`}
-                  >
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <div
-                      className={`flex items-start gap-2 max-w-[80%] ${
-                        msg.from === user.email
-                          ? "flex-row-reverse"
-                          : "flex-row"
+                      className={`flex ${
+                        msg.from === user.email ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <Avatar className="h-8 w-8">
-                        {msg.senderAvatar ? (
-                          <AvatarImage
-                            src={msg.senderAvatar}
-                            alt={msg.senderName}
-                          />
-                        ) : (
-                          <AvatarFallback>
-                            <User size={16} />
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
+                      <div
+                        className={`flex items-start gap-2 max-w-[80%] ${
+                          msg.from === user.email
+                            ? "flex-row-reverse"
+                            : "flex-row"
+                        }`}
+                      >
+                        <Avatar className="h-8 w-8">
+                          {msg.senderAvatar ? (
+                            <AvatarImage
+                              src={msg.senderAvatar}
+                              alt={msg.senderName}
+                            />
+                          ) : (
+                            <AvatarFallback>
+                              <User size={16} />
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
 
-                      <div>
-                        <div
-                          className={`px-4 py-2 rounded-lg text-sm flex justify-between ${
-                            msg.from === user.email
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
-                          }`}
-                        >
-                          {msg.message}
-                          <div className="ml-2 flex items-center">
-                            {user.email === msg.from && (
-                              <div className="flex items-center">
-                                {msg.status === "sent" && tickIcon}
-                                {msg.status === "delivered" && (
-                                  <>
-                                    <span className="mr-[-10px]">
+                        <div>
+                          <div
+                            className={`px-4 py-2 rounded-lg text-sm flex justify-between ${
+                              msg.from === user.email
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted"
+                            }`}
+                          >
+                            {msg.message}
+                            <div className="ml-2 flex items-center">
+                              {user.email === msg.from && (
+                                <div className="flex items-center">
+                                  {msg.status === "sent" && tickIcon}
+                                  {msg.status === "delivered" && (
+                                    <>
+                                      <span className="mr-[-10px]">
+                                        {tickIcon}
+                                      </span>
                                       {tickIcon}
-                                    </span>
-                                    {tickIcon}
-                                  </>
-                                )}
-                              </div>
-                            )}
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(msg.timestamp)}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(msg.timestamp)}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -521,36 +523,35 @@ const ClientMessages = () => {
           )}
         </CardContent>
 
-        <CardFooter className="border-t pt-3">
-          <div className="flex w-full items-center gap-2">
-            <Textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="min-h-[60px]"
-              disabled={isSending || !isConnected}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            />
-            <Button
-              onClick={sendMessage}
-              size="icon"
-              disabled={!newMessage.trim() || isSending || !isConnected}
-            >
-              {isSending ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <Send size={18} />
-              )}
-            </Button>
-          </div>
+        <CardFooter className="px-2 sm:px-4 flex flex-col sm:flex-row gap-2">
+          <Textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="w-full min-h-[40px] sm:min-h-[48px] text-sm sm:text-base"
+            disabled={isSending || !isConnected}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+          />
+          <Button
+            onClick={sendMessage}
+            size="icon"
+            disabled={!newMessage.trim() || isSending || !isConnected}
+            className="w-full sm:w-auto"
+          >
+            {isSending ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Send size={18} />
+            )}
+          </Button>
         </CardFooter>
       </Card>
-    </>
+    </div>
   );
 };
 

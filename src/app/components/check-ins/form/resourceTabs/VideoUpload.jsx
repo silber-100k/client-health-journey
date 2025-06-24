@@ -87,19 +87,18 @@ const UploadVideo = ({ setTrigger }) => {
   };
 
   return (
-    <div>
-      <Button onClick={() => onOpenChange(true)} className="mb-[20px]">
+    <div className="px-2">
+      <Button onClick={() => onOpenChange(true)} className="mb-4 w-full sm:w-auto">
         <UserPlus className="mr-2 h-4 w-4" />
         Add video
       </Button>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[1000px] max-h-[100vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-xs sm:max-w-[500px] p-4 sm:p-6 max-h-[100vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Video</DialogTitle>
             <DialogDescription>Upload a new video to DigitalOcean.</DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-4">
+          <div className="space-y-4 w-full">
             <Input
               name="title"
               placeholder="Video Title"
@@ -109,10 +108,10 @@ const UploadVideo = ({ setTrigger }) => {
                   [e.target.name]: e.target.value,
                 }))
               }
+              className="w-full"
             />
-
             <div>
-              <Label htmlFor="role" className="mb-[10px]">
+              <Label htmlFor="role" className="mb-2">
                 To show
               </Label>
               <Select
@@ -122,7 +121,7 @@ const UploadVideo = ({ setTrigger }) => {
                   submittedData((prev) => ({ ...prev, ["role"]: e }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select the role to show" />
                 </SelectTrigger>
                 <SelectContent>
@@ -132,17 +131,15 @@ const UploadVideo = ({ setTrigger }) => {
                 </SelectContent>
               </Select>
             </div>
-
             <div className="space-y-2">
               <Label>Select Video File</Label>
               <Input
                 type="file"
                 accept="video/*"
                 onChange={handleFileSelect}
-                className="cursor-pointer"
+                className="cursor-pointer w-full"
               />
             </div>
-
             {previewUrl && (
               <div className="space-y-2">
                 <Label>Preview</Label>
@@ -153,12 +150,11 @@ const UploadVideo = ({ setTrigger }) => {
                 />
               </div>
             )}
-
-            <div className="flex justify-end space-x-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 w-full">
               <Button
                 onClick={handleUpload}
                 disabled={isSubmitting || !selectedFile}
-                className="flex items-center"
+                className="flex items-center w-full sm:w-auto"
               >
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -167,7 +163,7 @@ const UploadVideo = ({ setTrigger }) => {
                 )}
                 {isSubmitting ? "Uploading..." : "Upload Video"}
               </Button>
-              <Button onClick={() => onOpenChange(false)} variant="outline">
+              <Button onClick={() => onOpenChange(false)} variant="outline" className="w-full sm:w-auto">
                 Cancel
               </Button>
             </div>

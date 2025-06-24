@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
@@ -12,7 +11,7 @@ const ProgramGuidelines = ({ programType, programCategory }) => {
       <CardHeader>
         <CardTitle>Program Guidelines</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         {programType === 'practice_naturals' && (
           <PracticeNaturalsGuidelines category={programCategory} />
         )}

@@ -71,7 +71,7 @@ const ProgramsPage = () => {
   }
 
   return (
-    <>
+    <div className="px-2 sm:px-4 md:px-6">
       <div>
         {/* Template Dialog */}
         <TemplateDialogue
@@ -100,7 +100,7 @@ const ProgramsPage = () => {
           <span>Add Template</span>
         </Button>
       </div>
-      <Card>
+      <Card className="overflow-x-auto">
         <CardHeader>
           <CardTitle>All Templates</CardTitle>
         </CardHeader>
@@ -133,7 +133,7 @@ const ProgramsPage = () => {
           )}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 };
 

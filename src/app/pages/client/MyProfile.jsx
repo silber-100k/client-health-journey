@@ -154,7 +154,7 @@ const MyProfile = () => {
 
   console.log(avatarSrc);
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6 py-4 w-full max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
         <p className="text-gray-500">
@@ -163,7 +163,7 @@ const MyProfile = () => {
       </div>
 
       <Tabs defaultValue="personal">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 grid grid-cols-3 w-full">
           <TabsTrigger value="personal" className="flex items-center gap-2">
             <User size={16} />
             <span>Personal Info</span>
@@ -188,7 +188,7 @@ const MyProfile = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-8">
-                <div className="flex flex-col items-center space-y-4 md:w-1/3">
+                <div className="flex flex-col items-center space-y-4 md:w-1/3 w-full">
                   <Avatar className="w-32 h-32">
                     {/* <AvatarImage
                       src="https://i.pravatar.cc/150"
@@ -219,8 +219,8 @@ const MyProfile = () => {
                   </Button>
                 </div>
 
-                <div className="space-y-4 md:w-2/3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4 md:w-2/3 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-4">
                     <div>
                       <Label htmlFor="name" className="mb-[10px]">
                         Full Name

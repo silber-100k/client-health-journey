@@ -26,7 +26,7 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[700px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto overflow-x-auto">
         <DialogHeader>
           <DialogTitle>{template.program_name}</DialogTitle>
           {/* <DialogDescription>
@@ -41,7 +41,7 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
         </div> */}
 
         <Tabs defaultValue="overview">
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 grid grid-cols-2 sm:grid-cols-4 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="nutrition">Nutrition Guide</TabsTrigger>
             <TabsTrigger value="supplements">Supplements</TabsTrigger>

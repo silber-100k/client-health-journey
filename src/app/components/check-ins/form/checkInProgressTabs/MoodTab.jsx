@@ -17,10 +17,10 @@ import {
 
 const MoodTab = ({ checkIns }) => {
   return (
-    <div>
+    <div className="w-full max-w-3xl mx-auto px-2 py-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-[24px] font-semibold ml-[20px]">
+          <CardTitle className="text-lg sm:text-2xl font-semibold ml-0 sm:ml-[20px]">
             Mood Tracking
           </CardTitle>
         </CardHeader>
@@ -29,7 +29,7 @@ const MoodTab = ({ checkIns }) => {
             <ResponsiveContainer height={300} width="100%">
       <LineChart
         data={checkIns.checkIns}
-        margin={{ top: 40, left: 12, right: 12, bottom: 40 }}
+        margin={{ top: 40, left: -35, right: 5, bottom: 20 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis

@@ -14,7 +14,7 @@ const CheckInsPage = () => {
   const { user } = useAuth();
   const isCoach = user?.role === "coach";
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Progress Tracking</h1>
         <p className="text-gray-500">
@@ -22,7 +22,7 @@ const CheckInsPage = () => {
         </p>
       </div>
 
-      <Card>
+      <Card className="overflow-x-auto">
         <CardContent>
           {isCoach ? <CoachCheckIns /> : <RecentCheckIns />}
         </CardContent>

@@ -63,7 +63,7 @@ const ClinicsTable = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[500px] text-xs sm:text-sm">
               <thead>
                 <tr className="border-b text-sm">
                   <th className="text-left font-medium py-2">Clinic</th>

@@ -5,10 +5,10 @@ import { Slider } from "../../../components/ui/slider";
 
 const WellnessTab = ({ register, errors, formData, setValue }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <div>
-        <div className="flex justify-between mb-2">
-          <Label>Energy Level (1-10)</Label>
+        <div className="flex flex-col sm:flex-row justify-between mb-2 gap-2">
+          <Label className="mb-2">Energy Level (1-10)</Label>
           <span className="text-primary-600 font-medium">
             {formData.energyLevel}/10
           </span>
@@ -32,8 +32,8 @@ const WellnessTab = ({ register, errors, formData, setValue }) => {
       </div>
 
       <div>
-        <div className="flex justify-between mb-2">
-          <Label>Mood (1-10)</Label>
+        <div className="flex flex-col sm:flex-row justify-between mb-2 gap-2">
+          <Label className="mb-2">Mood (1-10)</Label>
           <span className="text-primary-600 font-medium">
             {formData.moodLevel}/10
           </span>
@@ -57,7 +57,7 @@ const WellnessTab = ({ register, errors, formData, setValue }) => {
       </div>
 
       <div>
-        <Label htmlFor="sleepHours">Last Night's Sleep (hours)</Label>
+        <Label htmlFor="sleepHours" className="mb-2">Last Night's Sleep (hours)</Label>
         <div className="flex items-center gap-2 mt-[10px]">
           <Input
             {...register("sleepHours")}

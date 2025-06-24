@@ -74,12 +74,12 @@ const ClientJournal = () => {
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Food Journal</h3>
+    <div className="space-y-6 px-2 sm:px-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+        <h3 className="text-base sm:text-lg font-medium">Food Journal</h3>
         <Button
           onClick={() => setIsCreatingEntry(true)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full sm:w-auto"
         >
           <PlusCircle size={16} />
           New Entry
@@ -90,15 +90,15 @@ const ClientJournal = () => {
         <JournalEntryForm onCancel={() => setIsCreatingEntry(false)} />
       ) : (
         <>
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-center">
-                <CardTitle>Journal Entries</CardTitle>
+          <Card className="w-full max-w-full">
+            <CardHeader className="pb-3 px-2 sm:px-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                <CardTitle className="text-base sm:text-lg">Journal Entries</CardTitle>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 w-full sm:w-auto"
                     >
                       <CalendarIcon size={16} />
                       <span>{format(date, "MMM d, yyyy")}</span>
@@ -115,11 +115,11 @@ const ClientJournal = () => {
                 </Popover>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-4">
               <Tabs defaultValue="list" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="list">List View</TabsTrigger>
-                  <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+                <TabsList className="mb-4 w-full flex flex-col sm:flex-row gap-2 sm:gap-0">
+                  <TabsTrigger value="list" className="w-full sm:w-auto">List View</TabsTrigger>
+                  <TabsTrigger value="calendar" className="w-full sm:w-auto">Calendar View</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="list">
@@ -131,7 +131,7 @@ const ClientJournal = () => {
                 </TabsContent>
 
                 <TabsContent value="calendar">
-                  <div className="text-center p-8 text-gray-500">
+                  <div className="text-center p-8 text-gray-500 text-xs sm:text-sm">
                     Calendar view will be available soon.
                   </div>
                 </TabsContent>
@@ -153,19 +153,19 @@ const JournalEntry = ({ entry }) => {
   });
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between">
-          <CardTitle className="text-base">{formattedDate}</CardTitle>
-          <div className="flex items-center text-sm text-gray-500">
+    <Card className="w-full max-w-full">
+      <CardHeader className="pb-2 px-2 sm:px-4">
+        <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
+          <CardTitle className="text-sm sm:text-base">{formattedDate}</CardTitle>
+          <div className="flex items-center text-xs sm:text-sm text-gray-500">
             <Clock size={14} className="mr-1" />
             <span>Water: {entry.waterIntake} glasses</span>
           </div>
         </div>
-        <CardDescription>{entry.mood}</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">{entry.mood}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <CardContent className="px-2 sm:px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <h4 className="text-sm font-medium mb-1">Breakfast</h4>
             <p className="text-sm text-gray-600">{entry.meals.breakfast}</p>

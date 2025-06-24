@@ -15,7 +15,7 @@ export default function GoogleDocViewer({ selectedResource }) {
   const docxUrl = `https://docs.google.com/document/d/${docId}/export?format=docx`;
 
   return (
-    <div>
+    <div className="px-2">
       {isPreview ? (
         <iframe
           src={embedUrl}
@@ -27,21 +27,21 @@ export default function GoogleDocViewer({ selectedResource }) {
           title="Google Doc Preview"
         />
       ) : (
-        <div className="flex flex-col items-center justify-center p-10 border rounded-md bg-gray-50">
+        <div className="flex flex-col items-center justify-center p-10 border rounded-md bg-gray-50 w-full">
           <FileText size={64} className="text-gray-400 mb-4" />
           <p className="text-gray-500 mb-6">{selectedResource.description}</p>
         </div>
       )}
-      <div className="flex gap-3 mt-5 justify-center">
+      <div className="flex flex-col sm:flex-row gap-2 mt-5 justify-center w-full">
         <Button
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full sm:w-auto"
           onClick={() => setIsPreview((prev) => !prev)}
         >
           {isPreview ? <Eye size={16} /> : <FolderOpen size={16} />}
           Preview
         </Button>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 w-full sm:w-auto">
           <Download size={16} />
           <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
             Download as PDF

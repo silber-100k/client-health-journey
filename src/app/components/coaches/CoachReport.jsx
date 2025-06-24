@@ -527,7 +527,7 @@ export default function CoachReport({checkIns,loading}) {
               </CardHeader>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-500">{getComplianceScore(checkIns?.aiReview)}/10</div>
                   <div className="text-xs text-gray-500">Excellent</div>
@@ -707,7 +707,7 @@ export default function CoachReport({checkIns,loading}) {
             {activeTab === "trends" && (
               <div className="space-y-6">
                 {/* Daily Averages */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <Card>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-500">{Number((portionsArray?.reduce((sum, item) => {const val = Number(item.proteinPortion);

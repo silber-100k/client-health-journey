@@ -40,16 +40,16 @@ export default function ConfirmationDialog({ open, setOpen, title, description, 
 
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogContent>
+            <AlertDialogContent className="w-full max-w-xs sm:max-w-md p-4 sm:p-6">
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title || "Are you sure?"}</AlertDialogTitle>
                     <AlertDialogDescription>
                         {description || "This action cannot be undone."}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-                    <Button onClick={() => handleDelete()} disabled={isLoading}>
+                <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                    <AlertDialogCancel className="w-full sm:w-auto" onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
+                    <Button className="w-full sm:w-auto" onClick={() => handleDelete()} disabled={isLoading}>
                         {isLoading ? "Deleting..." : "Continue"}
                     </Button>
                 </AlertDialogFooter>

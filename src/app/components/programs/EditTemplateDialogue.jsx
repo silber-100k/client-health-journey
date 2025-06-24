@@ -253,7 +253,7 @@ export function EditTemplateDialogue({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[720px] max-h-[600px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Template</DialogTitle>
           <DialogDescription>

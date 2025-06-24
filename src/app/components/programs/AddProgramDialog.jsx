@@ -134,7 +134,7 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-full max-w-[95vw] p-4 sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Program</DialogTitle>
           <DialogDescription>
@@ -144,22 +144,22 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
         <form onSubmit={handleSubmit(onFormSubmit, onError)}>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="type" className="text-right">
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+              <Label htmlFor="type" className="sm:text-right">
                 Type
               </Label>
               {isTemplateLoading ? (
-                <div className="space-y-3">
+                <div className="space-y-3 sm:col-span-3 w-full">
                   <Skeleton className="h-12 w-full" />
                 </div>
               ) : isTemplateError ? (
-                <div className="text-center py-8 text-red-500">
+                <div className="text-center py-8 text-red-500 sm:col-span-3 w-full">
                   Failed to load Templates. Please try again.
                 </div>
               ) : Templates && Templates.length > 0 ? (
-                <div className="col-span-3">
+                <div className="sm:col-span-3 w-full">
                   <Select onValueChange={handleTypeChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -179,22 +179,23 @@ const AddProgramDialog = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                   )}
                 </div>
               ) : (
-                <div className="text-center text-gray-500">
+                <div className="text-center text-gray-500 sm:col-span-3 w-full">
                   No Templates found.
                 </div>
               )}
             </div>
 
             {formData.type === "custom" && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="customName" className="text-right">
+              <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                <Label htmlFor="customName" className="sm:text-right">
                   Name
                 </Label>
-                <div className="col-span-3">
+                <div className="sm:col-span-3 w-full">
                   <Input
                     id="customName"
                     {...register("customName")}
                     placeholder="Enter custom program name"
+                    className="w-full"
                   />
                   {errors.customName && (
                     <p className="text-sm text-red-500 mt-1">{errors.customName.message}</p>

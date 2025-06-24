@@ -144,7 +144,7 @@ const ClientFormFields = ({
         render={() => (
           <FormItem>
             <FormLabel>Client Goals (Select all that apply)</FormLabel>
-            <div className="grid grid-cols-2 gap-2 mt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
               {clientGoals.map((goal) => (
                 <FormField
                   key={goal.id}
@@ -154,7 +154,7 @@ const ClientFormFields = ({
                     return (
                       <FormItem
                         key={goal.id}
-                        className="flex flex-row items-start space-x-2 space-y-0"
+                        className="flex flex-row items-start space-x-2 space-y-0 py-1"
                       >
                         <FormControl>
                           <Checkbox
@@ -166,6 +166,7 @@ const ClientFormFields = ({
                                 : current.filter((value) => value !== goal.id);
                               field.onChange(updated);
                             }}
+                            className="w-5 h-5"
                           />
                         </FormControl>
                         <FormLabel className="font-normal text-sm">

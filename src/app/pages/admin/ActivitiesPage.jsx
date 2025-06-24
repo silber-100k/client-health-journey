@@ -144,8 +144,8 @@ const AdminActivitiesPage = () => {
   };
 
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="px-2 sm:px-4 md:px-6">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Activities</h1>
           <p className="text-gray-500">
@@ -166,7 +166,7 @@ const AdminActivitiesPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="overflow-x-auto">
             <CardHeader>
               <CardTitle>Recent Activities</CardTitle>
             </CardHeader>

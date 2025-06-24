@@ -51,7 +51,7 @@ export const ResetCoachPasswordDialog = ({
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] w-full max-w-[95vw] p-4 sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Reset Coach Password</DialogTitle>
         </DialogHeader>
@@ -68,11 +68,11 @@ export const ResetCoachPasswordDialog = ({
           </p>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button onClick={handleReset}>
+          <Button onClick={handleReset} className="w-full sm:w-auto">
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

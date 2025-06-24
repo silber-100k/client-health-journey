@@ -121,7 +121,7 @@ export function EditAdminUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-full max-w-[95vw] p-4 sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Admin User</DialogTitle>
           <DialogDescription>
@@ -148,7 +148,7 @@ export function EditAdminUserDialog({
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="John Doe" {...field} className="w-full" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -161,7 +161,7 @@ export function EditAdminUserDialog({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Email" {...field} />
+                      <Input placeholder="Email" {...field} className="w-full" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,7 +174,7 @@ export function EditAdminUserDialog({
                   <FormItem>
                     <FormLabel>PhoneNumber</FormLabel>
                     <FormControl>
-                      <Input placeholder="phone number" {...field} />
+                      <Input placeholder="phone number" {...field} className="w-full" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -188,7 +188,7 @@ export function EditAdminUserDialog({
                     <FormLabel>Role</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                       </FormControl>
@@ -213,7 +213,7 @@ export function EditAdminUserDialog({
                 control={form.control}
                 name="is_active"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-lg border p-4 gap-2 sm:gap-0">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Active Status</FormLabel>
                       <FormDescription>
@@ -229,15 +229,16 @@ export function EditAdminUserDialog({
                   </FormItem>
                 )}
               />
-              <DialogFooter>
+              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                   {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
               </DialogFooter>

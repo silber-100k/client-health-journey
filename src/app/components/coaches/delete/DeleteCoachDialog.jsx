@@ -53,7 +53,7 @@ export const DeleteCoachDialog = ({
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] w-full max-w-[95vw] p-4 sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Delete Coach</DialogTitle>
           <DialogDescription>
@@ -87,11 +87,12 @@ export const DeleteCoachDialog = ({
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
             disabled={isDeleting}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>
@@ -99,6 +100,7 @@ export const DeleteCoachDialog = ({
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
+            className="w-full sm:w-auto"
           >
             {isDeleting ? (
               <>
