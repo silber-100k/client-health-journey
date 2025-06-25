@@ -611,5 +611,5 @@ export const clientRepo = {
   getProgressbyClient,
   initialState,
   getEmailById,
-  getProgramIdbyClientEmail
+  getProgramIdbyClientEmail,
 };

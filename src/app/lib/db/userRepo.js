@@ -33,10 +33,21 @@ export const userRepo = {
   getNumTotalCoaches,
   getClinicAdmin,
   deleteClinicMembers,
+  deleteClient,
 };
 
 async function getAdminUsers() {
   return await sql`SELECT * FROM "User" WHERE "role" = 'admin'`;
+}
+
+async function deleteClient(email) {
+  const [deleted] = await sql`DELETE FROM "User" WHERE "email" = ${email} RETURNING *`;
+  const [deletedClient] = await sql`DELETE FROM "Client" WHERE "email" = ${email} RETURNING *`;
+  const [deleteCheckIn] = await sql`DELETE FROM "CheckIn" WHERE "email" = ${email} RETURNING *`;
+  const [deleteMessage] = await sql`DELETE FROM "Message" WHERE "sender" = ${email} OR "receiver" = ${email} RETURNING *`;
+  const [deleteNotification] = await sql`DELETE FROM "Notification" WHERE "email" = ${email} RETURNING *`;
+  const [deleteAIReview] = await sql`DELETE FROM "AIReview" WHERE "email" = ${email} RETURNING *`;
+  return deleted || null;
 }
 
 async function createAdminUser(name, email, phoneNumber, role, password, clinic, options = {}) {

@@ -117,7 +117,7 @@ const ClientsPage = () => {
           <CardTitle>Your Clients</CardTitle>
         </CardHeader>
         <CardContent>
-          <CoachClientList clients={clients} />
+          <CoachClientList clients={clients} fetchClients={fetchClients} />
         </CardContent>
       </Card>
       <AddClientDialog

@@ -644,30 +644,34 @@ export default function HealthTracker() {
               </div>
             </Card>
 
-            <div className="flex gap-2 flex-wrap bg-white rounded-[4px] p-1 shadow-md">
+            <div className="grid grid-cols-2 sm:flex w-full gap-2 bg-white rounded-[4px] p-1 shadow-md">
               <TabButton
                 tab="overview"
                 icon={BarChart3}
                 label="Overview"
                 isActive={activeTab === "overview"}
+                className="w-full"
               />
               <TabButton
                 tab="meals"
                 icon={Utensils}
                 label="Today's Meals"
                 isActive={activeTab === "meals"}
+                className="w-full"
               />
               <TabButton
                 tab="trends"
                 icon={TrendingUp}
                 label="Trends"
                 isActive={activeTab === "trends"}
+                className="w-full"
               />
               <TabButton
                 tab="recipes"
                 icon={Bot}
                 label="AI Recipes"
                 isActive={activeTab === "recipes"}
+                className="w-full"
               />
             </div>
 

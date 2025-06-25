@@ -469,7 +469,7 @@ export default function CoachReport({checkIns,loading}) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-6">
         {loading ? (
           <>
@@ -512,7 +512,7 @@ export default function CoachReport({checkIns,loading}) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold text-[#1F2937]">
-                    Welcome back, {user?.name}!
+                    Welcome back, {checkIns?.progressData?.[0].name}!
                   </h1>
                   <span className="text-2xl">👋</span>
                 </CardTitle>
@@ -570,30 +570,34 @@ export default function CoachReport({checkIns,loading}) {
               </div>
             </Card>
 
-            <div className="flex gap-2 flex-wrap bg-white rounded-[4px] p-1 shadow-md">
+            <div className="grid grid-cols-2 sm:flex w-full gap-2 bg-white rounded-[4px] p-1 shadow-md">
               <TabButton
                 tab="overview"
                 icon={BarChart3}
                 label="Overview"
                 isActive={activeTab === "overview"}
+                className="w-full"
               />
               <TabButton
                 tab="meals"
                 icon={Utensils}
                 label="Today's Meals"
                 isActive={activeTab === "meals"}
+                className="w-full"
               />
               <TabButton
                 tab="trends"
                 icon={TrendingUp}
                 label="Trends"
                 isActive={activeTab === "trends"}
+                className="w-full"
               />
               <TabButton
                 tab="recipes"
                 icon={Bot}
                 label="AI Recipes"
                 isActive={activeTab === "recipes"}
+                className="w-full"
               />
             </div>
 

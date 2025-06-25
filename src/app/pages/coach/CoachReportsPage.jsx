@@ -26,8 +26,6 @@ const CoachReportsPage = () => {
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [historicalData, sethistoricalData] = useState([]);
   const [selectedClient, setSelectedClient] = useState("");
-  const [selectedTimeRange, setSelectedTimeRange] = useState("month");
-  const [progressData, setProgressData] = useState([]);
   const [checkInData, setCheckInData] = useState([]);
 
   const fetchActiveClients = async () => {
@@ -103,22 +101,6 @@ const CoachReportsPage = () => {
     }
   };
 
-  // const fetchHistoricalData = async () => {
-  //   try {
-  //     const response = await fetch("/api/coach/reports/historicalData");
-  //     const data = await response.json();
-  //     if (data.status) {
-  //       toast.success("Fetched successfully");
-  //       sethistoricalData(data.historicalData);
-  //     } else {
-  //       toast.error(data.message);
-  //     }
-  //   } catch (error) {
-  //     toast.error("Unable to get data");
-  //   }
-  // };
-
-
 
   useEffect(() => {
     fetchActiveClients();
@@ -149,7 +131,7 @@ const CoachReportsPage = () => {
     if (selectedClient) {
       fetchCheckInsbyClient();
     }
-  }, [selectedClient, selectedTimeRange]);
+  }, [selectedClient]);
 console.log("selected", checkInData)
   if (isLoading) {
     return (
@@ -235,17 +217,7 @@ console.log("selected", checkInData)
                   ))}
                 </SelectContent>
               </Select>
-              {/* <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Time range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Last Week</SelectItem>
-                  <SelectItem value="month">Last Month</SelectItem>
-                  <SelectItem value="quarter">Last Quarter</SelectItem>
-                  <SelectItem value="year">Last Year</SelectItem>
-                </SelectContent>
-              </Select> */}
+
             </div>
           </div>
         </CardHeader>

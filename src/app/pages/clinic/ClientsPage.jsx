@@ -226,7 +226,7 @@ console.log("clients", clients)
               </SelectContent>
             </Select>
           </div>
-          {isCoach ? <CoachClientList /> : <ClientList clients={clients} />}
+          {isCoach ? <CoachClientList clients={clients} fetchClients={fetchClients}/> : <ClientList clients={clients} fetchClients={fetchClients}/>}
         </CardContent>
       </Card>
 

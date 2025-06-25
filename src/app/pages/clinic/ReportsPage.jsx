@@ -11,21 +11,21 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import ProgressChart from "@/app/components/progress/ProgressChart";
+import CoachReport from "@/app/components/coaches/CoachReport"
 
 const ReportsPage = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  // const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
   const [revenueData, setRevenueData] = useState([]);
   const [subscriptionData, setSubscriptionData] = useState([]);
   const [clients, setClients] = useState([]);
-  const [progressData, setProgressData] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [selectedTimeRange, setSelectedTimeRange] = useState("month");
+  const [currentCoach, setCurrentCoach] = useState("");
+  const [coaches, setCoaches] = useState([]);
+  const [checkInData, setCheckInData] = useState([]);
+  const [checkInLoading, setCheckInLoading] = useState(false);
 
-  // Calculate revenue (assuming $100 per check-in)
   const fetchRevenueData = async () => {
     try {
       setIsLoading(true);
@@ -51,16 +51,6 @@ const ReportsPage = () => {
       toast.error("Failed to fetch subscriptionData");
     }
   };
-  //totalcheckIn*100
-  // const fetchTotalRevenue = async () => {
-  //   try {
-  //     const response = await fetch("/api/clinic/report/totalRevenue");
-  //     const data = await response.json();
-  //     setTotalRevenue(data.totalRevenue);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   const fetchTotalClients = async () => {
     try {
@@ -73,27 +63,79 @@ const ReportsPage = () => {
     }
   };
 
+  const fetchCoaches = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/clinic/coach");
+      const data = await response.json();
+      if (data.coaches) {
+        setCoaches(data.coaches);
+      } else {
+        toast.error("Failed to fetch coaches");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch coaches");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchClientsByCoach = async (coachId) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/clinic/client/bycoachId", {
+        method: "POST",
+        body: JSON.stringify({ coachId }),
+      });
+      const data = await response.json();
+      setClients(data.clients);
+    } catch (error) {
+      toast.error("Failed to fetch clients");
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
+  
+  const handlechange = (e) => {
+    setCurrentCoach(e);
+    setCheckInData([]);
+  };
+
   useEffect(() => {
     fetchRevenueData();
     fetchsubscriptionData();
-    // fetchTotalRevenue();
     fetchTotalClients();
+    fetchCoaches();
   }, []);
 
+
   useEffect(() => {
-    const fetchProgressData = async () => {
-      const response = await fetch(`/api/coach/reports/progress?clientId=${selectedClient}&timeRange=${selectedTimeRange}`);
-      const data = await response.json();
-      if (data.status) {
-        setProgressData(data.progress);
-      } else {
-        toast.error(data.message);
+    fetchClientsByCoach(currentCoach);
+    setSelectedClient("");
+  }, [currentCoach]);
+
+  useEffect(() => {
+    const fetchCheckInsbyClient = async () => {
+      try {
+        setCheckInLoading(true);
+        const response = await fetch("/api/client/progress/byClientId", {
+          method: "POST",
+          body: JSON.stringify({ clientId: selectedClient, current: new Date() }),
+        });
+        const data = await response.json();
+        if (data.status) {
+          setCheckInData(data.progress);
+        }
+        setCheckInLoading(false);
+      } catch (error) {
+        setCheckInLoading(false);
+        console.log(error);
       }
+    };
+    if (selectedClient) {
+      fetchCheckInsbyClient();
     }
-    if (selectedClient && selectedTimeRange) {
-      fetchProgressData();
-    }
-  }, [selectedClient, selectedTimeRange]);
+  }, [selectedClient]);
 
   if (isLoading) {
     return (
@@ -180,76 +222,58 @@ const ReportsPage = () => {
         <CardHeader className="space-y-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
             <CardTitle className="text-xl">Client Progress</CardTitle>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <Select onValueChange={(value) => setSelectedClient(value)} defaultValue={selectedClient}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select a client" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select defaultValue={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value)}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Time range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Last Week</SelectItem>
-                  <SelectItem value="month">Last Month</SelectItem>
-                  <SelectItem value="quarter">Last Quarter</SelectItem>
-                  <SelectItem value="year">Last Year</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col w-full sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <Select
+          name="userList"
+          value={currentCoach}
+          onValueChange={handlechange}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="w-full md:w-[200px]">
+            <SelectValue placeholder="Select a coach" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={user?.id}>{user?.name}</SelectItem>
+            {coaches?.map((coach, index) => (
+              <SelectItem value={coach.id} key={index}>
+                {coach.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={selectedClient}
+          onValueChange={(value) => setSelectedClient(value)}
+          defaultValue={selectedClient}
+          disabled={isLoading === true}
+        >
+          <SelectTrigger className="w-full md:w-[200px]">
+            <SelectValue placeholder="Select a client" />
+          </SelectTrigger>
+          <SelectContent>
+            {clients?.map((client) => (
+              <SelectItem key={client.id} value={client.id}>
+                {client.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
-            <ProgressChart progressData={progressData} />
-          </div>
+          
         </CardContent>
       </Card>
+      <div>
+          {selectedClient?
+          (<CoachReport checkIns={checkInData} loading={checkInLoading}/>
 
-      {/* Subscriptions Table */}
-      {/* <Card>
-        <CardHeader>
-          <CardTitle className="text-[24px]">Your Subscription</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Clinic</th>
-                  <th className="text-left py-3 px-4 font-medium">Plan</th>
-                  <th className="text-left py-3 px-4 font-medium">Price</th>
-                  <th className="text-left py-3 px-4 font-medium">Since</th>
-                  <th className="text-left py-3 px-4 font-medium">Clients</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subscriptionData.map((sub) => (
-                  <tr key={sub.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">{sub.name}</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
-                        {sub.plan}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">{sub.price}</td>
-                    <td className="py-3 px-4">{sub.startDate}</td>
-                    <td className="py-3 px-4">{sub.clients}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card> */}
+          ):(
+              ""
+          )  
+          }          </div>
+
     </div>
   );
 };
