@@ -52,6 +52,18 @@ import {
   TableRow,
 } from "@/app/components/ui/table";
 
+const dietaryOptions = [
+  { key: "vegan", label: "Vegan" },
+  { key: "vegetarian", label: "Vegetarian" },
+  { key: "diabetic", label: "Diabetic" },
+  { key: "glutenFree", label: "Gluten-Free" },
+  { key: "dairyFree", label: "Dairy-free" },
+  { key: "keto", label: "Keto" },
+  { key: "paleo", label: "Paleo" },
+  { key: "antiInflammatory", label: "Anti-Inflammatory" },
+  { key: "halalKosher", label: "Halal / Kosher" },
+];
+
 const formSchema = z.object({
   programName: z.string().min(1, "Program name is required"),
   programLength: z.string().min(1, "Program length is required").regex(/^[0-9]+$/, "Program length must be a number"),
@@ -120,6 +132,18 @@ const formSchema = z.object({
     tone: z.string().min(1, "Message tone is required"),
     keywords: z.string().optional(),
   }),
+  foodAllergies: z.string().optional(),
+  dietaryPreferences: z.object({
+    vegan: z.boolean().optional(),
+    vegetarian: z.boolean().optional(),
+    diabetic: z.boolean().optional(),
+    glutenFree: z.boolean().optional(),
+    dairyFree: z.boolean().optional(),
+    keto: z.boolean().optional(),
+    paleo: z.boolean().optional(),
+    antiInflammatory: z.boolean().optional(),
+    halalKosher: z.boolean().optional(),
+  }).partial(),
 });
 
 export default function EditProgramDialogue({
@@ -155,6 +179,8 @@ export default function EditProgramDialogue({
         tone: "gentle-encouragement",
         keywords: "",
       },
+      foodAllergies: "",
+      dietaryPreferences: {},
     },
   });
 
@@ -184,6 +210,8 @@ export default function EditProgramDialogue({
           tone: "gentle-encouragement",
           keywords: "",
         },
+        foodAllergies: selectedTemplate.food_allergies || "",
+        dietaryPreferences: JSON.parse(selectedTemplate.dietary_preferences) || {},
       });
     }
   }, [selectedTemplate, form]);
@@ -625,6 +653,49 @@ export default function EditProgramDialogue({
                         )}
                       />
                     ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4 md:space-y-0 md:flex md:flex-col">
+                  <div className="mb-2 md:mb-4">
+                    <FormField
+                      control={control}
+                      name="foodAllergies"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Food Allergies</FormLabel>
+                          <FormControl>
+                            <Input placeholder="List any food allergies" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Label>Dietary Preferences</Label>
+                    <div className="grid md:grid-cols-3 gap-4 mt-2">
+                      {dietaryOptions.map(opt => (
+                        <FormField
+                          key={opt.key}
+                          control={control}
+                          name={`dietaryPreferences.${opt.key}`}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value ?? false}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>{opt.label}</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -187,30 +187,6 @@ const LandingPage = () => {
         </div>
       </div>
 
-      {/* Demo Login Section */}
-      <div className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Try Our Demo
-            </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-              Experience the platform with our demo accounts. No sign-up
-              required.
-            </p>
-          </div>
-          <div className="mt-10">
-            <DemoLoginButtons />
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 mb-2">
-              Own a wellness clinic or private practice?
-            </p>
-            <Button variant="outline">Register Your Clinic</Button>
-          </div>
-        </div>
-      </div>
-
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-4">

@@ -91,7 +91,7 @@ export default function ProgramsPage() {
     setSelectedProgram(program);
     setShowProgramDetails(true);
   };
-console.log(Programs)
+  
   return (
     <div className="min-h-screen bg-gray-50 px-2 sm:px-4 md:px-6 py-4">
       <div className="max-w-4xl mx-auto space-y-8">

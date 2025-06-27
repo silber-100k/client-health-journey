@@ -52,6 +52,18 @@ import {
   TableRow,
 } from "@/app/components/ui/table";
 
+const dietaryOptions = [
+  { key: "vegan", label: "Vegan" },
+  { key: "vegetarian", label: "Vegetarian" },
+  { key: "diabetic", label: "Diabetic" },
+  { key: "glutenFree", label: "Gluten-Free" },
+  { key: "dairyFree", label: "Dairy-free" },
+  { key: "keto", label: "Keto" },
+  { key: "paleo", label: "Paleo" },
+  { key: "antiInflammatory", label: "Anti-Inflammatory" },
+  { key: "halalKosher", label: "Halal / Kosher" },
+];
+
 const formSchema = z.object({
   programName: z.string().min(1, "Program name is required"),
   programLength: z.string().min(1, "Program length is required").regex(/^[0-9]+$/, "Program length must be a number"),
@@ -120,6 +132,18 @@ const formSchema = z.object({
     tone: z.string().min(1, "Message tone is required"),
     keywords: z.string().optional(),
   }),
+  foodAllergies: z.string().optional(),
+  dietaryPreferences: z.object({
+    vegan: z.boolean().optional(),
+    vegetarian: z.boolean().optional(),
+    diabetic: z.boolean().optional(),
+    glutenFree: z.boolean().optional(),
+    dairyFree: z.boolean().optional(),
+    keto: z.boolean().optional(),
+    paleo: z.boolean().optional(),
+    antiInflammatory: z.boolean().optional(),
+    halalKosher: z.boolean().optional(),
+  }).partial(),
 });
 
 export function TemplateDialogue({
@@ -154,6 +178,8 @@ export function TemplateDialogue({
         tone: "gentle-encouragement",
         keywords: "",
       },
+      foodAllergies: "",
+      dietaryPreferences: {},
     },
   });
 
@@ -217,15 +243,15 @@ export function TemplateDialogue({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[700px] w-full max-w-[98vw] p-4 sm:p-8 max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Template</DialogTitle>
           <DialogDescription>
             Create or edit a template below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
             {errorMessage && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -574,6 +600,49 @@ export function TemplateDialogue({
                         )}
                       />
                     ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4 md:space-y-0 md:flex md:flex-col">
+                  <div className="mb-2 md:mb-4">
+                    <FormField
+                      control={control}
+                      name="foodAllergies"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Food Allergies</FormLabel>
+                          <FormControl>
+                            <Input placeholder="List any food allergies" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Label>Dietary Preferences</Label>
+                    <div className="grid md:grid-cols-3 gap-4 mt-2">
+                      {dietaryOptions.map(opt => (
+                        <FormField
+                          key={opt.key}
+                          control={control}
+                          name={`dietaryPreferences.${opt.key}`}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value ?? false}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>{opt.label}</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -1060,7 +1129,7 @@ export function TemplateDialogue({
               </CardContent>
             </Card>
 
-            <DialogFooter>
+            <DialogFooter className="flex-shrink-0 pt-4 border-t bg-background">
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Adding..." : "Add Template"}
               </Button>

@@ -7,7 +7,7 @@ import { Plus, Trash2, Upload, Image as ImageIcon, Search } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
-
+import { useClinic } from "@/app/context/ClinicContext";
 // Image compression and optimization helper functions
 const compressImage = async (file, options = {}) => {
   const defaultOptions = {
@@ -47,7 +47,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
   const [uploadingImages, setUploadingImages] = useState({});
   const [analyzingImages, setAnalyzingImages] = useState({});
   const [imageFiles, setImageFiles] = useState({}); // To store compressed file objects
-
+  const {planId} = useClinic();
   // Live calories calculation
   useEffect(() => {
     const nutrition = getValues("nutrition") || [];
@@ -267,6 +267,8 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
             </Button>
 
             {/* Image Upload Section */}
+            {
+              planId==="pro"&&
             <div className="mb-4">
               <Label className="mb-2">Food Images</Label>
               <div className="mt-2">
@@ -329,6 +331,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
                 )}
               </div>
             </div>
+            }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

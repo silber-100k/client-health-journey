@@ -23,7 +23,6 @@ import { CheckCircle, AlertCircle, Info } from "lucide-react";
 
 const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
   if (!template) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] w-full max-w-[98vw] p-4 sm:p-8 overflow-y-auto overflow-x-auto">
@@ -230,6 +229,32 @@ const TemplateDetailsDialog = ({ template, isOpen, onClose }) => {
                       </ul>
                     </div>
                   </div>
+
+                  {template.food_allergies && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Food Allergies</h3>
+                      <div className="border rounded-lg p-4 bg-yellow-50">
+                        <span className="text-sm text-yellow-900">{template.food_allergies}</span>
+                      </div>
+                    </div>
+                  )}
+                  {template.dietary_preferences && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Dietary Preferences</h3>
+                      <div className="border rounded-lg p-4 bg-blue-50">
+                        <ul className="space-y-1">
+                          {Object.entries(JSON.parse(template.dietary_preferences))
+                            .filter(([_, isEnabled]) => isEnabled)
+                            .map(([pref, _], key) => (
+                              <li className="flex items-start" key={key}>
+                                <CheckCircle className="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+                                <span>{pref.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <h3 className="text-lg font-medium mb-3">

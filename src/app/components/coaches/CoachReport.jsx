@@ -305,9 +305,12 @@ export default function CoachReport({checkIns,loading}) {
             <p className="text-sm font-medium text-purple-700">{macros.fatsPortion} g</p>
           </div>
         </div>
-        <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
+        {
+          review && <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
           {review}
         </div>
+        }
+
       </Card>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogOverlay className="bg-gray-100/30" />
@@ -592,19 +595,25 @@ export default function CoachReport({checkIns,loading}) {
                 isActive={activeTab === "trends"}
                 className="w-full"
               />
-              <TabButton
-                tab="recipes"
-                icon={Bot}
-                label="AI Recipes"
-                isActive={activeTab === "recipes"}
-                className="w-full"
-              />
+              {                
+                  checkIns?.aiReview?.[0] &&
+                  <TabButton
+                  tab="recipes"
+                  icon={Bot}
+                  label="AI Recipes"
+                  isActive={activeTab === "recipes"}
+                  className="w-full"
+                />
+                
+                }
+
             </div>
 
             {/* Content */}
             {activeTab === "overview" && (
               <div className="space-y-6">
-                {/* AI Health Assistant */}
+                {
+                  checkIns?.aiReview?.[0] &&
                 <Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Bot className="w-5 h-5" />
@@ -635,7 +644,7 @@ export default function CoachReport({checkIns,loading}) {
                       </div>
                   </div>
                 </Card>
-                {/* Today's Macros */}
+                }
                 <Card className="p-4">
                   <h2 className="font-semibold mb-4">Today's Macros</h2>
                   <div className="space-y-2">
@@ -656,6 +665,8 @@ export default function CoachReport({checkIns,loading}) {
             )}
             {activeTab === "meals" && (
               <div className="space-y-4">
+                {
+                  checkIns?.aiReview?.[0]  &&
                 <Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Bot className="w-5 h-5" />
@@ -693,6 +704,7 @@ export default function CoachReport({checkIns,loading}) {
                       </div>
                   </div>
                 </Card>
+                }
                 {
                   meals?.map((val,key)=>(
                   <MealCard
@@ -702,7 +714,8 @@ export default function CoachReport({checkIns,loading}) {
                     macros={val.portion}
                     color="text-green-700"
                     bgColor="bg-green-50"
-                    review={checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]}
+                    review={                
+                      checkIns?.aiReview?.[0] && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]}
                   />))
                 }
                 

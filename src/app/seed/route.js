@@ -21,6 +21,8 @@ async function seedTemplate() {
       "recommended_vegetables" TEXT,
       "allowed_fruits" TEXT,
       "healthy_fats" TEXT,
+      "food_allergies" TEXT,
+      "dietary_preferences" JSONB,
       "foods_to_avoid" JSONB,
       "portion_guidelines" JSONB,
       "supplements" JSONB,
@@ -119,6 +121,8 @@ async function seedProgram() {
       "recommended_vegetables" TEXT,
       "allowed_fruits" TEXT,
       "healthy_fats" TEXT,
+      "food_allergies" TEXT,
+      "dietary_preferences" JSONB,
       "foods_to_avoid" JSONB,
       "portion_guidelines" JSONB,
       "supplements" JSONB,
@@ -275,6 +279,19 @@ async function aiReview() {
   `;
 }
 
+async function seedDailyMessage() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS "DailyMessage" (
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "userId" UUID REFERENCES "User"("id"),
+      "date" DATE NOT NULL,
+      "message" TEXT NOT NULL,
+      "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      UNIQUE ("userId", "date")
+    );
+  `;
+}
+
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
@@ -291,6 +308,7 @@ export async function GET() {
       await SubscriptionHistory();
       await seedResource();
       await aiReview();
+      await seedDailyMessage();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

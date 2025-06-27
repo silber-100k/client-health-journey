@@ -36,6 +36,7 @@ import {
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/app/components/ui/skeleton";
+import { useClinic } from "@/app/context/ClinicContext";
 
 // Skeleton Components
 const NutrientSkeleton = () => (
@@ -183,7 +184,7 @@ export default function HealthTracker() {
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkIns, setCheckIns] = useState([]);
-
+  const {planId} = useClinic();
   const fetchCheckInsbyClient = async () => {
     try {
       setLoading(true);
@@ -379,9 +380,12 @@ export default function HealthTracker() {
             <p className="text-sm font-medium text-purple-700">{macros.fatsPortion} g</p>
           </div>
         </div>
-        <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
+        {
+          review && <div className={` p-2 rounded text-xs ${color} ${bgColor}`}>
           {review}
         </div>
+        }
+
       </Card>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogOverlay className="bg-gray-100/30" />
@@ -666,20 +670,24 @@ export default function HealthTracker() {
                 isActive={activeTab === "trends"}
                 className="w-full"
               />
+              {
+                checkIns?.aiReview?.[0]&&
               <TabButton
-                tab="recipes"
-                icon={Bot}
-                label="AI Recipes"
-                isActive={activeTab === "recipes"}
-                className="w-full"
-              />
+              tab="recipes"
+              icon={Bot}
+              label="AI Recipes"
+              isActive={activeTab === "recipes"}
+              className="w-full"
+            />
+              }
+
             </div>
 
             {/* Content */}
             {activeTab === "overview" && (
               <div className="space-y-6">
                 {/* AI Health Assistant */}
-                <Card className="p-4">
+                {checkIns?.aiReview?.[0]&&<Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Bot className="w-5 h-5" />
                     <h2 className="font-semibold">Your AI Health Assistant(weekly trend) 🤖</h2>
@@ -708,7 +716,7 @@ export default function HealthTracker() {
                       </div>
                       </div>
                   </div>
-                </Card>
+                </Card>}
                 {/* Today's Macros */}
                 <Card className="p-4">
                   <h2 className="font-semibold mb-4">Today's Macros</h2>
@@ -730,6 +738,7 @@ export default function HealthTracker() {
             )}
             {activeTab === "meals" && (
               <div className="space-y-4">
+                {checkIns?.aiReview?.[0]&&
                 <Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Bot className="w-5 h-5" />
@@ -766,7 +775,7 @@ export default function HealthTracker() {
                       </div>
                       </div>
                   </div>
-                </Card>
+                </Card>}
                 {
                   meals?.map((val,key)=>(
                   <MealCard
@@ -776,7 +785,7 @@ export default function HealthTracker() {
                     macros={val.portion}
                     color="text-green-700"
                     bgColor="bg-green-50"
-                    review={checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]}
+                    review={checkIns?.aiReview?.[0]?checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]:""}
                   />))
                 }
                 

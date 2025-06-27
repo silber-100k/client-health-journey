@@ -14,7 +14,7 @@ export async function PUT(request, { params }) {
   if (!sessionUser) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role !="coach") {
+  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role != "coach") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,6 +35,8 @@ export async function PUT(request, { params }) {
       recommended_vegetables: data.recommendedVegetables,
       allowed_fruits: data.allowedFruits,
       healthy_fats: data.healthyFats,
+      food_allergies: data.foodAllergies,
+      dietary_preferences: JSON.stringify(data.dietaryPreferences),
       foods_to_avoid: JSON.stringify(data.foodsToAvoid),
       portion_guidelines: JSON.stringify(data.portionGuidelines),
       supplements: JSON.stringify(data.supplements),
@@ -59,7 +61,7 @@ export async function DELETE(request, { params }) {
   if (!sessionUser) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
-  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role !="coach" ) {
+  if (sessionUser.role !== "admin" && sessionUser.role != "clinic_admin" && sessionUser.role != "coach") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

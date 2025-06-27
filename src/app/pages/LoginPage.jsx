@@ -13,25 +13,8 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-// import { socket } from "@/socket";
 
 const LoginPage = () => {
-  // const [isConnected, setIsConnected] = useState(false);
-
-  // useEffect(() => {
-  //   if (socket.connected) {
-  //     onConnect();
-  //   }
-
-  //   function onConnect() {
-  //     setIsConnected(true);
-  //   }
-  //   socket.on("connect", onConnect);
-  //   return () => {
-  //     socket.off("connect", onConnect);
-  //   };
-  // }, [socket]);
-
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -97,7 +80,6 @@ const LoginPage = () => {
                 isSubmitting={isSubmitting}
               />
             </TabsContent>
-            <DemoLoginButtons />
           </Tabs>
         </div>
       </div>

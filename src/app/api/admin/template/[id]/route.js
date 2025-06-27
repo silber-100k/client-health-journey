@@ -45,6 +45,8 @@ export async function PUT(request, { params }) {
       recommended_vegetables: data.recommendedVegetables,
       allowed_fruits: data.allowedFruits,
       healthy_fats: data.healthyFats,
+      food_allergies: data.foodAllergies,
+      dietary_preferences: JSON.stringify(data.dietaryPreferences),
       foods_to_avoid: JSON.stringify(data.foodsToAvoid),
       portion_guidelines: JSON.stringify(data.portionGuidelines),
       supplements: JSON.stringify(data.supplements),

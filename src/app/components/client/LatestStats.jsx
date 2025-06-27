@@ -40,13 +40,13 @@ const LatestStats = () => {
   const waterProgress = 12;
   return (
     <Card className="w-full max-w-full">
-      <CardHeader className="pb-2 px-2 sm:px-4">
+      <CardHeader className="pb-2 px-4 sm:px-4">
         <CardTitle className="text-base sm:text-lg flex items-center gap-2">
           <BarChart2 className="h-4 w-4" />
           Latest Stats
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 px-2 sm:px-4">
+      <CardContent className="space-y-4 px-4 sm:px-4">
         {checkIns.length>0 ? (
           <>
             {checkIns[0].weight && (

@@ -117,6 +117,8 @@ async function createProgram(templateData) {
   recommended_vegetables,
   allowed_fruits,
   healthy_fats,
+  food_allergies,
+  dietary_preferences,
   foods_to_avoid,
   portion_guidelines,
   supplements,
@@ -137,6 +139,8 @@ async function createProgram(templateData) {
   ${templateData.recommended_vegetables},
   ${templateData.allowed_fruits},
   ${templateData.healthy_fats},
+  ${templateData.food_allergies},
+  ${JSON.stringify(templateData.dietary_preferences)},
   ${JSON.stringify(templateData.foods_to_avoid)},
   ${JSON.stringify(templateData.portion_guidelines)},
   ${JSON.stringify(templateData.supplements)},
@@ -165,6 +169,8 @@ async function createProgramAdmin(templateData) {
       recommended_vegetables,
       allowed_fruits,
       healthy_fats,
+      food_allergies,
+      dietary_preferences,
       foods_to_avoid,
       portion_guidelines,
       supplements,
@@ -185,6 +191,8 @@ async function createProgramAdmin(templateData) {
       ${templateData.recommended_vegetables},
       ${templateData.allowed_fruits},
       ${templateData.healthy_fats},
+      ${templateData.food_allergies},
+      ${JSON.stringify(templateData.dietary_preferences)},
       ${JSON.stringify(templateData.foods_to_avoid)},
       ${JSON.stringify(templateData.portion_guidelines)},
       ${JSON.stringify(templateData.supplements)},
@@ -197,6 +205,61 @@ async function createProgramAdmin(templateData) {
   `;
   return program;
 }
+
+async function createProgramCoach(templateData) {
+  const [program] = await sql`
+  INSERT INTO "Program" (
+  program_name,
+  program_length,
+  program_type,
+  check_in_frequency,
+  description,
+  goals,
+  food_rules,
+  cooking_methods,
+  recommended_proteins,
+  recommended_vegetables,
+  allowed_fruits,
+  healthy_fats,
+  food_allergies,
+  dietary_preferences,
+  foods_to_avoid,
+  portion_guidelines,
+  supplements,
+  weekly_schedule,
+  lifestyle,
+  messaging_preferences,
+  "clinicId",
+  "all"
+) VALUES (
+  ${templateData.program_name},
+  ${templateData.program_length},
+  ${templateData.program_type},
+  ${templateData.check_in_frequency},
+  ${templateData.description},
+  ${JSON.stringify(templateData.goals)},
+  ${JSON.stringify(templateData.food_rules)},
+  ${JSON.stringify(templateData.cooking_methods)},
+  ${templateData.recommended_proteins},
+  ${templateData.recommended_vegetables},
+  ${templateData.allowed_fruits},
+  ${templateData.healthy_fats},
+  ${templateData.food_allergies},
+  ${JSON.stringify(templateData.dietary_preferences)},
+  ${JSON.stringify(templateData.foods_to_avoid)},
+  ${JSON.stringify(templateData.portion_guidelines)},
+  ${JSON.stringify(templateData.supplements)},
+  ${JSON.stringify(templateData.weekly_schedule)},
+  ${JSON.stringify(templateData.lifestyle)},
+  ${JSON.stringify(templateData.messaging_preferences)},
+  ${templateData.clinicId},
+  'coach'
+)
+RETURNING *
+`;
+  return program;
+}
+
 /**
  * Get all templates
  */
@@ -230,6 +293,8 @@ async function createTemplate(templateData) {
       recommended_vegetables,
       allowed_fruits,
       healthy_fats,
+      food_allergies,
+      dietary_preferences,
       foods_to_avoid,
       portion_guidelines,
       supplements,
@@ -249,6 +314,8 @@ async function createTemplate(templateData) {
       ${templateData.recommended_vegetables},
       ${templateData.allowed_fruits},
       ${templateData.healthy_fats},
+      ${templateData.food_allergies},
+      ${JSON.stringify(templateData.dietary_preferences)},
       ${JSON.stringify(templateData.foods_to_avoid)},
       ${JSON.stringify(templateData.portion_guidelines)},
       ${JSON.stringify(templateData.supplements)},
@@ -278,6 +345,8 @@ async function updateTemplate(id, data) {
         recommended_vegetables = ${data.recommended_vegetables},
         allowed_fruits = ${data.allowed_fruits},
         healthy_fats = ${data.healthy_fats},
+        food_allergies = ${data.food_allergies},
+        dietary_preferences = ${data.dietary_preferences}::jsonb,
         foods_to_avoid = ${data.foods_to_avoid}::jsonb,
         portion_guidelines = ${data.portion_guidelines}::jsonb,
         supplements = ${data.supplements}::jsonb,
@@ -316,6 +385,8 @@ async function updateProgram(id, data) {
         recommended_vegetables = ${data.recommended_vegetables},
         allowed_fruits = ${data.allowed_fruits},
         healthy_fats = ${data.healthy_fats},
+        food_allergies = ${data.food_allergies},
+        dietary_preferences = ${data.dietary_preferences}::jsonb,
         foods_to_avoid = ${data.foods_to_avoid}::jsonb,
         portion_guidelines = ${data.portion_guidelines}::jsonb,
         supplements = ${data.supplements}::jsonb,
@@ -370,6 +441,7 @@ export const programRepo = {
   deleteTemplate,
   getAllProgramsAdmin,
   createProgramAdmin,
+  createProgramCoach,
   getProsForCreateClient,
   getProgrambyClientEmail,
   getProgrambyId

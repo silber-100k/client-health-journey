@@ -7,13 +7,12 @@ const ClientDailyDrip = () => {
     return <DripLoadingCard />;
   }
   const todaysDrip = {
-    is_read : false,
-    subject: "hello",
+    subject: "👋 Welcome to Client Health Tracker!",
     content: "new message",
     day_number:"1",
   }
   return (
-    <DripMessageCard message={todaysDrip} />
+    <DripMessageCard/>
   );
 };
 

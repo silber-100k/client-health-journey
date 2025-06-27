@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { cn } from "@/app/lib/utils";
+import { Label } from "@/app/components/ui/label";
 
 // Import refactored components
 import MeasurementsTab from "./form/MeasurementsTab";
@@ -252,13 +254,46 @@ const CheckInForm = () => {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-0 sm:px-0 py-4">
+    <div className="w-full max-w-3xl mx-auto px-0 pt-0 sm:px-0 py-4">
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Client Check-In</CardTitle>
+          <div className="mt-4">
+            <Label htmlFor="selectedDate" className="mb-3">Check-in Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !formData.selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.selectedDate ? (
+                    format(formData.selectedDate, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={formData.selectedDate}
+                  onSelect={(date) => setValue("selectedDate", date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            {errors.selectedDate && (
+              <span className="text-red-500 text-sm">{errors.selectedDate.message}</span>
+            )}
+          </div>
         </CardHeader>
-        <CardContent className="p-1">
+        <CardContent className="p-1 pt-0">
           <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6 w-full">
+            
             <Tabs value={currentTab} className="w-full">
               <CheckInFormTabs
                 currentTab={currentTab}
