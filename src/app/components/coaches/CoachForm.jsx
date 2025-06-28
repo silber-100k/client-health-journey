@@ -90,7 +90,7 @@ export const CoachForm = ({
             <FormItem>
               <div className="flex flex-col sm:grid sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
                 <FormLabel htmlFor="phoneNumber" className="sm:text-right">
-                  Phone
+                  Phone <span className="text-red-500">*</span>
                 </FormLabel>
                 <div className="sm:col-span-3 w-full">
                   <FormControl>
