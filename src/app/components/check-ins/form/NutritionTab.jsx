@@ -47,50 +47,63 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
   const [uploadingImages, setUploadingImages] = useState({});
   const [analyzingImages, setAnalyzingImages] = useState({});
   const [imageFiles, setImageFiles] = useState({}); // To store compressed file objects
-  const {planId} = useClinic();
+  const { planId } = useClinic();
+  const [mealCount, setMealCount] = useState(formData.nutrition?.length > 0 ? formData.nutrition.length : 0);
+
+  // Ensure nutrition array matches mealCount
+  useEffect(() => {
+    if (mealCount === 0) return;
+    const current = getValues("nutrition") || [];
+    let updated = [...current];
+    if (updated.length < mealCount) {
+      // Add empty meals
+      for (let i = updated.length; i < mealCount; i++) {
+        updated.push({
+          protein: "",
+          proteinPortion: "",
+          fruit: "",
+          fruitPortion: "",
+          vegetables: "",
+          vegetablesPortion: "",
+          carbs: "",
+          carbsPortion: "",
+          fats: "",
+          fatsPortion: "",
+          other: "",
+          otherPortion: "",
+          images: [],
+        });
+      }
+    } else if (updated.length > mealCount) {
+      updated = updated.slice(0, mealCount);
+    }
+    setValue("nutrition", updated, { shouldValidate: true, shouldDirty: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealCount]);
+
   // Live calories calculation
   useEffect(() => {
     const nutrition = getValues("nutrition") || [];
     const updatedNutrition = nutrition.map((item) => {
-      const protein = (item.proteinPortion) || 0;
-      const carbs = (item.carbsPortion) || 0;
-      const fats = (item.fatsPortion) || 0;
-      const calories = (4 * protein + 4 * carbs + 9 * fats);
+      const protein = item.proteinPortion || 0;
+      const carbs = item.carbsPortion || 0;
+      const fats = item.fatsPortion || 0;
+      const calories = 4 * protein + 4 * carbs + 9 * fats;
       return {
         ...item,
-        calories: calories ? calories.toFixed(1) : '0',
+        calories: calories ? calories.toFixed(1) : "0",
       };
     });
     setValue("nutrition", updatedNutrition, { shouldValidate: false, shouldDirty: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.nutrition?.length, formData.nutrition?.map(i => `${i.proteinPortion}-${i.carbsPortion}-${i.fatsPortion}`).join(",")]);
 
-  const addNutrition = () => {
-    const currentNutrition = getValues("nutrition") || [];
-    setValue("nutrition", [
-      ...currentNutrition,
-      {
-        protein: "",
-        proteinPortion: "",
-        fruit: "",
-        fruitPortion: "",
-        vegetables: "",
-        vegetablesPortion: "",
-        carbs: "",
-        carbsPortion: "",
-        fats: "",
-        fatsPortion: "",
-        other: "",
-        otherPortion: "",
-        images: [],
-      },
-    ], { shouldValidate: true, shouldDirty: true });
-  };
-
+  // Remove meal logic (for trash button)
   const removeNutrition = (index) => {
     const currentNutrition = getValues("nutrition") || [];
     const newNutrition = currentNutrition.filter((_, i) => i !== index);
     setValue("nutrition", newNutrition, { shouldValidate: true, shouldDirty: true });
+    setMealCount(newNutrition.length);
   };
 
   const handleImageUpload = async (e, index) => {
@@ -244,204 +257,228 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
 
   return (
     <div className="space-y-6 px-2">
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium">Nutrition</h3>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button type="button" onClick={addNutrition} className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" /> Add Nutrition Entry
-            </Button>
-          </div>
-        </div>
-        
-        {(formData.nutrition || []).map((item, index) => (
-          <div key={index} className="border rounded-lg p-4 mb-4 relative">
+      {/* Meal count selector */}
+      <div className="flex flex-col items-center mb-6">
+        <h3 className="font-medium text-lg mb-3 text-center">How many meals do you want to log and analyze?</h3>
+        <div
+          className="flex flex-wrap gap-3 w-full justify-center mb-2 max-w-xs sm:max-w-md"
+          role="group"
+          aria-label="Select number of meals to log"
+        >
+          {[1, 2, 3, 4, 5, 6].map((num) => (
             <Button
+              key={num}
               type="button"
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => removeNutrition(index)}
+              size="lg"
+              variant={mealCount === num ? "secondary" : "outline"}
+              className={`transition-all duration-200 ease-in-out text-xl font-bold rounded-full w-14 h-14 min-w-[3.5rem] min-h-[3.5rem] flex items-center justify-center shadow-md focus:ring-2 focus:ring-primary focus:outline-none
+                ${mealCount === num ? "scale-110 ring-2 ring-primary bg-primary text-white" : "hover:bg-primary/10 hover:scale-105"}`}
+              onClick={() => setMealCount(num)}
+              aria-pressed={mealCount === num}
+              aria-label={`Log ${num} meal${num > 1 ? 's' : ''}`}
             >
-              <Trash2 className="h-4 w-4" />
+              {num}
             </Button>
+          ))}
+        </div>
+        <span className="text-xs text-muted-foreground mt-2">Tap a number to select</span>
+      </div>
+      {/* Render meal forms */}
+      {(formData.nutrition || []).slice(0, mealCount).map((item, index) => (
+        <div
+          key={index}
+          className="border rounded-lg p-4 mb-4 relative bg-white shadow-sm transition-all duration-300 animate-fade-in"
+          style={{ animationDelay: `${index * 60}ms` }}
+        >
+          <div className="font-semibold text-base mb-3 text-primary flex items-center gap-2">
+            <span className="inline-block rounded bg-primary/10 px-3 py-1">Meal {index + 1}</span>
+          </div>
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => removeNutrition(index)}
+            aria-label={`Remove meal ${index + 1}`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
 
-            {/* Image Upload Section */}
-            {
-              planId==="pro"&&
-            <div className="mb-4">
-              <Label className="mb-2">Food Images</Label>
-              <div className="mt-2">
-                <div className="flex items-center gap-4">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleImageUpload(e, index)}
-                    className="hidden"
-                    id={`food-images-${index}`}
-                  />
-                  <Label
-                    htmlFor={`food-images-${index}`}
-                    className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
+          {/* Image Upload Section */}
+          {
+            planId==="pro"&&
+          <div className="mb-4">
+            <Label className="mb-2">Food Images</Label>
+            <div className="mt-2">
+              <div className="flex items-center gap-4">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleImageUpload(e, index)}
+                  className="hidden"
+                  id={`food-images-${index}`}
+                />
+                <Label
+                  htmlFor={`food-images-${index}`}
+                  className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Images
+                </Label>
+                {uploadingImages[index] && (
+                  <span className="text-sm text-gray-500">Processing images...</span>
+                )}
+                {item.images && item.images.length > 0 && imageFiles[index] && imageFiles[index].length > 0 && (
+                  <Button
+                    type="button"
+                    onClick={() => analyzeImages(index)}
+                    disabled={analyzingImages[index]}
+                    className="flex items-center gap-2"
                   >
-                    <Upload className="h-4 w-4" />
-                    Upload Images
-                  </Label>
-                  {uploadingImages[index] && (
-                    <span className="text-sm text-gray-500">Processing images...</span>
-                  )}
-                  {item.images && item.images.length > 0 && imageFiles[index] && imageFiles[index].length > 0 && (
-                    <Button
-                      type="button"
-                      onClick={() => analyzeImages(index)}
-                      disabled={analyzingImages[index]}
-                      className="flex items-center gap-2"
-                    >
-                      <Search className="h-4 w-4" />
-                      {analyzingImages[index] ? 'Analyzing...' : 'Analyze Images'}
-                    </Button>
-                  )}
-                </div>
-                
-                {/* Image Preview Grid */}
-                {item.images && item.images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-4 gap-4">
-                    {item.images.map((imageUrl, imageIndex) => (
-                      <div key={imageIndex} className="relative group">
-                        <Image
-                          src={imageUrl}
-                          alt={`Food image ${imageIndex + 1}`}
-                          width={100}
-                          height={100}
-                          className="rounded-md object-cover"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeImage(index, imageIndex)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                    <Search className="h-4 w-4" />
+                    {analyzingImages[index] ? 'Analyzing...' : 'Analyze Images'}
+                  </Button>
                 )}
               </div>
-            </div>
-            }
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2">Protein</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.protein`)}
-                  placeholder="What protein did you have?"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.proteinPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2">Fruits</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.fruit`)}
-                  placeholder="What fruits did you have? (e.g., apple, banana, orange)"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.fruitPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2">Vegetables</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.vegetables`)}
-                  placeholder="What vegetables did you have?"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.vegetablesPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2">Carbohydrates (Grains, Pasta, etc.)</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.carbs`)}
-                  placeholder="What carbohydrates did you have? (e.g., rice, bread, pasta)"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.carbsPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2">Fats</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.fats`)}
-                  placeholder="What fats did you have?"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.fatsPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2">Other</Label>
-                <Textarea
-                  {...register(`nutrition.${index}.other`)}
-                  placeholder="Any other food items?"
-                  className="mb-2"
-                />
-                <Input
-                  {...register(`nutrition.${index}.otherPortion`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Portion (g)"
-                />
-              </div>
-
-              {/* Calories Field */}
-              <div>
-                <Label className="mb-2">Calories</Label>
-                <Input
-                  {...register(`nutrition.${index}.calories`)}
-                  type="number"
-                  step="0.01"
-                  placeholder="Calories"
-                  value={item.calories || ''}
-                  readOnly
-                  tabIndex={-1}
-                  style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
-                />
-              </div>
+              
+              {/* Image Preview Grid */}
+              {item.images && item.images.length > 0 && (
+                <div className="mt-4 grid grid-cols-4 gap-4">
+                  {item.images.map((imageUrl, imageIndex) => (
+                    <div key={imageIndex} className="relative group">
+                      <Image
+                        src={imageUrl}
+                        alt={`Food image ${imageIndex + 1}`}
+                        width={100}
+                        height={100}
+                        className="rounded-md object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index, imageIndex)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
+          }
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="mb-2">Protein</Label>
+              <Textarea
+                {...register(`nutrition.${index}.protein`)}
+                placeholder="What protein did you have?"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.proteinPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2">Fruits</Label>
+              <Textarea
+                {...register(`nutrition.${index}.fruit`)}
+                placeholder="What fruits did you have? (e.g., apple, banana, orange)"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.fruitPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2">Vegetables</Label>
+              <Textarea
+                {...register(`nutrition.${index}.vegetables`)}
+                placeholder="What vegetables did you have?"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.vegetablesPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2">Carbohydrates (Grains, Pasta, etc.)</Label>
+              <Textarea
+                {...register(`nutrition.${index}.carbs`)}
+                placeholder="What carbohydrates did you have? (e.g., rice, bread, pasta)"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.carbsPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2">Fats</Label>
+              <Textarea
+                {...register(`nutrition.${index}.fats`)}
+                placeholder="What fats did you have?"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.fatsPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2">Other</Label>
+              <Textarea
+                {...register(`nutrition.${index}.other`)}
+                placeholder="Any other food items?"
+                className="mb-2"
+              />
+              <Input
+                {...register(`nutrition.${index}.otherPortion`)}
+                type="number"
+                step="0.01"
+                placeholder="Portion (g)"
+              />
+            </div>
+
+            {/* Calories Field */}
+            <div>
+              <Label className="mb-2">Calories</Label>
+              <Input
+                {...register(`nutrition.${index}.calories`)}
+                type="number"
+                step="0.01"
+                placeholder="Calories"
+                value={item.calories || ''}
+                readOnly
+                tabIndex={-1}
+                style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
