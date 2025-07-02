@@ -37,7 +37,15 @@ import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { useClinic } from "@/app/context/ClinicContext";
-
+import { EnhancedMicronutrientReport } from "@/app/components/reports/micronutrients";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/components/ui/popover";
+import { Calendar } from "@/app/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 // Skeleton Components
 const NutrientSkeleton = () => (
   <div className="p-4 rounded-md bg-gray-100">
@@ -178,6 +186,97 @@ const calculateCalories = (protein, carbs, fat) => {
   }
 };
 
+// Static targets and units for each micronutrient
+const MICRONUTRIENT_TARGETS = {
+  fiber: { target: 25, unit: 'g' },
+  sugar: { target: 36, unit: 'g' },
+  sodium: { target: 2300, unit: 'mg' },
+  vitaminA: { target: 3000, unit: 'mcg' },
+  vitaminC: { target: 90, unit: 'mg' },
+  vitaminD: { target: 20, unit: 'mcg' },
+  vitaminE: { target: 15, unit: 'mg' },
+  vitaminK: { target: 120, unit: 'mcg' },
+  vitaminB1: { target: 1.2, unit: 'mg' },
+  vitaminB2: { target: 1.3, unit: 'mg' },
+  vitaminB3: { target: 16, unit: 'mg' },
+  vitaminB6: { target: 1.7, unit: 'mg' },
+  vitaminB12: { target: 2.4, unit: 'mcg' },
+  folate: { target: 400, unit: 'mcg' },
+  calcium: { target: 1300, unit: 'mg' },
+  iron: { target: 18, unit: 'mg' },
+  magnesium: { target: 420, unit: 'mg' },
+  phosphorus: { target: 1250, unit: 'mg' },
+  potassium: { target: 4700, unit: 'mg' },
+  zinc: { target: 11, unit: 'mg' },
+  selenium: { target: 55, unit: 'mcg' },
+};
+
+const formatNutrientName = (key) => {
+  const nameMap = {
+    fiber:        'Fiber',
+    sugar:        'Sugar',
+    sodium:       'Sodium',
+    vitaminA:     'Vitamin A',
+    vitaminC:     'Vitamin C',
+    vitaminD:     'Vitamin D',
+    vitaminE:     'Vitamin E',
+    vitaminK:     'Vitamin K',
+    vitaminB1:    'Vitamin B1 (Thiamin)',
+    vitaminB2:    'Vitamin B2 (Riboflavin)',
+    vitaminB3:    'Vitamin B3 (Niacin)',
+    vitaminB6:    'Vitamin B6',
+    vitaminB12:   'Vitamin B12',
+    folate:       'Folate',
+    calcium:      'Calcium',
+    iron:         'Iron',
+    magnesium:    'Magnesium',
+    phosphorus:   'Phosphorus',
+    potassium:    'Potassium',
+    zinc:         'Zinc',
+    selenium:     'Selenium'
+  };
+  
+  return nameMap[key] || key.charAt(0).toUpperCase() + key.slice(1);
+};
+
+const getColorForPercentage = (percentage) => {
+  if (percentage >= 100) return '#22c55e'; // Green for meeting target
+  if (percentage >= 75) return '#84cc16'; // Light green for close to target
+  if (percentage >= 50) return '#eab308'; // Yellow for moderate
+  if (percentage >= 25) return '#f97316'; // Orange for low
+  return '#ef4444'; // Red for very low
+};
+
+function combineMicronutrientTotals(micronutrients) {
+  const totals = {};
+  Object.keys(MICRONUTRIENT_TARGETS).forEach(key => {
+    totals[key] = {
+      total: typeof micronutrients[key] === 'number' ? micronutrients[key] : 0,
+      target: MICRONUTRIENT_TARGETS[key].target,
+      unit: MICRONUTRIENT_TARGETS[key].unit,
+    };
+  });
+  return totals;
+}
+
+function getMicronutrientData(micronutrientTotals) {
+  return Object.entries(micronutrientTotals)
+    .filter(([_, data]) => data.total > 0)
+    .map(([nutrientKey, data]) => {
+      const percentOfTarget = (data.total / data.target) * 100;
+      const displayName = formatNutrientName(nutrientKey);
+      return {
+        name: displayName,
+        value: Math.round(data.total * 10) / 10,
+        unit: data.unit,
+        percentOfTarget: Math.round(percentOfTarget),
+        target: data.target,
+        color: getColorForPercentage(percentOfTarget)
+      };
+    })
+    .sort((a, b) => b.percentOfTarget - a.percentOfTarget);
+}
+
 export default function HealthTracker() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isOpen, setIsOpen] = useState(false);
@@ -185,6 +284,34 @@ export default function HealthTracker() {
   const [loading, setLoading] = useState(false);
   const [checkIns, setCheckIns] = useState([]);
   const {planId} = useClinic();
+  const [micronutrients, setMicronutrients] = useState({});
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const handleSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+  const fetchMicronutrients = async () => {
+    const response = await fetch("/api/client/micronutrients", {
+      method: "POST",
+      body: JSON.stringify({selectedDate}),
+    });
+    const data = await response.json();
+    if (data.status) {
+      setMicronutrients(data.totalMicronutrients);
+    } else {
+      setMicronutrients({});
+    }
+  };
+  useEffect(()=> {
+    fetchMicronutrients();
+  },[selectedDate])
+
+  useEffect(()=> {
+    console.log("micronutrients",micronutrients)
+  },[micronutrients])
+  const micronutrientTotals = combineMicronutrientTotals(micronutrients);
+  const micronutrientData = getMicronutrientData(micronutrientTotals);
+  console.log("micronutrientData",micronutrientTotals)
   const fetchCheckInsbyClient = async () => {
     try {
       setLoading(true);
@@ -281,9 +408,7 @@ export default function HealthTracker() {
       variant={isActive ? "default" : "ghost"}
       size="sm"
       onClick={() => setActiveTab(tab)}
-      className={`flex items-center gap-2 ${
-        isActive ? "bg-blue-600 text-white" : "text-gray-600"
-      }`}
+      className={`flex items-center gap-2 w-full justify-start ${isActive ? "bg-blue-600 text-white" : "text-gray-600"}`}
     >
       <Icon className="w-4 h-4" />
       {label}
@@ -680,6 +805,13 @@ export default function HealthTracker() {
               className="w-full"
             />
               }
+              <TabButton
+              tab="micronutrients"
+              icon={Utensils}
+              label="micronutrients"
+              isActive={activeTab === "micronutrients"}
+              className="w-full"
+            />
 
             </div>
 
@@ -902,6 +1034,40 @@ export default function HealthTracker() {
                 <div className="bg-orange-50 p-[10px] round-[5px]">
                 {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).message}
                 </div>
+              </div>
+            )}
+            {activeTab === "micronutrients" && (
+              <div className="space-y-6">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 w-full md:w-auto"
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "MMMM d, yyyy") : ""}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && handleSelect(date)}
+                      initialFocus
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+                        return date > today || date < sevenDaysAgo;
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <EnhancedMicronutrientReport data={micronutrientData} />
               </div>
             )}
           </>

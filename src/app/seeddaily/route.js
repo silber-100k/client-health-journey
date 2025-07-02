@@ -1,7 +1,4 @@
-import postgres from 'postgres';
-
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
-
+import { sql } from "../lib/db/postgresql";
 
 async function seedDailyMessage() {
   await sql`

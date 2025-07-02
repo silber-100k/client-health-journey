@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import postgres from "postgres";
+import { sql } from "@/app/lib/db/postgresql";
 import OpenAI from "openai";
 import { getServerSession } from "next-auth";
 import authOptions from "@/app/lib/authoption";
 import { userRepo } from "@/app/lib/db/userRepo";
 
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });

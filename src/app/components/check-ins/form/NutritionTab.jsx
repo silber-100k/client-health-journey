@@ -49,7 +49,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
   const [imageFiles, setImageFiles] = useState({}); // To store compressed file objects
   const { planId } = useClinic();
   const [mealCount, setMealCount] = useState(formData.nutrition?.length > 0 ? formData.nutrition.length : 0);
-
+console.log("planId",planId)
   // Ensure nutrition array matches mealCount
   useEffect(() => {
     if (mealCount === 0) return;
@@ -197,12 +197,13 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
     }
 
     setAnalyzingImages(prev => ({ ...prev, [index]: true }));
-
+    const current = new Date();
     try {
       const formData = new FormData();
       filesToAnalyze.forEach(file => {
         formData.append('images', file);
       });
+      formData.append('current', current);
 
       const response = await fetch('/api/client/analyze-food-image', {
         method: 'POST',
@@ -261,7 +262,7 @@ const NutritionTab = ({ register, errors, formData, setValue, getValues }) => {
       <div className="flex flex-col items-center mb-6">
         <h3 className="font-medium text-lg mb-3 text-center">How many meals do you want to log and analyze?</h3>
         <div
-          className="flex flex-wrap gap-3 w-full justify-center mb-2 max-w-xs sm:max-w-md"
+          className="flex flex-wrap gap-3 w-full justify-center mb-2 max-w-xs sm:max-w-lg"
           role="group"
           aria-label="Select number of meals to log"
         >

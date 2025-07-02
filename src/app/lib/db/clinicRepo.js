@@ -1,6 +1,5 @@
-import postgres from 'postgres';
+import { sql } from "./postgresql";
 import { SubscriptionPlan } from "../stack";
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
 
 async function createClinic(
   email,

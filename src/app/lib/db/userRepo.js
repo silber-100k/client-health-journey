@@ -1,4 +1,4 @@
-import postgres from 'postgres';
+import { sql } from './postgresql';
 const crypto = require('crypto');
 
 const HASH_ITERATIONS = 10000;
@@ -11,7 +11,7 @@ function generateSalt() {
 function hashPassword(password, salt) {
   return crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEYLEN, HASH_DIGEST).toString('base64');
 }
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
+
 
 export const userRepo = {
   resetPassword,

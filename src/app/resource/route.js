@@ -1,25 +1,23 @@
-import postgres from 'postgres';
+import { sql } from '../lib/db/postgresql';
 
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
-
-
-async function aiReview() {
+async function seedMicroNutrients() {
   await sql`
-    CREATE TABLE "AIReview" (
+    CREATE TABLE "MicroNutrients" (
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "email" VARCHAR(255) NOT NULL,
         "content" JSONB,
-        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        "createdAt" DATE
     );
   `;
 }
 
 
 
+
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
-      await aiReview();
+      await seedMicroNutrients();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

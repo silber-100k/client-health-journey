@@ -1,6 +1,4 @@
-import postgres from 'postgres';
-
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
+import { sql } from '../lib/db/postgresql';
 
 async function seedTemplate() {
   // Use pgcrypto for gen_random_uuid()
@@ -279,6 +277,17 @@ async function aiReview() {
   `;
 }
 
+async function seedMicroNutrients() {
+  await sql`
+    CREATE TABLE "MicroNutrients" (
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "email" VARCHAR(255) NOT NULL,
+        "content" JSONB,
+        "createdAt" DATE
+    );
+  `;
+}
+
 async function seedDailyMessage() {
   await sql`
     CREATE TABLE IF NOT EXISTS "DailyMessage" (
@@ -309,6 +318,7 @@ export async function GET() {
       await seedResource();
       await aiReview();
       await seedDailyMessage();
+      await seedMicroNutrients();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

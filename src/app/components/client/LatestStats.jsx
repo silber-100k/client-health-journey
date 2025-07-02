@@ -47,7 +47,7 @@ const LatestStats = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 px-4 sm:px-4">
-        {checkIns.length>0 ? (
+        {checkIns?.length>0 ? (
           <>
             {checkIns[0].weight && (
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2">

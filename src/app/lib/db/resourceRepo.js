@@ -1,6 +1,4 @@
-import postgres from 'postgres';
-
-const sql = postgres(process.env.POSTGRES_URL, { ssl: 'require' });
+import { sql } from './postgresql';
 
 async function createformattedtext(title, description, role, category, type, content) {
   const [text] = await sql`
