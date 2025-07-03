@@ -1,10 +1,10 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Loader2, Upload, Camera, Image as ImageIcon } from "lucide-react";
+import { Loader2, Upload, Camera, Image as ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ImageUpload({ open, onOpenChange, onUpload }) {
@@ -12,8 +12,44 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const cameraInputRef = useRef(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const galleryInputRef = useRef(null);
+  let streamRef = useRef(null);
+
+  // Start camera stream when showCamera is true
+  useEffect(() => {
+    if (showCamera) {
+      (async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          streamRef.current = stream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+          }
+        } catch (err) {
+          setCameraError("Camera not available or permission denied.");
+          setShowCamera(false);
+        }
+      })();
+    } else {
+      // Stop camera when modal is closed or camera UI is hidden
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    }
+    // Cleanup on unmount
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, [showCamera]);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -23,21 +59,32 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
     }
   };
 
-  // Camera check before opening file input
-  const handleTakePhoto = async () => {
+  // Open custom camera modal
+  const handleTakePhoto = () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       toast.error("Camera not available on this device.");
       return;
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // If we get here, camera is available
-      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
-      // Now open the file input (which will open the camera UI)
-      if (cameraInputRef.current) cameraInputRef.current.click();
-    } catch (err) {
-      toast.error("Camera not available or permission denied.");
-    }
+    setCameraError("");
+    setShowCamera(true);
+  };
+
+  // Capture photo from video stream
+  const handleCapture = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setSelectedFile(new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" }));
+        setPreviewUrl(URL.createObjectURL(blob));
+        setShowCamera(false);
+      }
+    }, "image/jpeg", 0.95);
   };
 
   const handleUpload = async () => {
@@ -77,6 +124,8 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
     setSelectedFile(null);
     setPreviewUrl(null);
     setDescription("");
+    setShowCamera(false);
+    setCameraError("");
     onOpenChange(false);
   };
 
@@ -88,73 +137,89 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           <DialogDescription>Take a photo or select an image, add a description, and upload.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 w-full">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleTakePhoto}
-              className="flex-1 flex items-center gap-2"
-            >
-              <Camera className="h-4 w-4" /> Take Photo
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => galleryInputRef.current && galleryInputRef.current.click()}
-              className="flex-1 flex items-center gap-2"
-            >
-              <ImageIcon className="h-4 w-4" /> Choose from Gallery
-            </Button>
-          </div>
-          {/* Hidden file inputs for camera and gallery */}
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            style={{ display: "none" }}
-            onChange={handleFileSelect}
-          />
-          <input
-            ref={galleryInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleFileSelect}
-          />
-          {previewUrl && (
+          {/* Camera Modal */}
+          {showCamera && (
+            <div className="flex flex-col items-center space-y-2">
+              <video ref={videoRef} className="w-full rounded-lg bg-black" autoPlay playsInline muted style={{ maxHeight: 320 }} />
+              <div className="flex gap-2 w-full mt-2">
+                <Button type="button" onClick={handleCapture} className="flex-1 flex items-center gap-2">
+                  <Camera className="h-4 w-4" /> Capture
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setShowCamera(false)} className="flex-1 flex items-center gap-2">
+                  <X className="h-4 w-4" /> Cancel
+                </Button>
+              </div>
+              <canvas ref={canvasRef} style={{ display: "none" }} />
+            </div>
+          )}
+          {!showCamera && (
+            <>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleTakePhoto}
+                  className="flex-1 flex items-center gap-2"
+                >
+                  <Camera className="h-4 w-4" /> Take Photo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => galleryInputRef.current && galleryInputRef.current.click()}
+                  className="flex-1 flex items-center gap-2"
+                >
+                  <ImageIcon className="h-4 w-4" /> Choose from Gallery
+                </Button>
+              </div>
+              {/* Hidden file input for gallery */}
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+              />
+              {cameraError && <div className="text-red-500 text-sm mt-2">{cameraError}</div>}
+            </>
+          )}
+          {previewUrl && !showCamera && (
             <div className="space-y-2">
               <Label>Preview</Label>
               <img src={previewUrl} alt="Preview" className="w-full max-h-48 rounded-lg object-cover" />
             </div>
           )}
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Input
-              id="description"
-              placeholder="Add a description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 w-full">
-            <Button
-              onClick={handleUpload}
-              disabled={isSubmitting || !selectedFile}
-              className="flex items-center w-full sm:w-auto"
-            >
-              {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Upload className="mr-2 h-4 w-4" />
-              )}
-              {isSubmitting ? "Uploading..." : "Upload Image"}
-            </Button>
-            <Button onClick={handleDialogClose} variant="outline" className="w-full sm:w-auto">
-              Cancel
-            </Button>
-          </div>
+          {!showCamera && (
+            <>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  placeholder="Add a description (optional)"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 w-full">
+                <Button
+                  onClick={handleUpload}
+                  disabled={isSubmitting || !selectedFile}
+                  className="flex items-center w-full sm:w-auto"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  {isSubmitting ? "Uploading..." : "Upload Image"}
+                </Button>
+                <Button onClick={handleDialogClose} variant="outline" className="w-full sm:w-auto">
+                  Cancel
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
