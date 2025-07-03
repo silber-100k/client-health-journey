@@ -230,6 +230,8 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   const [micronutrients, setMicronutrients] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [micronutrientLoading, setMicronutrientLoading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(true);
   const handleSelect = (date) => {
     setSelectedDate(date);
   };
@@ -248,6 +250,27 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
     }
     setMicronutrientLoading(false);
   };
+  const fetchImages = async () => {
+    try{
+      setLoadingImages(true);
+      const response = await fetch("/api/coach/selfieImage  ", {
+        method: "POST",
+        body: JSON.stringify({selectedClient}),
+      });
+      const data = await response.json();
+      if(data.status){
+        setUploadedImages(data.selfieImages);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoadingImages(false);
+    }
+  }
+  useEffect(()=> {
+    fetchImages();
+  },[selectedClient])
+
   useEffect(()=> {
     if(selectedClient){
       fetchMicronutrients();
@@ -723,7 +746,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 isActive={activeTab === "trends"}
                 className="w-full"
               />
-              {                
+              {              
                   checkIns?.aiReview?.[0] &&
                   <TabButton
                   tab="recipes"
@@ -736,7 +759,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 }
                 {
                 checkIns?.aiReview?.[0]&&
-                <TabButton
+              <TabButton
               tab="micronutrients"
               icon={Utensils}
               label="micronutrients"
@@ -744,6 +767,13 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
               className="w-full"
             />
               }
+              <TabButton
+              tab="selfieImages"
+              icon= {Image}
+              label="selfieImages"
+              isActive={activeTab === "selfieImages"}
+              className="w-full"
+              />
             </div>
 
             {/* Content */}
@@ -1005,6 +1035,9 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 </Popover>
                 <EnhancedMicronutrientReport data={micronutrientData} loading={micronutrientLoading} />
               </div>
+            )}
+            {activeTab === "selfieImages" && (
+              <ImageCardForCoach uploadedImages={uploadedImages} loading={loadingImages}/>
             )}
           </>
         )}

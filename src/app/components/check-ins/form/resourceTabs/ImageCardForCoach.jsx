@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 function ImageCardSkeleton() {
   return (
@@ -15,25 +13,7 @@ function ImageCardSkeleton() {
   );
 }
 
-const ImageCard = () => {
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await fetch("/api/client/selfieImage");
-        const data = await response.json();
-        if (data.status) {
-          setUploadedImages(data.selfieImages);
-        }
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchImages();
-  }, []);
+const ImageCardForCoach = ({uploadedImages, loading}) => {
   return (
     <div>
       {loading ? (
@@ -77,4 +57,4 @@ const ImageCard = () => {
   );
 };
 
-export default ImageCard;
+export default ImageCardForCoach;
