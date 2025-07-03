@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "@/app/lib/authoption";
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { sql } from "@/app/lib/db/postgresql";
 
 // Initialize S3 client for DigitalOcean Spaces
 const s3Client = new S3Client({
@@ -32,7 +33,7 @@ export async function POST(request) {
         const formData = await request.formData();
         const file = formData.get('image');
         const description = formData.get('description') || "";
-
+        const date = formData.get('date') || new Date();
         if (!file) {
             return NextResponse.json(
                 { status: false, message: 'No file provided' },
@@ -62,7 +63,10 @@ export async function POST(request) {
 
         await s3Client.send(command);
         const url = getCdnUrl(filePath);
-        return NextResponse.json({ status: true, url, description });
+        await sql`
+            INSERT INTO "SelfieImage" ("email", "image", "description", "date") VALUES (${session.user.email}, ${url}, ${description}, ${date})
+        `;
+        return NextResponse.json({ status: true, url, description, date });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ status: false, message: error.message || "Failed to upload image" }, { status: 500 });

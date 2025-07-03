@@ -25,6 +25,7 @@ import {
   Droplet,
   Activity,
   CheckCircle,
+  Image
 } from "lucide-react";
 import {
   Dialog,
@@ -46,6 +47,8 @@ import {
 import { Calendar } from "@/app/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import ImageCard from "@/app/components/check-ins/form/resourceTabs/ImageCard";
+
 // Skeleton Components
 const NutrientSkeleton = () => (
   <div className="p-4 rounded-md bg-gray-100">
@@ -818,6 +821,13 @@ export default function HealthTracker() {
               className="w-full"
             />
               }
+              <TabButton
+              tab="selfieImages"
+              icon= {Image}
+              label="selfieImages"
+              isActive={activeTab === "selfieImages"}
+              className="w-full"
+              />
             </div>
 
             {/* Content */}
@@ -1075,6 +1085,11 @@ export default function HealthTracker() {
                 <EnhancedMicronutrientReport data={micronutrientData} loading={micronutrientLoading} />
               </div>
             )}
+            {
+              activeTab === "selfieImages" && (
+                <ImageCard/>
+              )
+            }
           </>
         )}
       </div>

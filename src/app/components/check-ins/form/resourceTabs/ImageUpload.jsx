@@ -97,6 +97,8 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       const formData = new FormData();
       formData.append("image", selectedFile);
       formData.append("description", description);
+      const current = new Date();
+      formData.append("date", current);
       // Upload to your API endpoint
       const response = await fetch("/api/admin/resource/image", {
         method: "POST",
@@ -131,7 +133,14 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="w-full max-w-xs sm:max-w-[400px] p-4 sm:p-6 max-h-[100vh] overflow-y-auto">
+      <DialogContent
+        className="w-full max-w-[95vw] sm:max-w-[400px] p-2 sm:p-6 max-h-[95vh] sm:max-h-[100vh] overflow-y-auto overflow-x-hidden"
+        style={{
+          borderRadius: 16,
+          boxShadow: '0 4px 24px 0 rgba(80, 80, 120, 0.15)',
+          margin: 0,
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Upload Image</DialogTitle>
           <DialogDescription>Take a photo or select an image, add a description, and upload.</DialogDescription>
@@ -139,8 +148,25 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
         <div className="space-y-4 w-full">
           {/* Camera Modal */}
           {showCamera && (
-            <div className="flex flex-col items-center space-y-2">
-              <video ref={videoRef} className="w-full rounded-lg bg-black" autoPlay playsInline muted style={{ maxHeight: 320 }} />
+            <div className="flex flex-col items-center space-y-2 w-full">
+              <div className="w-full flex justify-center">
+                <video
+                  ref={videoRef}
+                  className="rounded-lg bg-black"
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{
+                    width: '100%',
+                    maxWidth: '100vw',
+                    height: 'auto',
+                    aspectRatio: '3/4',
+                    maxHeight: '60vh',
+                    objectFit: 'cover',
+                    background: '#000',
+                  }}
+                />
+              </div>
               <div className="flex gap-2 w-full mt-2">
                 <Button type="button" onClick={handleCapture} className="flex-1 flex items-center gap-2">
                   <Camera className="h-4 w-4" /> Capture
@@ -186,7 +212,7 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           {previewUrl && !showCamera && (
             <div className="space-y-2">
               <Label>Preview</Label>
-              <img src={previewUrl} alt="Preview" className="w-full max-h-48 rounded-lg object-cover" />
+              <img src={previewUrl} alt="Preview" className="w-full max-h-48 rounded-lg object-cover" style={{ maxWidth: '100vw', height: 'auto' }} />
             </div>
           )}
           {!showCamera && (

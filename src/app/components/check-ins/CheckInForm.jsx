@@ -351,8 +351,15 @@ const CheckInForm = () => {
                 />
               </div>
             </Tabs>
-            <Button type="button" variant="outline" onClick={() => setImageUploadOpen(true)} className="mb-4">
-              Upload Image
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setImageUploadOpen(true)}
+              className="mb-4 w-full sm:w-auto px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-[#e0c3fc] via-[#8ec5fc] to-[#e0c3fc] text-lg font-semibold text-gray-900 border-0 hover:scale-105 transition-transform duration-200 flex items-center justify-center gap-2"
+              style={{ boxShadow: '0 4px 24px 0 rgba(80, 80, 120, 0.15)' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-[#7f53ac]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v4m0 0l-4.553 2.276A2 2 0 014 17.618V19a2 2 0 002 2h12a2 2 0 002-2v-1.382a2 2 0 00-.447-1.342L15 14z" /></svg>
+              Take selfie image
             </Button>
             <ImageUpload open={imageUploadOpen} onOpenChange={setImageUploadOpen} onUpload={handleImageUpload} />
             {/* Preview uploaded images */}

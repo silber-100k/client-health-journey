@@ -1,22 +1,21 @@
 import { sql } from "../lib/db/postgresql";
 
-async function seedDailyMessage() {
+async function seedSelfieImage() {
   await sql`
-    CREATE TABLE IF NOT EXISTS "DailyMessage" (
+    CREATE TABLE IF NOT EXISTS "SelfieImage" (
       "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      "userId" UUID REFERENCES "User"("id"),
-      "date" DATE NOT NULL,
-      "message" TEXT NOT NULL,
-      "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      UNIQUE ("userId", "date")
+      "email" VARCHAR(255) NOT NULL,
+      "image" TEXT,
+      "description" TEXT,
+      "date" DATE
     );
-  `;
+  `;  
 }
 
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
-      await seedDailyMessage();
+      await seedSelfieImage();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

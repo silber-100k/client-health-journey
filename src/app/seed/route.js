@@ -301,6 +301,18 @@ async function seedDailyMessage() {
   `;
 }
 
+async function seedSelfieImage() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS "SelfieImage" (
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "email" VARCHAR(255) NOT NULL,
+      "image" TEXT,
+      "description" TEXT,
+      "date" DATE
+    );
+  `;  
+}
+
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
@@ -319,6 +331,7 @@ export async function GET() {
       await aiReview();
       await seedDailyMessage();
       await seedMicroNutrients();
+      await seedSelfieImage();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {
