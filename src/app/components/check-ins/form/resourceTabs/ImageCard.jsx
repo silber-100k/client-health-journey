@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { format, parse } from "date-fns";
 
 function ImageCardSkeleton() {
   return (
@@ -63,7 +62,12 @@ const ImageCard = () => {
                   {img.description || <span className="italic text-gray-400">No description</span>}
                 </div>
                 <div className="text-xs text-gray-500 font-light">
-                {img.date ? format(parse(img.date, "yyyy-MM-dd", new Date()), "PPP") : ""}
+                {new Intl.DateTimeFormat('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'UTC'
+                }).format(new Date(img.date))}
                 </div>
               </div>
             </div>
