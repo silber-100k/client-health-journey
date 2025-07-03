@@ -31,6 +31,7 @@ import NutritionTab from "./form/NutritionTab";
 import SupplementsTab from "./form/SupplementsTab";
 import CheckInFormTabs from "./form/CheckInFormTabs";
 import CheckInNavigation from "./form/CheckInNavigation";
+import ImageUpload from "./form/resourceTabs/ImageUpload";
 
 const checkInSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -70,6 +71,8 @@ const CheckInForm = () => {
   const { user } = useAuth();
   const [currentTab, setCurrentTab] = useState("measurements");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageUploadOpen, setImageUploadOpen] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
 
   const {
     register,
@@ -238,6 +241,13 @@ const CheckInForm = () => {
     }
   };
 
+  // Handler to add uploaded image to form state
+  const handleImageUpload = (imageObj) => {
+    setUploadedImages((prev) => [...prev, imageObj]);
+    // Optionally, add to nutrition[0].images or a dedicated images field
+    // setValue('nutrition.0.images', [...(getValues('nutrition.0.images') || []), imageObj]);
+  };
+
   if (!user) {
     return (
       <div className="max-w-3xl w-full px-2 sm:px-4 py-4 mx-auto">
@@ -341,6 +351,21 @@ const CheckInForm = () => {
                 />
               </div>
             </Tabs>
+            <Button type="button" variant="outline" onClick={() => setImageUploadOpen(true)} className="mb-4">
+              Upload Image
+            </Button>
+            <ImageUpload open={imageUploadOpen} onOpenChange={setImageUploadOpen} onUpload={handleImageUpload} />
+            {/* Preview uploaded images */}
+            {uploadedImages.length > 0 && (
+              <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                {uploadedImages.map((img, idx) => (
+                  <div key={idx} className="border rounded p-2 flex flex-col items-center">
+                    <img src={img.url} alt={img.description} className="w-full h-24 object-cover rounded mb-1" />
+                    <div className="text-xs text-gray-600">{img.description}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>
