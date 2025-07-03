@@ -36,7 +36,6 @@ import {
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/app/components/ui/skeleton";
-import { combineMicronutrientTotals, getMicronutrientData } from "../reports/micronutrients";
 import { Popover, PopoverTrigger, PopoverContent } from "@/app/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/app/components/ui/calendar";
@@ -132,6 +131,97 @@ const calculateCalories = (protein, carbs, fat) => {
     return 0;
   }
 };
+
+// Static targets and units for each micronutrient
+const MICRONUTRIENT_TARGETS = {
+  fiber: { target: 25, unit: 'g' },
+  sugar: { target: 36, unit: 'g' },
+  sodium: { target: 2300, unit: 'mg' },
+  vitaminA: { target: 3000, unit: 'mcg' },
+  vitaminC: { target: 90, unit: 'mg' },
+  vitaminD: { target: 20, unit: 'mcg' },
+  vitaminE: { target: 15, unit: 'mg' },
+  vitaminK: { target: 120, unit: 'mcg' },
+  vitaminB1: { target: 1.2, unit: 'mg' },
+  vitaminB2: { target: 1.3, unit: 'mg' },
+  vitaminB3: { target: 16, unit: 'mg' },
+  vitaminB6: { target: 1.7, unit: 'mg' },
+  vitaminB12: { target: 2.4, unit: 'mcg' },
+  folate: { target: 400, unit: 'mcg' },
+  calcium: { target: 1300, unit: 'mg' },
+  iron: { target: 18, unit: 'mg' },
+  magnesium: { target: 420, unit: 'mg' },
+  phosphorus: { target: 1250, unit: 'mg' },
+  potassium: { target: 4700, unit: 'mg' },
+  zinc: { target: 11, unit: 'mg' },
+  selenium: { target: 55, unit: 'mcg' },
+};
+
+const formatNutrientName = (key) => {
+  const nameMap = {
+    fiber:        'Fiber',
+    sugar:        'Sugar',
+    sodium:       'Sodium',
+    vitaminA:     'Vitamin A',
+    vitaminC:     'Vitamin C',
+    vitaminD:     'Vitamin D',
+    vitaminE:     'Vitamin E',
+    vitaminK:     'Vitamin K',
+    vitaminB1:    'Vitamin B1 (Thiamin)',
+    vitaminB2:    'Vitamin B2 (Riboflavin)',
+    vitaminB3:    'Vitamin B3 (Niacin)',
+    vitaminB6:    'Vitamin B6',
+    vitaminB12:   'Vitamin B12',
+    folate:       'Folate',
+    calcium:      'Calcium',
+    iron:         'Iron',
+    magnesium:    'Magnesium',
+    phosphorus:   'Phosphorus',
+    potassium:    'Potassium',
+    zinc:         'Zinc',
+    selenium:     'Selenium'
+  };
+  
+  return nameMap[key] || key.charAt(0).toUpperCase() + key.slice(1);
+};
+
+const getColorForPercentage = (percentage) => {
+  if (percentage >= 100) return '#22c55e'; // Green for meeting target
+  if (percentage >= 75) return '#84cc16'; // Light green for close to target
+  if (percentage >= 50) return '#eab308'; // Yellow for moderate
+  if (percentage >= 25) return '#f97316'; // Orange for low
+  return '#ef4444'; // Red for very low
+};
+
+function combineMicronutrientTotals(micronutrients) {
+  const totals = {};
+  Object.keys(MICRONUTRIENT_TARGETS).forEach(key => {
+    totals[key] = {
+      total: typeof micronutrients[key] === 'number' ? micronutrients[key] : 0,
+      target: MICRONUTRIENT_TARGETS[key].target,
+      unit: MICRONUTRIENT_TARGETS[key].unit,
+    };
+  });
+  return totals;
+}
+
+function getMicronutrientData(micronutrientTotals) {
+  return Object.entries(micronutrientTotals)
+    .filter(([_, data]) => data.total > 0)
+    .map(([nutrientKey, data]) => {
+      const percentOfTarget = (data.total / data.target) * 100;
+      const displayName = formatNutrientName(nutrientKey);
+      return {
+        name: displayName,
+        value: Math.round(data.total * 10) / 10,
+        unit: data.unit,
+        percentOfTarget: Math.round(percentOfTarget),
+        target: data.target,
+        color: getColorForPercentage(percentOfTarget)
+      };
+    })
+    .sort((a, b) => b.percentOfTarget - a.percentOfTarget);
+}
 
 export default function CoachReport({checkIns,loading,selectedClient}) {
   const [activeTab, setActiveTab] = useState("overview");
