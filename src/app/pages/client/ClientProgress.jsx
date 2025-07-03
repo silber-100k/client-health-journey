@@ -808,6 +808,8 @@ export default function HealthTracker() {
               className="w-full"
             />
               }
+              {
+                checkIns?.aiReview?.[0]&&
               <TabButton
               tab="micronutrients"
               icon={Utensils}
@@ -815,7 +817,7 @@ export default function HealthTracker() {
               isActive={activeTab === "micronutrients"}
               className="w-full"
             />
-
+              }
             </div>
 
             {/* Content */}

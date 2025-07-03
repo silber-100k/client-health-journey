@@ -734,6 +734,8 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 />
                 
                 }
+                {
+                checkIns?.aiReview?.[0]&&
                 <TabButton
               tab="micronutrients"
               icon={Utensils}
@@ -741,6 +743,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
               isActive={activeTab === "micronutrients"}
               className="w-full"
             />
+              }
             </div>
 
             {/* Content */}
