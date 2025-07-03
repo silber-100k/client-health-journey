@@ -223,7 +223,7 @@ console.log("selected", checkInData)
         </CardHeader>
         <CardContent>
           {selectedClient?
-          (<CoachReport checkIns={checkInData} loading={checkInLoading}/>
+          (<CoachReport checkIns={checkInData} loading={checkInLoading} selectedClient={selectedClient}/>
 
           ):(
               ""

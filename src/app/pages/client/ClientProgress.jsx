@@ -286,11 +286,13 @@ export default function HealthTracker() {
   const {planId} = useClinic();
   const [micronutrients, setMicronutrients] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [micronutrientLoading, setMicronutrientLoading] = useState(false);
   const handleSelect = (date) => {
     setSelectedDate(date);
   };
 
   const fetchMicronutrients = async () => {
+    setMicronutrientLoading(true);
     const response = await fetch("/api/client/micronutrients", {
       method: "POST",
       body: JSON.stringify({selectedDate}),
@@ -301,6 +303,7 @@ export default function HealthTracker() {
     } else {
       setMicronutrients({});
     }
+    setMicronutrientLoading(false);
   };
   useEffect(()=> {
     fetchMicronutrients();
@@ -1067,7 +1070,7 @@ export default function HealthTracker() {
                     />
                   </PopoverContent>
                 </Popover>
-                <EnhancedMicronutrientReport data={micronutrientData} />
+                <EnhancedMicronutrientReport data={micronutrientData} loading={micronutrientLoading} />
               </div>
             )}
           </>

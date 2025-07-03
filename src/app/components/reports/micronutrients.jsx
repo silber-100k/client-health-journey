@@ -288,12 +288,13 @@ const getPriorityRecommendations = (data) => {
   );
 };
 
-export const EnhancedMicronutrientReport = ({ data }) => {
-  console.log('🧪 ENHANCED MICRONUTRIENT REPORT: Component mounted with data:', data);
-  
+export const EnhancedMicronutrientReport = ({ data, loading }) => {
+
   // Always render the enhanced UI, even with no data
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   if (!data || data.length === 0) {
-    console.log('🧪 ENHANCED MICRONUTRIENT REPORT: No data provided, showing empty state');
     return (
       <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
         <CardHeader>

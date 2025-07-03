@@ -36,6 +36,12 @@ import {
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/app/components/ui/skeleton";
+import { combineMicronutrientTotals, getMicronutrientData } from "../reports/micronutrients";
+import { Popover, PopoverTrigger, PopoverContent } from "@/app/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/app/components/ui/calendar";
+import { format } from "date-fns";
+import { EnhancedMicronutrientReport } from "../reports/micronutrients";
 
 // Skeleton Components
 const NutrientSkeleton = () => (
@@ -127,11 +133,43 @@ const calculateCalories = (protein, carbs, fat) => {
   }
 };
 
-export default function CoachReport({checkIns,loading}) {
+export default function CoachReport({checkIns,loading,selectedClient}) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isOpen, setIsOpen] = useState(false);
   const {user} = useAuth();
-  
+  const [micronutrients, setMicronutrients] = useState({});
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [micronutrientLoading, setMicronutrientLoading] = useState(false);
+  const handleSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+  const fetchMicronutrients = async () => {
+    setMicronutrientLoading(true);
+    const response = await fetch("/api/coach/micronutrients", {
+      method: "POST",
+      body: JSON.stringify({selectedDate,selectedClient}),
+    });
+    const data = await response.json();
+    if (data.status) {
+      setMicronutrients(data.totalMicronutrients);
+    } else {
+      setMicronutrients({});
+    }
+    setMicronutrientLoading(false);
+  };
+  useEffect(()=> {
+    if(selectedClient){
+      fetchMicronutrients();
+    }
+  },[selectedDate])
+
+  useEffect(()=> {
+    console.log("micronutrients",micronutrients)
+  },[micronutrients])
+  const micronutrientTotals = combineMicronutrientTotals(micronutrients);
+  const micronutrientData = getMicronutrientData(micronutrientTotals);
+  console.log("micronutrientData",micronutrientTotals)
   const portionRule = {};
   const currentPortion = {};
   const meals = (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).map((item, idx) => {
@@ -606,7 +644,13 @@ export default function CoachReport({checkIns,loading}) {
                 />
                 
                 }
-
+                <TabButton
+              tab="micronutrients"
+              icon={Utensils}
+              label="micronutrients"
+              isActive={activeTab === "micronutrients"}
+              className="w-full"
+            />
             </div>
 
             {/* Content */}
@@ -832,6 +876,41 @@ export default function CoachReport({checkIns,loading}) {
                 <div className="bg-orange-50 p-[10px] round-[5px]">
                 {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).message}
                 </div>
+              </div>
+            )}
+
+            {activeTab === "micronutrients" && (
+              <div className="space-y-6">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 w-full md:w-auto"
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "MMMM d, yyyy") : ""}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && handleSelect(date)}
+                      initialFocus
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+                        return date > today || date < sevenDaysAgo;
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <EnhancedMicronutrientReport data={micronutrientData} loading={micronutrientLoading} />
               </div>
             )}
           </>
