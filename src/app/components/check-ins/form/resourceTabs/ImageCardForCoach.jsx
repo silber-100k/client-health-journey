@@ -1,3 +1,5 @@
+"use client";
+import React from "react";
 
 function ImageCardSkeleton() {
   return (
@@ -52,7 +54,11 @@ const ImageCardForCoach = ({uploadedImages, loading}) => {
             </div>
           ))}
         </div>
-      ) : null}
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          No selfie images uploaded yet.
+        </div>
+      )}
     </div>
   );
 };

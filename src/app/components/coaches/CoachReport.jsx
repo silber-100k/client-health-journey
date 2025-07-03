@@ -41,7 +41,8 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/app/components/ui/calendar";
 import { format } from "date-fns";
 import { EnhancedMicronutrientReport } from "../reports/micronutrients";
-
+import ImageCardForCoach from "../check-ins/form/resourceTabs/ImageCardForCoach";
+import { Image } from "lucide-react";
 // Skeleton Components
 const NutrientSkeleton = () => (
   <div className="p-4 rounded-md bg-gray-100">
