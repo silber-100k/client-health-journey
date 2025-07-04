@@ -718,6 +718,114 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
     );
   };
 
+  // Handle case when checkIns is null or undefined
+  if (!checkIns) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card className="p-8 text-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                <svg 
+                  className="w-8 h-8 text-yellow-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" 
+                  />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-gray-900">No Check-in Data Available</h3>
+                <p className="text-gray-600 max-w-md">
+                  This client hasn't completed any daily check-ins yet. Once they start logging their meals and progress, 
+                  you'll be able to view their detailed reports here.
+                </p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium">What to expect:</p>
+                    <ul className="mt-1 space-y-1 text-blue-700">
+                      <li>• Daily meal tracking and nutrition data</li>
+                      <li>• Weight progress and trends</li>
+                      <li>• AI-powered health insights</li>
+                      <li>• Compliance scores and recommendations</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle case when there's no progress data
+  if (!hasProgressData) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card className="p-8 text-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg 
+                  className="w-8 h-8 text-blue-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M13 10V3L4 14h7v7l9-11h-7z" 
+                  />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-gray-900">Ready to Start the Journey!</h3>
+                <p className="text-gray-600 max-w-md">
+                  This client is enrolled but hasn't started their daily check-ins yet. Encourage them to begin their 
+                  health journey by completing their first daily check-in.
+                </p>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 max-w-md">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div className="text-sm text-purple-800">
+                    <p className="font-medium">Next steps:</p>
+                    <ul className="mt-1 space-y-1 text-purple-700">
+                      <li>• Send them a welcome message</li>
+                      <li>• Explain the daily check-in process</li>
+                      <li>• Set up their initial goals</li>
+                      <li>• Schedule their first coaching session</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -968,20 +1076,54 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                   </div>
                 </Card>
                 }
-                {
-                  meals?.map((val,key)=>(
-                  <MealCard
-                    key={key}
-                    meal={`Meal ${key+1}`}
-                    items={val.mealString}
-                    macros={val.portion}
-                    color="text-green-700"
-                    bgColor="bg-green-50"
-                    review={                
-                      checkIns?.aiReview?.[0] && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]}
-                  />))
-                }
-                
+                {meals && meals.length > 0 ? (
+                  meals.map((val, key) => (
+                    <MealCard
+                      key={key}
+                      meal={`Meal ${key + 1}`}
+                      items={val.mealString}
+                      macros={val.portion}
+                      color="text-green-700"
+                      bgColor="bg-green-50"
+                      review={
+                        checkIns?.aiReview?.[0] && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]
+                      }
+                    />
+                  ))
+                ) : (
+                  <Card className="p-8 text-center">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                        <Utensils className="w-8 h-8 text-orange-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-900">No Meals Recorded Today</h3>
+                        <p className="text-gray-600 max-w-md">
+                          This client hasn't logged any meals for today. Encourage them to complete their daily check-in 
+                          to track their nutrition and receive personalized insights.
+                        </p>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div className="text-sm text-green-800">
+                            <p className="font-medium">Benefits of daily check-ins:</p>
+                            <ul className="mt-1 space-y-1 text-green-700">
+                              <li>• Track daily nutrition and macros</li>
+                              <li>• Monitor progress towards goals</li>
+                              <li>• Receive AI-powered recommendations</li>
+                              <li>• Build healthy eating habits</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             )}
             {activeTab === "trends" && (
