@@ -120,16 +120,22 @@ const CoachReportsPage = () => {
         });
         const data = await response.json();
         if (data.status) {
-          setCheckInData(data.progress);
+          setCheckInData(data.progress || []);
+        } else {
+          setCheckInData([]);
+          console.log("No progress data found for client:", selectedClient);
         }
         setCheckInLoading(false);
       } catch (error) {
         setCheckInLoading(false);
-        console.log(error);
+        setCheckInData([]);
+        console.log("Error fetching client progress:", error);
       }
     };
     if (selectedClient) {
       fetchCheckInsbyClient();
+    } else {
+      setCheckInData([]);
     }
   }, [selectedClient]);
 console.log("selected", checkInData)
@@ -222,13 +228,17 @@ console.log("selected", checkInData)
           </div>
         </CardHeader>
         <CardContent>
-          {selectedClient?
-          (<CoachReport checkIns={checkInData} loading={checkInLoading} selectedClient={selectedClient}/>
-
-          ):(
-              ""
-          )  
-          }
+          {selectedClient ? (
+            <CoachReport 
+              checkIns={checkInData} 
+              loading={checkInLoading} 
+              selectedClient={selectedClient}
+            />
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>Please select a client to view their progress report</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
