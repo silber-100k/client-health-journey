@@ -233,50 +233,113 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   const [micronutrientLoading, setMicronutrientLoading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(true);
+  const [hasProgressData, setHasProgressData] = useState(false);
   const handleSelect = (date) => {
     setSelectedDate(date);
   };
 
   const fetchMicronutrients = async () => {
-    setMicronutrientLoading(true);
-    const response = await fetch("/api/coach/micronutrients", {
-      method: "POST",
-      body: JSON.stringify({selectedDate,selectedClient}),
-    });
-    const data = await response.json();
-    if (data.status) {
-      setMicronutrients(data.totalMicronutrients);
-    } else {
-      setMicronutrients({});
-    }
-    setMicronutrientLoading(false);
-  };
-  const fetchImages = async () => {
-    try{
-      setLoadingImages(true);
-      const response = await fetch("/api/coach/selfieImage  ", {
+    try {
+      setMicronutrientLoading(true);
+      
+      // Ensure selectedDate is properly formatted
+      if (!selectedDate || !selectedClient) {
+        console.log("Missing selectedDate or selectedClient");
+        setMicronutrients({});
+        setMicronutrientLoading(false);
+        return;
+      }
+      
+      // Format date to YYYY-MM-DD for the API
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      
+      const response = await fetch("/api/coach/micronutrients", {
         method: "POST",
-        body: JSON.stringify({selectedClient}),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          selectedDate: formattedDate,
+          selectedClient
+        }),
       });
-      const data = await response.json();
-      if(data.status){
-        setUploadedImages(data.selfieImages);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText || responseText.trim() === '') {
+        console.log("Empty response from micronutrients API");
+        setMicronutrients({});
+        setMicronutrientLoading(false);
+        return;
+      }
+      
+      const data = JSON.parse(responseText);
+      if (data.status) {
+        setMicronutrients(data.totalMicronutrients || {});
+      } else {
+        setMicronutrients({});
+        console.log("API returned error status:", data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Error fetching micronutrients:", error);
+      setMicronutrients({});
+    } finally {
+      setMicronutrientLoading(false);
+    }
+  };
+  const fetchImages = async () => {
+    try {
+      setLoadingImages(true);
+      const response = await fetch("/api/coach/selfieImage", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({selectedClient}),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText || responseText.trim() === '') {
+        console.log("Empty response from selfie images API");
+        setUploadedImages([]);
+        setLoadingImages(false);
+        return;
+      }
+      
+      const data = JSON.parse(responseText);
+      if (data.status) {
+        setUploadedImages(data.selfieImages || []);
+      } else {
+        setUploadedImages([]);
+        console.log("API returned error status:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching selfie images:", error);
+      setUploadedImages([]);
     } finally {
       setLoadingImages(false);
     }
-  }
+  };
   useEffect(()=> {
     fetchImages();
   },[selectedClient])
 
   useEffect(()=> {
-    if(selectedClient){
+    if(selectedClient && hasProgressData){
       fetchMicronutrients();
+    } else {
+      setMicronutrients({});
     }
-  },[selectedDate])
+  },[selectedDate, selectedClient, hasProgressData])
 
   useEffect(()=> {
     console.log("micronutrients",micronutrients)
@@ -286,59 +349,91 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   console.log("micronutrientData",micronutrientTotals)
   const portionRule = {};
   const currentPortion = {};
-  const meals = (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).map((item, idx) => {
-    const mealString = [
-      item.protein,
-      item.fruit,
-      item.vegetables,
-      item.carbs,
-      item.fats,
-      item.other
-    ].join(', ');
-    const portion = {
-      proteinPortion: item.proteinPortion,
-      fruitPortion: item.fruitPortion,
-      vegetablesPortion: item.vegetablesPortion,
-      carbsPortion: item.carbsPortion,
-      fatsPortion: item.fatsPortion,
-      otherPortion: item.otherPortion
-    };
-    return { mealString,portion };
-  });
-  (JSON.parse(checkIns?.program?.portion_guidelines || "[]")).forEach(item => {
-    for (const [key, value] of Object.entries(item)) {
-      const num = value ? Number(value) : 0;
-      portionRule[key] = (portionRule[key] || 0) + num;
-    }
-  });
-  (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).forEach(item => {
-    for (const [key, value] of Object.entries(item)) {
-      const num = value ? Number(value) : 0;
-      currentPortion[key] = (currentPortion[key] || 0) + num;
-    }
-  });
-
-  const portionsArray = checkIns?.progressData?.map(entry => {
-    const currentPortion = {};
-    // Parse the nutrition JSON string for this entry
-    (JSON.parse(entry?.nutrition || "[]")).forEach(item => {
-      for (const [key, value] of Object.entries(item)) {
-        const num = value ? Number(value) : 0;
-        currentPortion[key] = (currentPortion[key] || 0) + num;
+  
+  // Safely parse meals data
+  const meals = hasProgressData && checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition ? 
+    (() => {
+      try {
+        return JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]").map((item, idx) => {
+          const mealString = [
+            item.protein,
+            item.fruit,
+            item.vegetables,
+            item.carbs,
+            item.fats,
+            item.other
+          ].join(', ');
+          const portion = {
+            proteinPortion: item.proteinPortion,
+            fruitPortion: item.fruitPortion,
+            vegetablesPortion: item.vegetablesPortion,
+            carbsPortion: item.carbsPortion,
+            fatsPortion: item.fatsPortion,
+            otherPortion: item.otherPortion
+          };
+          return { mealString, portion };
+        });
+      } catch (error) {
+        console.error("Error parsing meals data:", error);
+        return [];
       }
-    });
-    // Add selectedDate from entry (adjust property name if different)
+    })() : [];
+    
+  // Safely parse portion guidelines
+  if (checkIns?.program?.portion_guidelines) {
+    try {
+      (JSON.parse(checkIns?.program?.portion_guidelines || "[]")).forEach(item => {
+        for (const [key, value] of Object.entries(item)) {
+          const num = value ? Number(value) : 0;
+          portionRule[key] = (portionRule[key] || 0) + num;
+        }
+      });
+    } catch (error) {
+      console.error("Error parsing portion guidelines:", error);
+    }
+  }
+  
+  // Safely parse current portions
+  if (hasProgressData && checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition) {
+    try {
+      (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).forEach(item => {
+        for (const [key, value] of Object.entries(item)) {
+          const num = value ? Number(value) : 0;
+          currentPortion[key] = (currentPortion[key] || 0) + num;
+        }
+      });
+    } catch (error) {
+      console.error("Error parsing current portions:", error);
+    }
+  }
+
+  // Safely create portions array
+  const portionsArray = hasProgressData ? checkIns?.progressData?.map(entry => {
+    const currentPortion = {};
+    if (entry?.nutrition) {
+      try {
+        (JSON.parse(entry?.nutrition || "[]")).forEach(item => {
+          for (const [key, value] of Object.entries(item)) {
+            const num = value ? Number(value) : 0;
+            currentPortion[key] = (currentPortion[key] || 0) + num;
+          }
+        });
+      } catch (error) {
+        console.error("Error parsing nutrition data:", error);
+      }
+    }
     currentPortion.selectedDate = entry.selectedDate || null;
     return currentPortion;
-  });
+  }) : [];
 
   console.log("portionArray",portionsArray)
-  const weightTrend = checkIns?.progressData?.map(item => ({
-    weight: item.weight,
+  
+  // Safely create weight trend
+  const weightTrend = hasProgressData ? checkIns?.progressData?.map(item => ({
+    weight: item.weight || 0,
     selectedDate: item.selectedDate || null
-  }));
+  })) : [];
 
-  console.log("checkIns",checkIns)
   const Nutrient = ({ value, label, color }) => {
     return (
       <div className={`p-4 rounded-md ${color}`}>
