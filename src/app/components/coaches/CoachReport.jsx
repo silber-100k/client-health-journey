@@ -338,7 +338,6 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
     selectedDate: item.selectedDate || null
   }));
 
-  console.log("checkIns",checkIns)
   const Nutrient = ({ value, label, color }) => {
     return (
       <div className={`p-4 rounded-md ${color}`}>
@@ -975,9 +974,9 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
               <div className="space-y-6">
                 {
                   checkIns?.aiReview &&
-                  Array.isArray(checkIns.aiReview) &&
-                  checkIns.aiReview[0]?.content &&
-                  JSON.parse(checkIns.aiReview[0].content)?.mealRecommendation?.map((value, key) => (
+                  Array.isArray(checkIns?.aiReview) &&
+                  checkIns?.aiReview?.[0].content &&
+                  JSON.parse(checkIns?.aiReview?.[0].content)?.mealRecommendation?.map((value, key) => (
                     <RecipeCard
                       key={key}
                       title={value.foodnames}
