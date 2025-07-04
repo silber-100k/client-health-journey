@@ -32,22 +32,17 @@ const CoachReportsPage = () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/coach/reports/activeClients");
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
       const data = await response.json();
       if (data.status) {
         setIsLoading(false);
+        toast.success("Fetched successfully");
         setActiveClients(data.activeClients);
       } else {
-        toast.error(data.message || "Failed to fetch active clients");
+        toast.error(data.message);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error fetching active clients:", error);
-      toast.error("Unable to get active clients data");
+      toast.error("Unable to get data");
     }
   };
 
@@ -55,23 +50,18 @@ const CoachReportsPage = () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/coach/client");
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
       const data = await response.json();
       if (data.status) {
         setIsLoading(false);
+        toast.success("Fetched successfully");
         setTotalClients(data.clients.length);
         setClients(data.clients);
       } else {
-        toast.error(data.message || "Failed to fetch clients");
+        toast.error(data.message);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error fetching clients:", error);
-      toast.error("Unable to get clients data");
+      toast.error("Unable to get data");
     }
   };
 
@@ -79,22 +69,17 @@ const CoachReportsPage = () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/coach/reports/programs");
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
       const data = await response.json();
       if (data.status) {
         setIsLoading(false);
+        toast.success("Fetched successfully");
         setPrograms(data.numprograms);
       } else {
-        toast.error(data.message || "Failed to fetch programs");
+        toast.error(data.message);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error fetching programs:", error);
-      toast.error("Unable to get programs data");
+      toast.error("Unable to get data");
     }
   };
 
@@ -102,22 +87,17 @@ const CoachReportsPage = () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/coach/reports/checkins");
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
       const data = await response.json();
       if (data.status) {
         setIsLoading(false);
+        toast.success("Fetched successfully");
         setCheckIns(data.checkIns);
       } else {
-        toast.error(data.message || "Failed to fetch check-ins");
+        toast.error(data.message);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error fetching check-ins:", error);
-      toast.error("Unable to get check-ins data");
+      toast.error("Unable to get data");
     }
   };
 
@@ -134,43 +114,22 @@ const CoachReportsPage = () => {
     const fetchCheckInsbyClient = async () => {
       try {
         setCheckInLoading(true);
-        console.log("Fetching data for client:", selectedClient);
-        
         const response = await fetch("/api/client/progress/byClientId", {
           method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({ clientId: selectedClient, current: new Date() }),
         });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log("API response:", data);
-        
         if (data.status) {
-          setCheckInData(data.progress || []);
-        } else {
-          setCheckInData([]);
-          console.log("No progress data found for client:", selectedClient);
-          toast.error(data.message || "No progress data available");
+          setCheckInData(data.progress);
         }
         setCheckInLoading(false);
       } catch (error) {
         setCheckInLoading(false);
-        setCheckInData([]);
-        console.error("Error fetching client progress:", error);
-        toast.error("Failed to fetch client progress data");
+        console.log(error);
       }
     };
-    
     if (selectedClient) {
       fetchCheckInsbyClient();
-    } else {
-      setCheckInData([]);
     }
   }, [selectedClient]);
 console.log("selected", checkInData)
@@ -263,17 +222,13 @@ console.log("selected", checkInData)
           </div>
         </CardHeader>
         <CardContent>
-          {selectedClient ? (
-            <CoachReport 
-              checkIns={checkInData} 
-              loading={checkInLoading} 
-              selectedClient={selectedClient}
-            />
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p>Please select a client to view their progress report</p>
-            </div>
-          )}
+          {selectedClient?
+          (<CoachReport checkIns={checkInData} loading={checkInLoading} selectedClient={selectedClient}/>
+
+          ):(
+              ""
+          )  
+          }
         </CardContent>
       </Card>
     </div>

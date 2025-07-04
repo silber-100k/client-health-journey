@@ -286,75 +286,59 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   console.log("micronutrientData",micronutrientTotals)
   const portionRule = {};
   const currentPortion = {};
-  const hasProgressData = checkIns?.progressData && Array.isArray(checkIns.progressData) && checkIns.progressData.length > 0;
-  const latestProgressData = hasProgressData ? checkIns.progressData[checkIns.progressData.length - 1] : null;
-  const hasPortionGuidelines = checkIns?.program?.portion_guidelines;
-  const hasStart = checkIns?.start && Array.isArray(checkIns.start) && checkIns.start.length > 0;
-  const hasAiReview = checkIns?.aiReview && Array.isArray(checkIns.aiReview) && checkIns.aiReview.length > 0;
-  const meals = hasProgressData && latestProgressData?.nutrition
-    ? JSON.parse(latestProgressData.nutrition || "[]").map((item, idx) => {
-      const mealString = [
-        item.protein,
-        item.fruit,
-        item.vegetables,
-        item.carbs,
-        item.fats,
-        item.other
-      ].join(', ');
-      const portion = {
-        proteinPortion: item.proteinPortion,
-        fruitPortion: item.fruitPortion,
-        vegetablesPortion: item.vegetablesPortion,
-        carbsPortion: item.carbsPortion,
-        fatsPortion: item.fatsPortion,
-        otherPortion: item.otherPortion
-      };
-      return { mealString,portion };
-    })
-    : [];
-  if (hasPortionGuidelines) {
-    JSON.parse(checkIns.program.portion_guidelines || "[]").forEach(item => {
-      for (const [key, value] of Object.entries(item)) {
-        const num = value ? Number(value) : 0;
-        portionRule[key] = (portionRule[key] || 0) + num;
-      }
-    });
-  }
-  if (hasProgressData && latestProgressData?.nutrition) {
-    JSON.parse(latestProgressData.nutrition || "[]").forEach(item => {
+  const meals = (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).map((item, idx) => {
+    const mealString = [
+      item.protein,
+      item.fruit,
+      item.vegetables,
+      item.carbs,
+      item.fats,
+      item.other
+    ].join(', ');
+    const portion = {
+      proteinPortion: item.proteinPortion,
+      fruitPortion: item.fruitPortion,
+      vegetablesPortion: item.vegetablesPortion,
+      carbsPortion: item.carbsPortion,
+      fatsPortion: item.fatsPortion,
+      otherPortion: item.otherPortion
+    };
+    return { mealString,portion };
+  });
+  (JSON.parse(checkIns?.program?.portion_guidelines || "[]")).forEach(item => {
+    for (const [key, value] of Object.entries(item)) {
+      const num = value ? Number(value) : 0;
+      portionRule[key] = (portionRule[key] || 0) + num;
+    }
+  });
+  (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).forEach(item => {
+    for (const [key, value] of Object.entries(item)) {
+      const num = value ? Number(value) : 0;
+      currentPortion[key] = (currentPortion[key] || 0) + num;
+    }
+  });
+
+  const portionsArray = checkIns?.progressData?.map(entry => {
+    const currentPortion = {};
+    // Parse the nutrition JSON string for this entry
+    (JSON.parse(entry?.nutrition || "[]")).forEach(item => {
       for (const [key, value] of Object.entries(item)) {
         const num = value ? Number(value) : 0;
         currentPortion[key] = (currentPortion[key] || 0) + num;
       }
     });
-  }
-
-  const portionsArray = hasProgressData
-    ? checkIns.progressData.map(entry => {
-      const currentPortion = {};
-      // Parse the nutrition JSON string for this entry
-      if (hasProgressData && entry?.nutrition) {
-        JSON.parse(entry.nutrition || "[]").forEach(item => {
-          for (const [key, value] of Object.entries(item)) {
-            const num = value ? Number(value) : 0;
-            currentPortion[key] = (currentPortion[key] || 0) + num;
-          }
-        });
-      }
-      // Add selectedDate from entry (adjust property name if different)
-      currentPortion.selectedDate = entry.selectedDate || null;
-      return currentPortion;
-    })
-    : [];
+    // Add selectedDate from entry (adjust property name if different)
+    currentPortion.selectedDate = entry.selectedDate || null;
+    return currentPortion;
+  });
 
   console.log("portionArray",portionsArray)
-  const weightTrend = hasProgressData
-    ? checkIns.progressData.map(item => ({
-      weight: item.weight,
-      selectedDate: item.selectedDate || null
-    }))
-    : [];
+  const weightTrend = checkIns?.progressData?.map(item => ({
+    weight: item.weight,
+    selectedDate: item.selectedDate || null
+  }));
 
+  console.log("checkIns",checkIns)
   const Nutrient = ({ value, label, color }) => {
     return (
       <div className={`p-4 rounded-md ${color}`}>
@@ -992,8 +976,8 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 {
                   checkIns?.aiReview &&
                   Array.isArray(checkIns?.aiReview) &&
-                  checkIns?.aiReview?.[0].content &&
-                  JSON.parse(checkIns?.aiReview?.[0].content)?.mealRecommendation?.map((value, key) => (
+                  checkIns?.aiReview?.[0]?.content &&
+                  JSON.parse(checkIns?.aiReview?.[0]?.content)?.mealRecommendation?.map((value, key) => (
                     <RecipeCard
                       key={key}
                       title={value.foodnames}
