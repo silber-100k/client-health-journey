@@ -233,23 +233,6 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   const [micronutrientLoading, setMicronutrientLoading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(true);
-  
-  // Handle case when checkIns is null or undefined
-  if (!checkIns) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="p-6 text-center">
-            <div className="text-gray-500">
-              <h3 className="text-lg font-medium mb-2">No data available</h3>
-              <p className="text-sm">This client hasn't checked in yet or no progress data is available.</p>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-  
   const handleSelect = (date) => {
     setSelectedDate(date);
   };
@@ -303,13 +286,13 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   console.log("micronutrientData",micronutrientTotals)
   const portionRule = {};
   const currentPortion = {};
-  
-  // Check if checkIns and progressData exist and have data
-  const hasProgressData = checkIns?.progressData && checkIns.progressData.length > 0;
+  const hasProgressData = checkIns?.progressData && Array.isArray(checkIns.progressData) && checkIns.progressData.length > 0;
   const latestProgressData = hasProgressData ? checkIns.progressData[checkIns.progressData.length - 1] : null;
-  
-  const meals = hasProgressData && latestProgressData?.nutrition ? 
-    (JSON.parse(latestProgressData.nutrition || "[]")).map((item, idx) => {
+  const hasPortionGuidelines = checkIns?.program?.portion_guidelines;
+  const hasStart = checkIns?.start && Array.isArray(checkIns.start) && checkIns.start.length > 0;
+  const hasAiReview = checkIns?.aiReview && Array.isArray(checkIns.aiReview) && checkIns.aiReview.length > 0;
+  const meals = hasProgressData && latestProgressData?.nutrition
+    ? JSON.parse(latestProgressData.nutrition || "[]").map((item, idx) => {
       const mealString = [
         item.protein,
         item.fruit,
@@ -327,61 +310,50 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
         otherPortion: item.otherPortion
       };
       return { mealString,portion };
-    }) : [];
-    
-  // Parse portion guidelines if they exist
-  if (checkIns?.program?.portion_guidelines) {
-    try {
-      (JSON.parse(checkIns.program.portion_guidelines || "[]")).forEach(item => {
-        for (const [key, value] of Object.entries(item)) {
-          const num = value ? Number(value) : 0;
-          portionRule[key] = (portionRule[key] || 0) + num;
-        }
-      });
-    } catch (error) {
-      console.error("Error parsing portion guidelines:", error);
-    }
+    })
+    : [];
+  if (hasPortionGuidelines) {
+    JSON.parse(checkIns.program.portion_guidelines || "[]").forEach(item => {
+      for (const [key, value] of Object.entries(item)) {
+        const num = value ? Number(value) : 0;
+        portionRule[key] = (portionRule[key] || 0) + num;
+      }
+    });
   }
-  
-  // Parse current portions if they exist
   if (hasProgressData && latestProgressData?.nutrition) {
-    try {
-      (JSON.parse(latestProgressData.nutrition || "[]")).forEach(item => {
-        for (const [key, value] of Object.entries(item)) {
-          const num = value ? Number(value) : 0;
-          currentPortion[key] = (currentPortion[key] || 0) + num;
-        }
-      });
-    } catch (error) {
-      console.error("Error parsing current portions:", error);
-    }
+    JSON.parse(latestProgressData.nutrition || "[]").forEach(item => {
+      for (const [key, value] of Object.entries(item)) {
+        const num = value ? Number(value) : 0;
+        currentPortion[key] = (currentPortion[key] || 0) + num;
+      }
+    });
   }
 
-  const portionsArray = hasProgressData ? checkIns.progressData.map(entry => {
-    const currentPortion = {};
-    // Parse the nutrition JSON string for this entry
-    if (entry?.nutrition) {
-      try {
-        (JSON.parse(entry.nutrition || "[]")).forEach(item => {
+  const portionsArray = hasProgressData
+    ? checkIns.progressData.map(entry => {
+      const currentPortion = {};
+      // Parse the nutrition JSON string for this entry
+      if (hasProgressData && entry?.nutrition) {
+        JSON.parse(entry.nutrition || "[]").forEach(item => {
           for (const [key, value] of Object.entries(item)) {
             const num = value ? Number(value) : 0;
             currentPortion[key] = (currentPortion[key] || 0) + num;
           }
         });
-      } catch (error) {
-        console.error("Error parsing nutrition data:", error);
       }
-    }
-    // Add selectedDate from entry (adjust property name if different)
-    currentPortion.selectedDate = entry.selectedDate || null;
-    return currentPortion;
-  }) : [];
+      // Add selectedDate from entry (adjust property name if different)
+      currentPortion.selectedDate = entry.selectedDate || null;
+      return currentPortion;
+    })
+    : [];
 
   console.log("portionArray",portionsArray)
-  const weightTrend = hasProgressData ? checkIns.progressData.map(item => ({
-    weight: item.weight || 0,
-    selectedDate: item.selectedDate || null
-  })) : [];
+  const weightTrend = hasProgressData
+    ? checkIns.progressData.map(item => ({
+      weight: item.weight,
+      selectedDate: item.selectedDate || null
+    }))
+    : [];
 
   const Nutrient = ({ value, label, color }) => {
     return (
@@ -451,7 +423,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
         <span className="text-sm">{label}</span>
       </div>
       <span className="text-sm font-medium">
-        {current || 0}/{total || 0}
+        {current}/{total}
         &nbsp;
         {unit}
       </span>
@@ -711,20 +683,17 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold text-[#1F2937]">
-                    Welcome back, {hasProgressData ? checkIns.progressData[0].name : 'Client'}!
+                    Welcome back, {checkIns?.progressData?.[0].name}!
                   </h1>
                   <span className="text-2xl">👋</span>
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  {checkIns?.start?.[0]?.startDate ? 
-                    `Started ${new Date(checkIns.start[0].startDate).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      timeZone: 'UTC'
-                    })}` : 
-                    'No start date available'
-                  }             
+                  Started {new Date(checkIns?.start?.[0]?.startDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    timeZone: 'UTC'
+                  })}             
                 </p>
               </CardHeader>
 
@@ -736,35 +705,34 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                   <div className="text-xs text-gray-500">Weekly Compliance</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-500">
-                    {hasProgressData ? latestProgressData?.weight || 0 : 0}/
-                    {checkIns?.start?.[0]?.initialWeight || 0} lbs
+                  <div className="text-2xl font-bold text-blue-500">{checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight}/
+                    {checkIns?.start?.[0]?.initialWeight} lbs
                   </div>
                   <div className="text-xs text-gray-500">Current/Initial</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-700">{checkIns?.start?.[0]?.goalWeight || 0} lbs</div>
+                  <div className="text-2xl font-bold text-gray-700">{checkIns?.start?.[0]?.goalWeight} lbs</div>
                   <div className="text-xs text-gray-500">Goal Weight</div>
                 </div>
                 <div className="text-center">
                   <div 
                   className={`${
-                      (hasProgressData ? latestProgressData?.weight || 0) -
-                        (checkIns?.start?.[0]?.initialWeight || 0) >
+                      checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                        checkIns?.start?.[0]?.initialWeight >
                       0
                         ? "text-[#e90f0f]"
                         : "text-[#16A34A]"
                     } text-2xl font-bold`}>
-                    {(hasProgressData ? latestProgressData?.weight || 0) -
-                      (checkIns?.start?.[0]?.initialWeight || 0) >
+                    {checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                      checkIns?.start?.[0]?.initialWeight >
                     0
                       ? `+${
-                          (hasProgressData ? latestProgressData?.weight || 0) -
-                          (checkIns?.start?.[0]?.initialWeight || 0)
+                          checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
+                          checkIns?.start?.[0]?.initialWeight
                         }`
                       : `-${
-                          (checkIns?.start?.[0]?.initialWeight || 0) -
-                          (hasProgressData ? latestProgressData?.weight || 0)
+                          checkIns?.start?.[0]?.initialWeight -
+                          checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight
                         }`}
                          &nbsp;lbs
                         </div>
@@ -795,30 +763,33 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                 isActive={activeTab === "trends"}
                 className="w-full"
               />
-              {checkIns?.aiReview?.[0] && (
-                <TabButton
+              {              
+                  checkIns?.aiReview?.[0] &&
+                  <TabButton
                   tab="recipes"
                   icon={Bot}
                   label="AI Recipes"
                   isActive={activeTab === "recipes"}
                   className="w-full"
                 />
-              )}
-              {checkIns?.aiReview?.[0] && (
-                <TabButton
-                  tab="micronutrients"
-                  icon={Utensils}
-                  label="micronutrients"
-                  isActive={activeTab === "micronutrients"}
-                  className="w-full"
-                />
-              )}
+                
+                }
+                {
+                checkIns?.aiReview?.[0]&&
               <TabButton
-                tab="selfieImages"
-                icon={Image}
-                label="selfieImages"
-                isActive={activeTab === "selfieImages"}
-                className="w-full"
+              tab="micronutrients"
+              icon={Utensils}
+              label="micronutrients"
+              isActive={activeTab === "micronutrients"}
+              className="w-full"
+            />
+              }
+              <TabButton
+              tab="selfieImages"
+              icon= {Image}
+              label="selfieImages"
+              isActive={activeTab === "selfieImages"}
+              className="w-full"
               />
             </div>
 
@@ -878,65 +849,60 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
             )}
             {activeTab === "meals" && (
               <div className="space-y-4">
-                {checkIns?.aiReview?.[0] && (
-                  <Card className="p-4">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Bot className="w-5 h-5" />
-                      <h2 className="font-semibold">Today's Review 🤖</h2>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="p-3 bg-yellow-50 rounded-lg">
-                        <div className="flex">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="lucide lucide-award w-5 h-5 text-yellow-500"
-                          >
-                            <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
-                            <circle cx="12" cy="8" r="6"></circle>
-                          </svg>
-                          <span>Summary</span>
-                        </div>
-                        <p>
-                          {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).todaySummary}
-                        </p>
-                        <div>
-                          {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).today_Review_and_Recommendation}
-                        </div>
+                {
+                  checkIns?.aiReview?.[0]  &&
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Bot className="w-5 h-5" />
+                    <h2 className="font-semibold">Today's Review 🤖</h2>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-yellow-50 rounded-lg">
+                    <div className="flex">
+                      
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-award w-5 h-5 text-yellow-500"
+                      >
+                        <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
+                        <circle cx="12" cy="8" r="6"></circle>
+                      </svg>
+                      <span>Summary</span>
                       </div>
-                    </div>
-                  </Card>
-                )}
-                {meals && meals.length > 0 ? (
-                  meals.map((val, key) => (
-                    <MealCard
-                      key={key}
-                      meal={`Meal ${key + 1}`}
-                      items={val.mealString}
-                      macros={val.portion}
-                      color="text-green-700"
-                      bgColor="bg-green-50"
-                      review={
-                        checkIns?.aiReview?.[0] && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]
-                      }
-                    />
-                  ))
-                ) : (
-                  <Card className="p-6 text-center">
-                    <div className="text-gray-500">
-                      <Utensils className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <h3 className="text-lg font-medium mb-2">No meals recorded</h3>
-                      <p className="text-sm">This client hasn't checked in yet or hasn't recorded any meals.</p>
-                    </div>
-                  </Card>
-                )}
+                      <p>
+                      {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).todaySummary}
+                      </p>
+                       
+                      
+                      <div>
+                        {checkIns?.aiReview && JSON.parse(checkIns?.aiReview?.[0].content).today_Review_and_Recommendation}
+                      </div>
+                      </div>
+                  </div>
+                </Card>
+                }
+                {
+                  meals?.map((val,key)=>(
+                  <MealCard
+                    key={key}
+                    meal={`Meal ${key+1}`}
+                    items={val.mealString}
+                    macros={val.portion}
+                    color="text-green-700"
+                    bgColor="bg-green-50"
+                    review={                
+                      checkIns?.aiReview?.[0] && JSON.parse(checkIns?.aiReview?.[0].content).mealReview[key]}
+                  />))
+                }
+                
               </div>
             )}
             {activeTab === "trends" && (
