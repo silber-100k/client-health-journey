@@ -26,11 +26,25 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
   useEffect(() => {
     const detectCameras = async () => {
       try {
+        // Request camera permission first to get accurate device list
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        console.log('Available cameras:', videoDevices);
         setAvailableCameras(videoDevices);
+        
+        // If we have cameras but the list is empty, assume we have at least 2 (front and back)
+        if (videoDevices.length === 0 && showCamera) {
+          console.log('No cameras detected in enumeration, assuming mobile device with front/back cameras');
+          setAvailableCameras([{ id: 'front', label: 'Front Camera' }, { id: 'back', label: 'Back Camera' }]);
+        }
       } catch (err) {
         console.log('Could not enumerate devices:', err);
+        // Even if enumeration fails, assume mobile device has front/back cameras
+        if (showCamera) {
+          setAvailableCameras([{ id: 'front', label: 'Front Camera' }, { id: 'back', label: 'Back Camera' }]);
+        }
       }
     };
     
@@ -74,12 +88,20 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       } catch (facingModeError) {
         // If facing mode fails, try with any available camera
         console.log('Facing mode failed, trying any camera:', facingModeError);
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          } 
-        });
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            } 
+          });
+        } catch (anyCameraError) {
+          // If that also fails, try with basic video constraints
+          console.log('Any camera failed, trying basic video:', anyCameraError);
+          stream = await navigator.mediaDevices.getUserMedia({ 
+            video: true 
+          });
+        }
       }
       
       streamRef.current = stream;
@@ -111,6 +133,8 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       
       // Show a brief toast to indicate camera switching
       toast.info(`Switching to ${newCamera === "environment" ? "back" : "front"} camera...`);
+      
+      // The camera will automatically restart due to the useEffect dependency on currentCamera
     } catch (error) {
       console.error('Error switching camera:', error);
       toast.error('Failed to switch camera');
@@ -243,20 +267,19 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
                     background: '#000',
                   }}
                 />
-                {/* Camera switching button - only show if multiple cameras available */}
-                {availableCameras.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={switchCamera}
-                    disabled={isLoadingCamera}
-                    className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 z-20"
-                    style={{ minWidth: 'auto', padding: '8px' }}
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                )}
+                {/* Camera switching button - always show when camera is active */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={switchCamera}
+                  disabled={isLoadingCamera}
+                  className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 z-20"
+                  style={{ minWidth: 'auto', padding: '8px' }}
+                  title={`Switch to ${currentCamera === "environment" ? "front" : "back"} camera`}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
                 {/* Camera indicator */}
                 <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-20">
                   <Smartphone className="h-3 w-3 inline mr-1" />
@@ -313,12 +336,10 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
                 onChange={handleFileSelect}
               />
               {cameraError && <div className="text-red-500 text-sm mt-2">{cameraError}</div>}
-              {availableCameras.length > 1 && (
-                <div className="text-blue-600 text-sm mt-2 flex items-center gap-1">
-                  <Smartphone className="h-3 w-3" />
-                  {availableCameras.length} camera{availableCameras.length > 1 ? 's' : ''} detected - tap the rotate button to switch
-                </div>
-              )}
+              <div className="text-blue-600 text-sm mt-2 flex items-center gap-1">
+                <Smartphone className="h-3 w-3" />
+                Tap the rotate button (↻) in the camera view to switch between front and back cameras
+              </div>
             </>
           )}
           {previewUrl && !showCamera && (
