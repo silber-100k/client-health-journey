@@ -62,6 +62,9 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           setBackCameraAvailable(false);
         }
         
+        // Log current camera state
+        console.log('Camera availability - Front:', frontCameraAvailable, 'Back:', backCameraAvailable);
+        
         // If we have cameras but the list is empty, assume we have at least 2 (front and back)
         if (videoDevices.length === 0 && showCamera) {
           console.log('No cameras detected in enumeration, assuming mobile device with front/back cameras');
@@ -103,6 +106,8 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       // Stop existing stream if any
       stopCamera();
       
+      console.log(`Starting camera with facing mode: ${currentCamera}`);
+      
       // Try to get camera stream with current facing mode
       let stream;
       try {
@@ -113,6 +118,7 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
             height: { ideal: 1080 }
           } 
         });
+        console.log(`Successfully started camera with facing mode: ${currentCamera}`);
       } catch (facingModeError) {
         // If facing mode fails, try with any available camera
         console.log('Facing mode failed, trying any camera:', facingModeError);
@@ -123,12 +129,14 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
               height: { ideal: 1080 }
             } 
           });
+          console.log('Successfully started camera with any available camera');
         } catch (anyCameraError) {
           // If that also fails, try with basic video constraints
           console.log('Any camera failed, trying basic video:', anyCameraError);
           stream = await navigator.mediaDevices.getUserMedia({ 
             video: true 
           });
+          console.log('Successfully started camera with basic video constraints');
         }
       }
       
@@ -137,6 +145,7 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
+        console.log('Video element is playing');
       }
     } catch (err) {
       console.error('Camera error:', err);
@@ -169,12 +178,22 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
         return;
       }
       
+      console.log(`Switching from ${currentCamera} to ${newCamera}`);
+      
+      // Stop current stream first
+      stopCamera();
+      
+      // Update camera state
       setCurrentCamera(newCamera);
       
       // Show a brief toast to indicate camera switching
       toast.info(`Switching to ${newCamera === "environment" ? "back" : "front"} camera...`);
       
-      // The camera will automatically restart due to the useEffect dependency on currentCamera
+      // Force restart camera with new facing mode
+      setTimeout(() => {
+        startCamera();
+      }, 100);
+      
     } catch (error) {
       console.error('Error switching camera:', error);
       toast.error('Failed to switch camera');
@@ -335,6 +354,9 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
                   }
                 >
                   <RotateCcw className="h-4 w-4" />
+                  <span className="ml-1 text-xs">
+                    {currentCamera === "environment" ? "→ Front" : "→ Back"}
+                  </span>
                 </Button>
                 {/* Camera indicator */}
                 <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-20">
