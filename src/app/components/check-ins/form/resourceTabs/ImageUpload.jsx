@@ -19,6 +19,8 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
   const [isLoadingCamera, setIsLoadingCamera] = useState(false);
   const [frontCameraAvailable, setFrontCameraAvailable] = useState(true);
   const [backCameraAvailable, setBackCameraAvailable] = useState(true);
+  const [frontCameraId, setFrontCameraId] = useState(null);
+  const [backCameraId, setBackCameraId] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const galleryInputRef = useRef(null);
@@ -36,11 +38,16 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
         console.log('Available cameras:', videoDevices);
         setAvailableCameras(videoDevices);
         
-        // Test front camera availability
+        // Test front camera availability and get device ID
         try {
           const frontStream = await navigator.mediaDevices.getUserMedia({ 
             video: { facingMode: 'user' } 
           });
+          const frontTrack = frontStream.getVideoTracks()[0];
+          if (frontTrack) {
+            setFrontCameraId(frontTrack.getSettings().deviceId);
+            console.log('Front camera device ID:', frontTrack.getSettings().deviceId);
+          }
           frontStream.getTracks().forEach(track => track.stop());
           setFrontCameraAvailable(true);
           console.log('Front camera is available');
@@ -49,11 +56,16 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           setFrontCameraAvailable(false);
         }
         
-        // Test back camera availability
+        // Test back camera availability and get device ID
         try {
           const backStream = await navigator.mediaDevices.getUserMedia({ 
             video: { facingMode: 'environment' } 
           });
+          const backTrack = backStream.getVideoTracks()[0];
+          if (backTrack) {
+            setBackCameraId(backTrack.getSettings().deviceId);
+            console.log('Back camera device ID:', backTrack.getSettings().deviceId);
+          }
           backStream.getTracks().forEach(track => track.stop());
           setBackCameraAvailable(true);
           console.log('Back camera is available');
@@ -64,6 +76,7 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
         
         // Log current camera state
         console.log('Camera availability - Front:', frontCameraAvailable, 'Back:', backCameraAvailable);
+        console.log('Camera IDs - Front:', frontCameraId, 'Back:', backCameraId);
         
         // If we have cameras but the list is empty, assume we have at least 2 (front and back)
         if (videoDevices.length === 0 && showCamera) {
@@ -108,35 +121,82 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       
       console.log(`Starting camera with facing mode: ${currentCamera}`);
       
-      // Try to get camera stream with current facing mode
+      // Try to get camera stream with specific device ID if available
       let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: currentCamera,
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          } 
-        });
-        console.log(`Successfully started camera with facing mode: ${currentCamera}`);
-      } catch (facingModeError) {
-        // If facing mode fails, try with any available camera
-        console.log('Facing mode failed, trying any camera:', facingModeError);
+      const targetCameraId = currentCamera === "user" ? frontCameraId : backCameraId;
+      
+      if (targetCameraId) {
         try {
+          console.log(`Trying to use specific device ID: ${targetCameraId}`);
           stream = await navigator.mediaDevices.getUserMedia({ 
             video: { 
+              deviceId: { exact: targetCameraId },
               width: { ideal: 1920 },
               height: { ideal: 1080 }
             } 
           });
-          console.log('Successfully started camera with any available camera');
-        } catch (anyCameraError) {
-          // If that also fails, try with basic video constraints
-          console.log('Any camera failed, trying basic video:', anyCameraError);
+          console.log(`Successfully started camera with device ID: ${targetCameraId}`);
+        } catch (deviceIdError) {
+          console.log('Device ID failed, falling back to facing mode:', deviceIdError);
+          // Fall back to facing mode
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+              video: { 
+                facingMode: currentCamera,
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+              } 
+            });
+            console.log(`Successfully started camera with facing mode: ${currentCamera}`);
+          } catch (facingModeError) {
+            console.log('Facing mode failed, trying any camera:', facingModeError);
+            // Fall back to any available camera
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                  width: { ideal: 1920 },
+                  height: { ideal: 1080 }
+                } 
+              });
+              console.log('Successfully started camera with any available camera');
+            } catch (anyCameraError) {
+              // If that also fails, try with basic video constraints
+              console.log('Any camera failed, trying basic video:', anyCameraError);
+              stream = await navigator.mediaDevices.getUserMedia({ 
+                video: true 
+              });
+              console.log('Successfully started camera with basic video constraints');
+            }
+          }
+        }
+      } else {
+        // No device ID available, use facing mode
+        try {
           stream = await navigator.mediaDevices.getUserMedia({ 
-            video: true 
+            video: { 
+              facingMode: currentCamera,
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            } 
           });
-          console.log('Successfully started camera with basic video constraints');
+          console.log(`Successfully started camera with facing mode: ${currentCamera}`);
+        } catch (facingModeError) {
+          console.log('Facing mode failed, trying any camera:', facingModeError);
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+              video: { 
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+              } 
+            });
+            console.log('Successfully started camera with any available camera');
+          } catch (anyCameraError) {
+            console.log('Any camera failed, trying basic video:', anyCameraError);
+            stream = await navigator.mediaDevices.getUserMedia({ 
+              video: true 
+            });
+            console.log('Successfully started camera with basic video constraints');
+          }
         }
       }
       
@@ -146,6 +206,44 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
         console.log('Video element is playing');
+        
+        // Verify which camera is actually being used
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+          const settings = videoTrack.getSettings();
+          console.log('Actual camera being used:', {
+            deviceId: settings.deviceId,
+            facingMode: settings.facingMode,
+            isFrontCamera: settings.facingMode === 'user' || settings.deviceId === frontCameraId
+          });
+          
+          // If the actual camera doesn't match what we requested, try to force switch
+          const isActuallyFront = settings.facingMode === 'user' || settings.deviceId === frontCameraId;
+          const shouldBeFront = currentCamera === 'user';
+          
+          if (isActuallyFront !== shouldBeFront) {
+            console.log('Camera mismatch detected! Trying to force correct camera...');
+            // Try to force the correct camera by stopping and restarting with more specific constraints
+            setTimeout(async () => {
+              try {
+                stopCamera();
+                const forcedStream = await navigator.mediaDevices.getUserMedia({ 
+                  video: { 
+                    facingMode: currentCamera,
+                    deviceId: currentCamera === 'user' ? frontCameraId : backCameraId
+                  } 
+                });
+                streamRef.current = forcedStream;
+                if (videoRef.current) {
+                  videoRef.current.srcObject = forcedStream;
+                  await videoRef.current.play();
+                }
+              } catch (forceError) {
+                console.log('Force switch failed:', forceError);
+              }
+            }, 500);
+          }
+        }
       }
     } catch (err) {
       console.error('Camera error:', err);
@@ -189,10 +287,10 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       // Show a brief toast to indicate camera switching
       toast.info(`Switching to ${newCamera === "environment" ? "back" : "front"} camera...`);
       
-      // Force restart camera with new facing mode
+      // Force restart camera with new facing mode - use longer delay for mobile
       setTimeout(() => {
         startCamera();
-      }, 100);
+      }, 300);
       
     } catch (error) {
       console.error('Error switching camera:', error);
