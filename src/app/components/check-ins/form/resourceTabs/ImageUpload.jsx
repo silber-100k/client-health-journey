@@ -24,17 +24,13 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
   const galleryInputRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Detect available cameras when camera modal opens
+  // Detect available cameras and start camera when modal opens
   useEffect(() => {
     if (showCamera) {
-      detectAvailableCameras();
-    }
-  }, [showCamera]);
-
-  // Start camera when showCamera is true or camera type changes
-  useEffect(() => {
-    if (showCamera) {
-      startCamera();
+      detectAvailableCameras().then(() => {
+        // Start camera after detection is complete
+        startCamera();
+      });
     } else {
       stopCamera();
     }
@@ -43,11 +39,21 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
     return () => {
       stopCamera();
     };
-  }, [showCamera, cameraType]);
+  }, [showCamera]);
+
+  // Start camera when camera type changes (but only if camera modal is open)
+  useEffect(() => {
+    if (showCamera) {
+      startCamera();
+    }
+  }, [cameraType]);
 
   const detectAvailableCameras = async () => {
     try {
       console.log("Detecting available cameras...");
+      
+      let frontAvailable = false;
+      let backAvailable = false;
       
       // Test front camera availability
       try {
@@ -55,11 +61,11 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           video: { facingMode: 'user' } 
         });
         frontStream.getTracks().forEach(track => track.stop());
-        setFrontCameraAvailable(true);
+        frontAvailable = true;
         console.log("Front camera is available");
       } catch (error) {
         console.log("Front camera not available:", error.name);
-        setFrontCameraAvailable(false);
+        frontAvailable = false;
       }
       
       // Test back camera availability
@@ -68,26 +74,32 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
           video: { facingMode: 'environment' } 
         });
         backStream.getTracks().forEach(track => track.stop());
-        setBackCameraAvailable(true);
+        backAvailable = true;
         console.log("Back camera is available");
       } catch (error) {
         console.log("Back camera not available:", error.name);
-        setBackCameraAvailable(false);
+        backAvailable = false;
       }
       
-      // If neither camera is available, try any camera
-      if (!frontCameraAvailable && !backCameraAvailable) {
+      // If neither specific camera is available, try any camera
+      if (!frontAvailable && !backAvailable) {
         try {
           const anyStream = await navigator.mediaDevices.getUserMedia({ video: true });
           anyStream.getTracks().forEach(track => track.stop());
           // If we get here, at least one camera is available
-          setBackCameraAvailable(true);
+          backAvailable = true;
           console.log("At least one camera is available");
         } catch (error) {
           console.log("No cameras available:", error.name);
           setCameraError("No cameras available on this device");
         }
       }
+      
+      // Update state with the results
+      setFrontCameraAvailable(frontAvailable);
+      setBackCameraAvailable(backAvailable);
+      
+      console.log("Camera detection complete - Front:", frontAvailable, "Back:", backAvailable);
       
     } catch (error) {
       console.error("Error detecting cameras:", error);
@@ -105,7 +117,7 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
       
       console.log(`Starting camera with facing mode: ${cameraType}`);
       
-      // Get camera stream with specific facing mode (following research approach)
+      // Try to get camera stream with specific facing mode
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: cameraType,
@@ -161,17 +173,6 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
   const switchCamera = async () => {
     try {
       const newCameraType = cameraType === "environment" ? "user" : "environment";
-      
-      // Check if the target camera is available
-      if (newCameraType === "user" && !frontCameraAvailable) {
-        toast.error("Front camera is not available on this device");
-        return;
-      }
-      
-      if (newCameraType === "environment" && !backCameraAvailable) {
-        toast.error("Back camera is not available on this device");
-        return;
-      }
       
       console.log(`Switching from ${cameraType} to ${newCameraType}`);
       
@@ -317,24 +318,22 @@ export default function ImageUpload({ open, onOpenChange, onUpload }) {
                     background: '#000',
                   }}
                 />
-                {/* Camera switching button - only show if both cameras are available */}
-                {(frontCameraAvailable && backCameraAvailable) && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={switchCamera}
-                    disabled={isLoadingCamera}
-                    className="absolute top-2 right-2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100"
-                    style={{ minWidth: 'auto', padding: '8px' }}
-                    title={`Switch to ${cameraType === "environment" ? "front" : "back"} camera`}
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    <span className="ml-1 text-xs">
-                      {cameraType === "environment" ? "→ Front" : "→ Back"}
-                    </span>
-                  </Button>
-                )}
+                {/* Camera switching button - always show when camera is active */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={switchCamera}
+                  disabled={isLoadingCamera}
+                  className="absolute top-2 right-2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100"
+                  style={{ minWidth: 'auto', padding: '8px' }}
+                  title={`Switch to ${cameraType === "environment" ? "front" : "back"} camera`}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span className="ml-1 text-xs">
+                    {cameraType === "environment" ? "→ Front" : "→ Back"}
+                  </span>
+                </Button>
                 {/* Camera indicator */}
                 <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-20">
                   <Smartphone className="h-3 w-3 inline mr-1" />
