@@ -126,7 +126,7 @@ const calculateCalories = (protein, carbs, fat) => {
     const carbsCal = Number(carbs || 0) * 4;
     const fatCal = Number(fat || 0) * 9;
     const totalCal = proteinCal + carbsCal + fatCal;
-    return Math.round(totalCal * 28.35) || 0;
+    return Math.round(totalCal) || 0;
   } catch (error) {
     console.error("Error calculating calories:", error);
     return 0;
@@ -233,7 +233,6 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   const [micronutrientLoading, setMicronutrientLoading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(true);
-  const [hasProgressData, setHasProgressData] = useState(false);
   const handleSelect = (date) => {
     setSelectedDate(date);
   };
@@ -334,12 +333,12 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   },[selectedClient])
 
   useEffect(()=> {
-    if(selectedClient && hasProgressData){
+    if(selectedClient){
       fetchMicronutrients();
     } else {
       setMicronutrients({});
     }
-  },[selectedDate, selectedClient, hasProgressData])
+  },[selectedDate])
 
   useEffect(()=> {
     console.log("micronutrients",micronutrients)
@@ -351,7 +350,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   const currentPortion = {};
   
   // Safely parse meals data
-  const meals = hasProgressData && checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition ? 
+  const meals = checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition ? 
     (() => {
       try {
         return JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]").map((item, idx) => {
@@ -394,7 +393,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   }
   
   // Safely parse current portions
-  if (hasProgressData && checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition) {
+  if (checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition) {
     try {
       (JSON.parse(checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.nutrition || "[]")).forEach(item => {
         for (const [key, value] of Object.entries(item)) {
@@ -408,7 +407,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
   }
 
   // Safely create portions array
-  const portionsArray = hasProgressData ? checkIns?.progressData?.map(entry => {
+  const portionsArray = checkIns?.progressData?.map(entry => {
     const currentPortion = {};
     if (entry?.nutrition) {
       try {
@@ -424,15 +423,15 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
     }
     currentPortion.selectedDate = entry.selectedDate || null;
     return currentPortion;
-  }) : [];
+  }) 
 
   console.log("portionArray",portionsArray)
   
   // Safely create weight trend
-  const weightTrend = hasProgressData ? checkIns?.progressData?.map(item => ({
+  const weightTrend = checkIns?.progressData?.map(item => ({
     weight: item.weight || 0,
     selectedDate: item.selectedDate || null
-  })) : [];
+  })) 
 
   const Nutrient = ({ value, label, color }) => {
     return (
@@ -718,114 +717,6 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
     );
   };
 
-  // Handle case when checkIns is null or undefined
-  if (!checkIns) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="p-8 text-center">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                <svg 
-                  className="w-8 h-8 text-yellow-600" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" 
-                  />
-                </svg>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-gray-900">No Check-in Data Available</h3>
-                <p className="text-gray-600 max-w-md">
-                  This client hasn't completed any daily check-ins yet. Once they start logging their meals and progress, 
-                  you'll be able to view their detailed reports here.
-                </p>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="text-sm text-blue-800">
-                    <p className="font-medium">What to expect:</p>
-                    <ul className="mt-1 space-y-1 text-blue-700">
-                      <li>• Daily meal tracking and nutrition data</li>
-                      <li>• Weight progress and trends</li>
-                      <li>• AI-powered health insights</li>
-                      <li>• Compliance scores and recommendations</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle case when there's no progress data
-  if (!hasProgressData) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="p-8 text-center">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg 
-                  className="w-8 h-8 text-blue-600" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M13 10V3L4 14h7v7l9-11h-7z" 
-                  />
-                </svg>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-gray-900">Ready to Start the Journey!</h3>
-                <p className="text-gray-600 max-w-md">
-                  This client is enrolled but hasn't started their daily check-ins yet. Encourage them to begin their 
-                  health journey by completing their first daily check-in.
-                </p>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 max-w-md">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <div className="text-sm text-purple-800">
-                    <p className="font-medium">Next steps:</p>
-                    <ul className="mt-1 space-y-1 text-purple-700">
-                      <li>• Send them a welcome message</li>
-                      <li>• Explain the daily check-in process</li>
-                      <li>• Set up their initial goals</li>
-                      <li>• Schedule their first coaching session</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -866,7 +757,7 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
           </>
         ) : (
           <>
-            <Card className="space-y-4">
+            <Card >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold text-[#1F2937]">
@@ -1224,11 +1115,11 @@ export default function CoachReport({checkIns,loading,selectedClient}) {
                         value.carbsPortion,
                         value.fatsPortion
                       )}
-                      protein={Number(28.35*value.proteinPortion) || 0}
+                      protein={Number(value.proteinPortion) || 0}
                       macros={{
-                        protein: Number(28.35*value.proteinPortion) || 0,
-                        carbs: Number(28.35*value.carbsPortion) || 0,
-                        fat: Number(28.35*value.fatsPortion) || 0
+                        protein: Number(value.proteinPortion) || 0,
+                        carbs: Number(value.carbsPortion) || 0,
+                        fat: Number(value.fatsPortion) || 0
                       }}
                       ingredients={value.ingredients || ""}
                     />

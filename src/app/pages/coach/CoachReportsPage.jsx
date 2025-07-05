@@ -200,8 +200,7 @@ console.log("selected", checkInData)
       </div>
 
       {/* Check-ins Chart */}
-      <Card className="mb-6 overflow-x-auto">
-        <CardHeader className="space-y-4">
+
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl">Client Progress</CardTitle>
             <div className="flex items-center gap-4">
@@ -220,8 +219,8 @@ console.log("selected", checkInData)
 
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+
+
           {selectedClient ? (
             checkInLoading ? (
               <div className="text-center py-12">
@@ -279,7 +278,7 @@ console.log("selected", checkInData)
                     </ul>
                   </div>
                   
-                  <div className="mt-6">
+                  {/* <div className="mt-6">
                     <button 
                       onClick={() => {
                         // You can add navigation to client management or messaging here
@@ -292,7 +291,7 @@ console.log("selected", checkInData)
                       </svg>
                       Send Reminder
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )
@@ -309,8 +308,8 @@ console.log("selected", checkInData)
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+
+
     </div>
   );
 };

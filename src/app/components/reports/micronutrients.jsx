@@ -11,6 +11,16 @@ const getNutrientIcon = (nutrientName) => {
   if (name.includes('vitamin c') || name.includes('folate')) return <Apple className="w-4 h-4" />;
   if (name.includes('iron') || name.includes('protein')) return <Beef className="w-4 h-4" />;
   if (name.includes('vitamin a') || name.includes('beta')) return <Carrot className="w-4 h-4" />;
+  if (name.includes('vitamin e')) return <Lightbulb className="w-4 h-4" />;
+  if (name.includes('vitamin k')) return <Heart className="w-4 h-4" />;
+  if (name.includes('vitamin b1') || name.includes('thiamin')) return <Zap className="w-4 h-4" />;
+  if (name.includes('vitamin b2') || name.includes('riboflavin')) return <Lightbulb className="w-4 h-4" />;
+  if (name.includes('vitamin b3') || name.includes('niacin')) return <Brain className="w-4 h-4" />;
+  if (name.includes('vitamin b6')) return <Brain className="w-4 h-4" />;
+  if (name.includes('vitamin b12')) return <Brain className="w-4 h-4" />;
+  if (name.includes('phosphorus')) return <Heart className="w-4 h-4" />;
+  if (name.includes('selenium')) return <Target className="w-4 h-4" />;
+  if (name.includes('sodium')) return <AlertTriangle className="w-4 h-4" />;
   return <CheckCircle className="w-4 h-4" />;
 };
 
@@ -120,6 +130,116 @@ const getDetailedRecommendations = (nutrientName, percentOfTarget) => {
     recommendations.riskFactors = ['Vegetarian diet', 'Digestive disorders', 'Chronic kidney disease', 'Alcohol abuse'];
     recommendations.icon = <CheckCircle className="w-4 h-4 text-teal-500" />;
     recommendations.systemsAffected = ['Immune system', 'Sensory function', 'Cellular repair'];
+  } else if (name.includes('vitamin e')) {
+    recommendations.foods = ['Nuts and seeds (almonds, sunflower seeds)', 'Vegetable oils (olive, sunflower)', 'Avocados', 'Spinach', 'Sweet potatoes'];
+    recommendations.tips = ['Vitamin E is fat-soluble - take with meals containing healthy fats', 'Store nuts in the refrigerator to preserve vitamin E'];
+    recommendations.timing = 'Take with meals containing healthy fats for optimal absorption';
+    recommendations.combinations = ['Pair with vitamin C for enhanced antioxidant protection', 'Take with healthy fats like avocado or olive oil'];
+    recommendations.bodyFunction = 'Powerful antioxidant that protects cell membranes from oxidative damage. Essential for immune function and skin health.';
+    recommendations.healthBenefits = ['Protects against oxidative stress', 'Supports immune function', 'Promotes healthy skin', 'May reduce risk of heart disease'];
+    recommendations.deficiencySymptoms = ['Muscle weakness and coordination problems', 'Vision problems', 'Immune system dysfunction', 'Nerve damage', 'Dry, rough skin'];
+    recommendations.riskFactors = ['Low fat diet', 'Digestive disorders', 'Premature infants', 'Genetic disorders affecting fat absorption'];
+    recommendations.icon = <Lightbulb className="w-4 h-4 text-yellow-500" />;
+    recommendations.systemsAffected = ['Nervous system', 'Immune system', 'Cardiovascular system'];
+  } else if (name.includes('vitamin k')) {
+    recommendations.foods = ['Dark leafy greens (kale, spinach, collards)', 'Broccoli', 'Brussels sprouts', 'Cabbage', 'Liver'];
+    recommendations.tips = ['Vitamin K is fat-soluble - cook with healthy fats', 'Fermented foods like natto are excellent sources'];
+    recommendations.timing = 'Take with meals containing healthy fats';
+    recommendations.combinations = ['Pair with vitamin D and calcium for bone health', 'Take with healthy fats for absorption'];
+    recommendations.bodyFunction = 'Essential for blood clotting and bone health. Activates proteins that help blood clot and build strong bones.';
+    recommendations.healthBenefits = ['Supports blood clotting', 'Strengthens bones', 'May reduce risk of osteoporosis', 'Supports heart health'];
+    recommendations.deficiencySymptoms = ['Easy bruising and bleeding', 'Slow wound healing', 'Heavy menstrual periods', 'Bone weakness', 'Blood in urine or stool'];
+    recommendations.riskFactors = ['Antibiotic use', 'Liver disease', 'Fat malabsorption disorders', 'Newborns (vitamin K deficiency bleeding)'];
+    recommendations.icon = <Heart className="w-4 h-4 text-green-500" />;
+    recommendations.systemsAffected = ['Circulatory system', 'Skeletal system', 'Hepatic system'];
+  } else if (name.includes('vitamin b1') || name.includes('thiamin')) {
+    recommendations.foods = ['Whole grains', 'Pork', 'Legumes', 'Nuts and seeds', 'Fortified cereals'];
+    recommendations.tips = ['Thiamin is water-soluble and easily lost during cooking', 'Alcohol can interfere with thiamin absorption'];
+    recommendations.timing = 'Take with meals throughout the day';
+    recommendations.combinations = ['Works with other B vitamins for energy metabolism', 'Take with magnesium for optimal function'];
+    recommendations.bodyFunction = 'Essential for converting carbohydrates into energy. Critical for nerve function and muscle contraction.';
+    recommendations.healthBenefits = ['Supports energy production', 'Maintains nerve function', 'Supports heart health', 'Aids in muscle contraction'];
+    recommendations.deficiencySymptoms = ['Fatigue and weakness', 'Irritability and confusion', 'Muscle weakness', 'Loss of appetite', 'Tingling in extremities', 'Heart problems'];
+    recommendations.riskFactors = ['Alcohol abuse', 'Refined grain diet', 'Digestive disorders', 'Pregnancy and breastfeeding'];
+    recommendations.icon = <Zap className="w-4 h-4 text-yellow-500" />;
+    recommendations.systemsAffected = ['Nervous system', 'Muscular system', 'Energy metabolism'];
+  } else if (name.includes('vitamin b2') || name.includes('riboflavin')) {
+    recommendations.foods = ['Dairy products', 'Eggs', 'Lean meats', 'Green leafy vegetables', 'Fortified cereals'];
+    recommendations.tips = ['Riboflavin is sensitive to light - store foods properly', 'Needed for energy production and antioxidant function'];
+    recommendations.timing = 'Take with meals throughout the day';
+    recommendations.combinations = ['Works with other B vitamins for energy metabolism', 'Take with iron for enhanced absorption'];
+    recommendations.bodyFunction = 'Essential for energy production and metabolism. Acts as a coenzyme in many cellular processes and antioxidant protection.';
+    recommendations.healthBenefits = ['Supports energy production', 'Maintains healthy skin and eyes', 'Supports growth and development', 'Acts as antioxidant'];
+    recommendations.deficiencySymptoms = ['Cracked lips and corners of mouth', 'Sore throat', 'Swollen tongue', 'Skin rashes', 'Eye sensitivity to light', 'Fatigue'];
+    recommendations.riskFactors = ['Lactose intolerance', 'Vegan diet', 'Alcohol abuse', 'Certain medications'];
+    recommendations.icon = <Lightbulb className="w-4 h-4 text-blue-500" />;
+    recommendations.systemsAffected = ['Energy metabolism', 'Integumentary system', 'Visual system'];
+  } else if (name.includes('vitamin b3') || name.includes('niacin')) {
+    recommendations.foods = ['Poultry', 'Fish', 'Lean meats', 'Whole grains', 'Legumes'];
+    recommendations.tips = ['Niacin can cause flushing at high doses', 'Important for cholesterol management and energy production'];
+    recommendations.timing = 'Take with meals to reduce flushing';
+    recommendations.combinations = ['Works with other B vitamins for energy metabolism', 'Take with tryptophan-rich foods'];
+    recommendations.bodyFunction = 'Essential for energy metabolism and DNA repair. Helps convert food into energy and maintains healthy skin and nerves.';
+    recommendations.healthBenefits = ['Supports energy production', 'Maintains healthy skin', 'Supports nervous system', 'May help manage cholesterol'];
+    recommendations.deficiencySymptoms = ['Dermatitis and skin rashes', 'Diarrhea', 'Dementia', 'Fatigue', 'Loss of appetite', 'Digestive problems'];
+    recommendations.riskFactors = ['Alcohol abuse', 'Poor diet', 'Certain medications', 'Digestive disorders'];
+    recommendations.icon = <Brain className="w-4 h-4 text-purple-500" />;
+    recommendations.systemsAffected = ['Nervous system', 'Integumentary system', 'Digestive system'];
+  } else if (name.includes('vitamin b6')) {
+    recommendations.foods = ['Poultry', 'Fish', 'Potatoes', 'Bananas', 'Chickpeas'];
+    recommendations.tips = ['Vitamin B6 is involved in over 100 enzyme reactions', 'Important for brain development and immune function'];
+    recommendations.timing = 'Take with meals throughout the day';
+    recommendations.combinations = ['Works with other B vitamins for energy metabolism', 'Take with magnesium for optimal function'];
+    recommendations.bodyFunction = 'Essential for protein metabolism, brain development, and immune function. Critical for neurotransmitter synthesis.';
+    recommendations.healthBenefits = ['Supports brain function', 'Boosts immune system', 'Aids protein metabolism', 'Supports mood regulation'];
+    recommendations.deficiencySymptoms = ['Anemia', 'Skin rashes', 'Depression and confusion', 'Weakened immune system', 'Tingling in extremities', 'Seizures'];
+    recommendations.riskFactors = ['Alcohol abuse', 'Certain medications', 'Kidney disease', 'Autoimmune disorders'];
+    recommendations.icon = <Brain className="w-4 h-4 text-indigo-500" />;
+    recommendations.systemsAffected = ['Nervous system', 'Immune system', 'Hematological system'];
+  } else if (name.includes('vitamin b12')) {
+    recommendations.foods = ['Animal products (meat, fish, eggs, dairy)', 'Fortified cereals', 'Nutritional yeast', 'Fortified plant milks'];
+    recommendations.tips = ['Vitamin B12 is only found naturally in animal products', 'Important for nerve function and red blood cell formation'];
+    recommendations.timing = 'Take with meals for better absorption';
+    recommendations.combinations = ['Take with folate for optimal red blood cell formation', 'Avoid taking with vitamin C'];
+    recommendations.bodyFunction = 'Essential for nerve function, DNA synthesis, and red blood cell formation. Critical for brain health and energy production.';
+    recommendations.healthBenefits = ['Supports nerve function', 'Prevents anemia', 'Supports brain health', 'Boosts energy levels'];
+    recommendations.deficiencySymptoms = ['Fatigue and weakness', 'Numbness and tingling in extremities', 'Memory problems', 'Mood changes', 'Pale skin', 'Shortness of breath'];
+    recommendations.riskFactors = ['Vegan or vegetarian diet', 'Older adults', 'Digestive disorders', 'Certain medications'];
+    recommendations.icon = <Brain className="w-4 h-4 text-cyan-500" />;
+    recommendations.systemsAffected = ['Nervous system', 'Hematological system', 'Cognitive function'];
+  } else if (name.includes('phosphorus')) {
+    recommendations.foods = ['Dairy products', 'Meat and poultry', 'Fish', 'Nuts and seeds', 'Whole grains'];
+    recommendations.tips = ['Phosphorus works closely with calcium for bone health', 'Most people get adequate phosphorus from diet'];
+    recommendations.timing = 'Take with meals throughout the day';
+    recommendations.combinations = ['Works with calcium and vitamin D for bone health', 'Balance with calcium intake'];
+    recommendations.bodyFunction = 'Essential for bone and teeth formation, energy production, and cell membrane structure. Critical for DNA and RNA synthesis.';
+    recommendations.healthBenefits = ['Builds strong bones and teeth', 'Supports energy production', 'Maintains cell membranes', 'Supports kidney function'];
+    recommendations.deficiencySymptoms = ['Bone pain and weakness', 'Loss of appetite', 'Fatigue', 'Irregular breathing', 'Anxiety', 'Numbness and tingling'];
+    recommendations.riskFactors = ['Kidney disease', 'Certain medications', 'Malnutrition', 'Alcohol abuse'];
+    recommendations.icon = <Heart className="w-4 h-4 text-gray-500" />;
+    recommendations.systemsAffected = ['Skeletal system', 'Energy metabolism', 'Renal system'];
+  } else if (name.includes('selenium')) {
+    recommendations.foods = ['Brazil nuts', 'Seafood', 'Meat and poultry', 'Eggs', 'Whole grains'];
+    recommendations.tips = ['Brazil nuts are the richest source of selenium', 'Important for thyroid function and antioxidant protection'];
+    recommendations.timing = 'Take with meals throughout the day';
+    recommendations.combinations = ['Works with vitamin E for antioxidant protection', 'Take with iodine for thyroid health'];
+    recommendations.bodyFunction = 'Essential for thyroid hormone metabolism and antioxidant protection. Critical for immune function and DNA synthesis.';
+    recommendations.healthBenefits = ['Supports thyroid function', 'Boosts immune system', 'Acts as antioxidant', 'Supports reproductive health'];
+    recommendations.deficiencySymptoms = ['Muscle weakness and pain', 'Fatigue', 'Hair loss', 'Weakened immune system', 'Thyroid problems', 'Infertility'];
+    recommendations.riskFactors = ['Low soil selenium areas', 'Digestive disorders', 'HIV/AIDS', 'Kidney dialysis'];
+    recommendations.icon = <Target className="w-4 h-4 text-orange-500" />;
+    recommendations.systemsAffected = ['Endocrine system', 'Immune system', 'Reproductive system'];
+  } else if (name.includes('sodium')) {
+    recommendations.foods = ['Natural sources: celery, beets, spinach', 'Sea salt (use sparingly)', 'Fermented foods (in moderation)', 'Bone broth', 'Natural mineral water'];
+    recommendations.tips = ['Most people consume too much sodium - aim for less than 2,300mg daily', 'Read food labels and choose low-sodium options', 'Cook at home to control sodium intake', 'Use herbs and spices instead of salt'];
+    recommendations.timing = 'Limit throughout the day - avoid high sodium meals';
+    recommendations.combinations = ['Balance with potassium-rich foods', 'Pair with magnesium for heart health', 'Avoid with high blood pressure'];
+    recommendations.bodyFunction = 'Essential electrolyte for fluid balance and nerve function, but excessive intake can cause high blood pressure, heart disease, and kidney problems.';
+    recommendations.healthBenefits = ['Maintains fluid balance', 'Supports nerve function', 'Aids muscle contraction', 'Prevents hyponatremia (low sodium)'];
+    recommendations.deficiencySymptoms = ['Muscle cramps and weakness', 'Nausea and vomiting', 'Headaches and confusion', 'Fatigue and lethargy', 'Seizures in severe cases'];
+    recommendations.riskFactors = ['High processed food intake', 'Fast food consumption', 'Canned and packaged foods', 'Eating out frequently', 'High blood pressure', 'Heart disease', 'Kidney problems'];
+    recommendations.icon = <AlertTriangle className="w-4 h-4 text-red-500" />;
+    recommendations.systemsAffected = ['Cardiovascular system', 'Nervous system', 'Renal system', 'Fluid balance'];
   } else if (name.includes('fiber')) {
     recommendations.foods = ['Whole grains', 'Beans and legumes', 'Fruits with skin', 'Vegetables', 'Chia seeds'];
     recommendations.tips = ['Increase gradually to avoid digestive discomfort', 'Drink plenty of water with fiber'];
@@ -147,7 +267,39 @@ const getDetailedRecommendations = (nutrientName, percentOfTarget) => {
   return recommendations;
 };
 
-const getStatusInfo = (percentOfTarget) => {
+const getStatusInfo = (percentOfTarget, nutrientName = '') => {
+  const name = nutrientName.toLowerCase();
+  
+  // Special handling for sodium - high levels are bad
+  if (name.includes('sodium')) {
+    if (percentOfTarget <= 100) {
+      return {
+        status: 'excellent',
+        icon: <CheckCircle className="w-4 h-4 text-green-600" />,
+        bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
+        textColor: 'text-green-800',
+        borderColor: 'border-green-200'
+      };
+    }
+    if (percentOfTarget <= 150) {
+      return {
+        status: 'moderate',
+        icon: <TrendingDown className="w-4 h-4 text-yellow-600" />,
+        bgColor: 'bg-gradient-to-br from-yellow-50 to-amber-50',
+        textColor: 'text-yellow-800',
+        borderColor: 'border-yellow-200'
+      };
+    }
+    return {
+      status: 'high',
+      icon: <AlertTriangle className="w-4 h-4 text-red-600" />,
+      bgColor: 'bg-gradient-to-br from-red-50 to-rose-50',
+      textColor: 'text-red-800',
+      borderColor: 'border-red-200'
+    };
+  }
+  
+  // Standard logic for other nutrients
   if (percentOfTarget >= 100) {
     return {
       status: 'excellent',
@@ -185,7 +337,31 @@ const getStatusInfo = (percentOfTarget) => {
 };
 
 const getPriorityRecommendations = (data) => {
-  const deficient = data.filter(n => n.percentOfTarget < 70).sort((a, b) => a.percentOfTarget - b.percentOfTarget);
+  // For sodium, high levels are concerning; for others, low levels are concerning
+  const deficient = data.filter(n => {
+    const name = n.name.toLowerCase();
+    if (name.includes('sodium')) {
+      return n.percentOfTarget > 150; // High sodium is concerning
+    }
+    return n.percentOfTarget < 70; // Low levels are concerning for other nutrients
+  }).sort((a, b) => {
+    const nameA = a.name.toLowerCase();
+    const nameB = b.name.toLowerCase();
+    
+    // For sodium, higher percentages are more concerning
+    if (nameA.includes('sodium') && nameB.includes('sodium')) {
+      return b.percentOfTarget - a.percentOfTarget;
+    }
+    if (nameA.includes('sodium')) {
+      return -1; // Sodium issues come first
+    }
+    if (nameB.includes('sodium')) {
+      return 1;
+    }
+    
+    // For other nutrients, lower percentages are more concerning
+    return a.percentOfTarget - b.percentOfTarget;
+  });
   
   if (deficient.length === 0) return null;
   
@@ -235,7 +411,9 @@ const getPriorityRecommendations = (data) => {
                 <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
-                    <span className="font-medium text-red-800">Signs you may be deficient:</span>
+                    <span className="font-medium text-red-800">
+                      {nutrient.name.toLowerCase().includes('sodium') ? 'Signs of excessive intake:' : 'Signs you may be deficient:'}
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-sm text-red-700">
                     {recommendations.deficiencySymptoms.map((symptom, idx) => (
@@ -275,7 +453,9 @@ const getPriorityRecommendations = (data) => {
 
                   {recommendations.riskFactors.length > 0 && (
                     <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                      <strong>Risk factors for deficiency:</strong> {recommendations.riskFactors.join(', ')}
+                      <strong>
+                        {nutrient.name.toLowerCase().includes('sodium') ? 'Risk factors for excessive intake:' : 'Risk factors for deficiency:'}
+                      </strong> {recommendations.riskFactors.join(', ')}
                     </div>
                   )}
                 </div>
@@ -327,8 +507,20 @@ export const EnhancedMicronutrientReport = ({ data, loading }) => {
   console.log('🧪 ENHANCED MICRONUTRIENT REPORT: Rendering with data count:', data.length);
 
   // Categorize nutrients by status
-  const deficientNutrients = data.filter(n => n.percentOfTarget < 70);
-  const excellentNutrients = data.filter(n => n.percentOfTarget >= 100);
+  const deficientNutrients = data.filter(n => {
+    const name = n.name.toLowerCase();
+    if (name.includes('sodium')) {
+      return n.percentOfTarget > 150; // High sodium is concerning
+    }
+    return n.percentOfTarget < 70; // Low levels are concerning for other nutrients
+  });
+  const excellentNutrients = data.filter(n => {
+    const name = n.name.toLowerCase();
+    if (name.includes('sodium')) {
+      return n.percentOfTarget <= 100; // Low sodium is excellent
+    }
+    return n.percentOfTarget >= 100; // High levels are excellent for other nutrients
+  });
 
   return (
     <div className="space-y-6">
@@ -388,7 +580,7 @@ export const EnhancedMicronutrientReport = ({ data, loading }) => {
       {/* Enhanced Nutrient Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {data.map((nutrient) => {
-          const statusInfo = getStatusInfo(nutrient.percentOfTarget);
+          const statusInfo = getStatusInfo(nutrient.percentOfTarget, nutrient.name);
           const recommendations = getDetailedRecommendations(nutrient.name, nutrient.percentOfTarget);
           
           return (
