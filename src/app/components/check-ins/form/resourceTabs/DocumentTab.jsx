@@ -90,7 +90,7 @@ const DocumentTab = () => {
     getAllTexts();
   }, []);
   return (
-    <div className="w-full max-w-3xl mx-auto px-2 py-4">
+    <div className="w-full max-w-3xl px-2 py-4">
       {isLoading ? (
         <div className="flex justify-center items-center h-[400px]">
           <Loader2 className="h-4 w-4 animate-spin" />

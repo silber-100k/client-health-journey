@@ -11,6 +11,7 @@ import { useState } from "react";
 import VideoTab from "@/app/components/check-ins/form/resourceTabs/VideoTab"
 import TutorialTab from "@/app/components/check-ins/form/resourceTabs/TutorialTab"
 import DocumentTab from "@/app/components/check-ins/form/resourceTabs/DocumentTab"
+import PDFTab from "@/app/components/check-ins/form/resourceTabs/PDFTab"
 import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/app/components/ui/tabs";
 
 const ResourcesPage = () => {
@@ -25,12 +26,15 @@ const ResourcesPage = () => {
       </div>
 
  <Tabs defaultValue="video">
-          <TabsList className="mt-6 mb-6 grid grid-cols-1 sm:grid-cols-3 w-full">
+          <TabsList className="mt-6 mb-6 grid grid-cols-1 sm:grid-cols-4 w-full">
             <TabsTrigger value="video">
               Training Videos &nbsp; <Video size={20} className="text-blue-500" />
             </TabsTrigger>
             <TabsTrigger value="document">
               Documents & Forms &nbsp; <FileText size={20} className="text-green-500" />
+            </TabsTrigger>
+            <TabsTrigger value="pdf">
+              PDF Resources &nbsp; <FileText size={20} className="text-red-500" />
             </TabsTrigger>
             <TabsTrigger value="tutorial">
               Tutorials & Guides &nbsp; <BookOpen size={20} className="text-amber-500" />
@@ -41,6 +45,9 @@ const ResourcesPage = () => {
               </TabsContent>
               <TabsContent value="document">
                 <DocumentTab/>
+              </TabsContent>
+              <TabsContent value="pdf">
+                <PDFTab/>
               </TabsContent>
               <TabsContent value="tutorial">
                 <TutorialTab/>

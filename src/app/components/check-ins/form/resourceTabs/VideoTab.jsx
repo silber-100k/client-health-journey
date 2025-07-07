@@ -10,7 +10,7 @@ export default function VideoTab() {
   const isAdmin = user?.role === "admin";
   console.log(trigger);
   return (
-    <div className="w-full max-w-3xl mx-auto px-2 py-4">
+    <div className="w-full max-w-3xl px-2 py-4">
       {isAdmin ? (
         <>
           <h1 className="text-2xl font-bold mb-4">Video Management</h1>

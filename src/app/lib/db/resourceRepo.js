@@ -126,6 +126,47 @@ async function getResourceById(id) {
   return resource;
 }
 
+async function savePDF(title, role, type, content) {
+  const [pdf] = await sql`
+    INSERT INTO "Resource" ("title", "role", "type", "content")
+    VALUES (${title}, ${role}, ${type}, ${content})
+    RETURNING *
+  `;
+  return pdf;
+}
+
+async function getAllPDFs() {
+  const pdfs = await sql`
+    SELECT * FROM "Resource"
+    WHERE "type" = 'PDF';
+  `;
+  return pdfs;
+}
+
+async function getAllPDFsForClinic() {
+  const pdfs = await sql`
+    SELECT * FROM "Resource"
+    WHERE "role" IN ('clinic', 'all') AND "type" = 'PDF';
+  `;
+  return pdfs;
+}
+
+async function getAllPDFsForCoach() {
+  const pdfs = await sql`
+    SELECT * FROM "Resource"
+    WHERE "role" IN ('coach', 'all') AND "type" = 'PDF';
+  `;
+  return pdfs;
+}
+
+async function getAllPDFsForClient() {
+  const pdfs = await sql`
+    SELECT * FROM "Resource"
+    WHERE "role" IN ('client', 'all') AND "type" = 'PDF';
+  `;
+  return pdfs;
+}
+
 export const resourceRepo = {
   createformattedtext,
   getAllTexts,
@@ -143,4 +184,9 @@ export const resourceRepo = {
   getAllVideosForCoach,
   saveVideo,
   getResourceById,
+  savePDF,
+  getAllPDFs,
+  getAllPDFsForClinic,
+  getAllPDFsForCoach,
+  getAllPDFsForClient,
 }
