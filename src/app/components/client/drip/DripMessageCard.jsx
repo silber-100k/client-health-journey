@@ -58,7 +58,7 @@ const DripMessageCard = () => {
               onChange={handleCheckbox}
               className="accent-primary"
             />
-            Don't show this message again
+            If you want to see new daily messages from the next day, check this box
           </label>
         </CardContent>
       </Card>
