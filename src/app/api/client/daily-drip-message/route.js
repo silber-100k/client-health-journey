@@ -8,17 +8,6 @@ import { userRepo } from "@/app/lib/db/userRepo";
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-const WELCOME_MESSAGE = `
-👋 Welcome to Client Health Tracker!
-
-Start strong:
- 1. Tap Profile to update your password
- 2. Track meals, weight & more daily
- 3. Message your coach anytime
- 4. The more you log, the better your results
-
-You've got this — let's make today count!
-`;
 
 export async function GET(req) {
     // Auth: get user session
@@ -32,12 +21,6 @@ export async function GET(req) {
     }
     const userId = user.id;
     const today = new Date().toISOString().slice(0, 10);
-
-    // Check if it's the user's first day
-    const isFirstDay = user.createdat && (new Date(user.createdat).toISOString().slice(0, 10) === today);
-    if (isFirstDay) {
-        return NextResponse.json({ message: WELCOME_MESSAGE });
-    }
 
     // Check cache
     const cached = await sql`
