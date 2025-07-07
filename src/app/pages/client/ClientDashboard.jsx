@@ -11,6 +11,63 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 const TUTORIAL_LINK = "https://wellness-journey-guide-w2hnbup.gamma.site/";
 
+function WelcomeModal({ open, onClose, onDontShowAgain }) {
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  const handleCheckbox = (e) => {
+    setDontShowAgain(e.target.checked);
+    if (e.target.checked) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("client_welcome_seen", "1");
+      }
+      onDontShowAgain();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader className="flex flex-row items-center gap-2">
+          <Info className="text-blue-500 w-6 h-6" />
+          <DialogTitle>Welcome to your Dashboard!</DialogTitle>
+        </DialogHeader>
+        <DialogDescription className="mb-2">
+          To help you get started, check out our <b>Quick Start Tutorial</b>.<br />
+          <a
+            href={TUTORIAL_LINK}
+            className="text-blue-600 underline hover:text-blue-800"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Go to Tutorial
+          </a>
+        </DialogDescription>
+        <div className="text-sm text-gray-700 mb-2">
+          You can always find the tutorial and more helpful resources under the <b>Resources</b> tab.
+        </div>
+        <div className="flex gap-2 mt-2">
+          <Button onClick={onClose} variant="secondary">Skip</Button>
+          <Button asChild variant="default" onClick={onClose}>
+            <a href={TUTORIAL_LINK} target="_blank" rel="noopener noreferrer">Start Tutorial</a>
+          </Button>
+        </div>
+        <div className="flex flex-row items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            checked={dontShowAgain}
+            onChange={handleCheckbox}
+            className="accent-primary"
+            id="dontShowAgainWelcome"
+          />
+          <label htmlFor="dontShowAgainWelcome" className="text-xs cursor-pointer select-none">
+            Don't show again
+          </label>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 const ClientDashboard = () => {
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -23,41 +80,15 @@ const ClientDashboard = () => {
 
   const handleDismiss = () => {
     setShowWelcome(false);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("client_welcome_seen", "1");
-    }
+  };
+
+  const handleDontShowAgain = () => {
+    setShowWelcome(false);
   };
 
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-4 w-full max-w-5xl mx-auto">
-      <Dialog open={showWelcome} onOpenChange={handleDismiss}>
-        <DialogContent className="max-w-md">
-          <DialogHeader className="flex flex-row items-center gap-2">
-            <Info className="text-blue-500 w-6 h-6" />
-            <DialogTitle>Welcome to your Dashboard!</DialogTitle>
-          </DialogHeader>
-          <DialogDescription className="mb-2">
-            To help you get started, check out our <b>Quick Start Tutorial</b>.<br />
-            <a
-              href={TUTORIAL_LINK}
-              className="text-blue-600 underline hover:text-blue-800"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Go to Tutorial
-            </a>
-          </DialogDescription>
-          <div className="text-sm text-gray-700 mb-2">
-            You can always find the tutorial and more helpful resources under the <b>Resources</b> tab.
-          </div>
-          <div className="flex gap-2 mt-2">
-            <Button onClick={handleDismiss} variant="secondary">Skip</Button>
-            <Button asChild variant="default" onClick={handleDismiss}>
-              <a href={TUTORIAL_LINK} target="_blank" rel="noopener noreferrer">Start Tutorial</a>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <WelcomeModal open={showWelcome} onClose={handleDismiss} onDontShowAgain={handleDontShowAgain} />
       {/* Daily motivation message */}
       <ClientDailyDrip />
       {/* Program progress */}
