@@ -1,13 +1,15 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ClientListItem = ({ client, handleViewProgram, hasActions, handleDeleteClient, handleResetClientPassword }) => {
+  const router = useRouter();
   return (
     <div
       key={client.id}
       className="flex sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border rounded-md hover:bg-gray-50 cursor-pointer gap-2 sm:gap-0"
-      onClick={()=>(handleViewProgram(client))}
+      onClick={() => router.push(`/coach/clients/${client.id}`)}
     >
       <div>
       <div>

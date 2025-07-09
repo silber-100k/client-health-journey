@@ -120,6 +120,7 @@ export async function POST(request) {
         console.log("formData", formData)
         const images = formData.getAll('images');
         const current = formData.get('current');
+        const index = formData.get('index');
         if (!images || images.length === 0) {
             return NextResponse.json(
                 { error: 'No images provided' },
@@ -214,8 +215,11 @@ export async function POST(request) {
         const combinedMicroNutritionData = combineMicroNutritionData(analysisResults);
         await sql.begin(async (sql) => {
             await sql`
-                INSERT INTO "MicroNutrients" ("email", "content", "createdAt")
-                VALUES (${email}, ${JSON.stringify(combinedMicroNutritionData)}, ${current});
+                INSERT INTO "MicroNutrients" ("email", "content", "createdAt", "index")
+                VALUES (${email}, ${JSON.stringify(combinedMicroNutritionData)}, ${current}, ${index})
+                ON CONFLICT ("email", "index") DO UPDATE SET
+                  "content" = EXCLUDED."content",
+                  "createdAt" = EXCLUDED."createdAt";
             `;
         });
         console.log("combinedMicroNutritionData", combinedMicroNutritionData)

@@ -1,23 +1,22 @@
 import { sql } from '../lib/db/postgresql';
 
-async function seedMicroNutrients() {
+async function seedClientProfile() {
   await sql`
-    CREATE TABLE "MicroNutrients" (
+    CREATE TABLE "ClientProfile" (
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "email" VARCHAR(255) NOT NULL,
-        "content" JSONB,
-        "createdAt" DATE
+        "clientId" UUID REFERENCES "Client"("id"),
+        "profileData" JSONB,
+        "healthConditions" JSONB,
+        "customRequests" JSONB,
+        "coachingPrefs" JSONB
     );
   `;
 }
 
-
-
-
 export async function GET() {
   try {
     await sql.begin(async (sql) => {
-      await seedMicroNutrients();
+      await seedClientProfile();
     });
 
     return new Response(JSON.stringify({ message: 'Database seeded successfully' }), {

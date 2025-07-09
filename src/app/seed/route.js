@@ -153,7 +153,6 @@ async function seedResource() {
   `;
 }
 
-
 async function seedClient() {
   await sql`
     CREATE TABLE "Client" (
@@ -175,6 +174,21 @@ async function seedClient() {
     );
   `;
 }
+
+
+async function seedClientProfile() {
+  await sql`
+    CREATE TABLE "ClientProfile" (
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "clientId" UUID REFERENCES "Client"("id"),
+        "profileData" JSONB,
+        "healthConditions" JSONB,
+        "customRequests" JSONB,
+        "coachingPrefs" JSONB
+    );
+  `;
+}
+
 
 async function seedCheckIn() {
   await sql`
@@ -283,7 +297,8 @@ async function seedMicroNutrients() {
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "email" VARCHAR(255) NOT NULL,
         "content" JSONB,
-        "createdAt" DATE
+        "createdAt" DATE,
+        "index" VARCHAR(255)
     );
   `;
 }
@@ -321,6 +336,7 @@ export async function GET() {
       await seedUser();
       await seedProgram();
       await seedClient();
+      await seedClientProfile();
       await seedCheckIn();
       await seedMessage();
       await seedNotification();

@@ -204,6 +204,7 @@ console.log("planId",planId)
         formData.append('images', file);
       });
       formData.append('current', current);
+      formData.append('index',index);
 
       const response = await fetch('/api/client/analyze-food-image', {
         method: 'POST',
