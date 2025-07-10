@@ -19,6 +19,7 @@ export async function GET(req, { params }) {
 }
 
 export async function POST(req, { params }) {
+    try{
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     const user = session.user;
@@ -28,7 +29,11 @@ export async function POST(req, { params }) {
     const { id } = params;
     const { profileData, healthConditions, customRequests, coachingPrefs } = await req.json();
     const created = await clientProfileRepo.createClientProfile(id, profileData, healthConditions, customRequests, coachingPrefs);
-    return NextResponse.json({ profile: created });
+    return NextResponse.json({ status:true, profile: created });
+}
+catch(error){
+    return NextResponse.json({status:false, message:error.message})
+}
 }
 
 export async function PUT(req, { params }) {

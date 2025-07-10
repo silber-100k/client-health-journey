@@ -209,11 +209,15 @@ console.log("profiledata",profileData)
           coachingPrefs,
         }),
       });
+
       if (!res.ok) throw new Error("Failed to create profile");
+      const data = await res.json();
+      if(data.status) {
       // After creation, fetch and show the latest data
-      await fetchAndSetProfile();
+      await fetchAndSetProfile();}
     } catch (e) {
       setError(e.message);
+      throw new Error("error",e);
     } finally {
       setLoading(false);
     }
