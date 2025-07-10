@@ -847,12 +847,15 @@ export default function HealthTracker() {
                       checkIns?.start?.[0]?.initialWeight >
                     0
                       ? `+${
+                        Number(
                           checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight -
-                          checkIns?.start?.[0]?.initialWeight
+                          checkIns?.start?.[0]?.initialWeight).toFixed(1)
                         }`
                       : `-${
+                        Number(
                           checkIns?.start?.[0]?.initialWeight -
                           checkIns?.progressData?.[checkIns?.progressData?.length - 1]?.weight
+                        ).toFixed(1)
                         }`}
                          &nbsp;lbs
                         </div>
