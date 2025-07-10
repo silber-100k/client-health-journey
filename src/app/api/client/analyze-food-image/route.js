@@ -217,9 +217,8 @@ export async function POST(request) {
             await sql`
                 INSERT INTO "MicroNutrients" ("email", "content", "createdAt", "index")
                 VALUES (${email}, ${JSON.stringify(combinedMicroNutritionData)}, ${current}, ${index})
-                ON CONFLICT ("email", "index") DO UPDATE SET
-                  "content" = EXCLUDED."content",
-                  "createdAt" = EXCLUDED."createdAt";
+                ON CONFLICT ("email", "index", "createdAt") DO UPDATE SET
+                  "content" = EXCLUDED."content"
             `;
         });
         console.log("combinedMicroNutritionData", combinedMicroNutritionData)

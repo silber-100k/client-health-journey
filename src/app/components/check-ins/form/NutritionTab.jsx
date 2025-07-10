@@ -197,7 +197,7 @@ console.log("planId",planId)
     }
 
     setAnalyzingImages(prev => ({ ...prev, [index]: true }));
-    const current = new Date();
+    const current = formData.get("selectedDate");
     try {
       const formData = new FormData();
       filesToAnalyze.forEach(file => {
